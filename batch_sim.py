@@ -93,8 +93,8 @@ for game in schedule:
     con_m_num_possessions = int(round((t1_con_tempo + t2_con_tempo) / 2))
     adj_num_possessions = int(round((t1_live_tempo + t2_live_tempo) / 2))
     con_num_possessions = int(round((t1_con_tempo + t2_con_tempo) / 2))
-    old_num_possessions = int(round((team1_data['team']['Adj. Tempo']+team2_data['team']['Adj. Tempo'])/2))
-    reg_num_possessions = int(round((team1_data['team']['Pace']+team2_data['team']['Pace'])/2))
+    old_num_possessions = int(round((t1_adj_tempo + t2_adj_tempo) / 2))
+    reg_num_possessions = int(round((t1_pace + t2_pace) / 2))
 
     adj_m_away_score = 0
     adj_m_home_score = 0
