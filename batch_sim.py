@@ -68,10 +68,31 @@ for game in schedule:
     adj_team_strengths = [team1_adj_strengths, team2_adj_strengths]
     reg_team_strengths = [team1_reg_strengths, team2_reg_strengths]
 
-    adj_m_num_possessions = int(round((team1_data['team']['Live Tempo']+team2_data['team']['Live Tempo'])/2))
-    con_m_num_possessions = int(round((team1_data['team']['Consensus Tempo']+team2_data['team']['Consensus Tempo'])/2))
-    adj_num_possessions = int(round((team1_data['team']['Live Tempo']+team2_data['team']['Live Tempo'])/2))
-    con_num_possessions = int(round((team1_data['team']['Consensus Tempo']+team2_data['team']['Consensus Tempo'])/2))
+    # Safe tempo extraction with fallbacks to prevent NaN crashes
+    t1_live_tempo = team1_data['team'].get('Live Tempo')
+    t2_live_tempo = team2_data['team'].get('Live Tempo')
+    if pd.isna(t1_live_tempo): t1_live_tempo = 68.0
+    if pd.isna(t2_live_tempo): t2_live_tempo = 68.0
+
+    t1_con_tempo = team1_data['team'].get('Consensus Tempo')
+    t2_con_tempo = team2_data['team'].get('Consensus Tempo')
+    if pd.isna(t1_con_tempo): t1_con_tempo = 68.0
+    if pd.isna(t2_con_tempo): t2_con_tempo = 68.0
+
+    t1_adj_tempo = team1_data['team'].get('Adj. Tempo')
+    t2_adj_tempo = team2_data['team'].get('Adj. Tempo')
+    if pd.isna(t1_adj_tempo): t1_adj_tempo = 68.0
+    if pd.isna(t2_adj_tempo): t2_adj_tempo = 68.0
+
+    t1_pace = team1_data['team'].get('Pace')
+    t2_pace = team2_data['team'].get('Pace')
+    if pd.isna(t1_pace): t1_pace = 68.0
+    if pd.isna(t2_pace): t2_pace = 68.0
+
+    adj_m_num_possessions = int(round((t1_live_tempo + t2_live_tempo) / 2))
+    con_m_num_possessions = int(round((t1_con_tempo + t2_con_tempo) / 2))
+    adj_num_possessions = int(round((t1_live_tempo + t2_live_tempo) / 2))
+    con_num_possessions = int(round((t1_con_tempo + t2_con_tempo) / 2))
     old_num_possessions = int(round((team1_data['team']['Adj. Tempo']+team2_data['team']['Adj. Tempo'])/2))
     reg_num_possessions = int(round((team1_data['team']['Pace']+team2_data['team']['Pace'])/2))
 
