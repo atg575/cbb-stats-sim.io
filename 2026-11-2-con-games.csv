@@ -1,0 +1,358 @@
+School,Win Percentage,Avg. Score
+grambling state,0.7964,80
+northern illinois,0.2034,68
+
+appalachian state,0.7489,65
+merrimack,0.2508,56
+
+winthrop,0.7406,90
+queens,0.2593,80
+
+murray state,0.2616,76
+tennessee state,0.7382,85
+
+utep,0.4464,79
+northern kentucky,0.5533,81
+
+utsa,0.4432,84
+san jose state,0.5565,86
+
+umbc,0.1799,70
+george mason,0.8198,83
+
+uab,0.193,73
+mcneese,0.8067,86
+
+miami (fl),0.0261,74
+florida,0.9738,103
+
+oakland,0.4602,86
+michigan,0.5396,88
+
+pepperdine,0.0762,82
+cornell,0.9237,103
+
+army,0.0017,58
+duke,0.9983,99
+
+monmouth,0.2301,74
+saint john's,0.7698,85
+
+loyola-maryland,0.2848,77
+georgetown,0.715,85
+
+quinnipiac,0.1955,67
+michigan state,0.8043,79
+
+memphis,0.0978,71
+iowa state,0.9021,90
+
+jackson state,0.0262,69
+texas tech,0.9737,99
+
+bellarmine,0.6114,92
+vanderbilt,0.3884,88
+
+charlotte,0.2582,80
+indiana state,0.7416,90
+
+howard,0.1621,84
+yale,0.8379,99
+
+niagara,0.2204,68
+west virginia,0.7794,79
+
+fgcu,0.4364,77
+ucf,0.5634,80
+
+elon,0.3682,83
+columbia,0.6317,88
+
+saint thomas,0.7484,87
+presbyterian college,0.2515,77
+
+northeastern,0.2898,77
+boston university,0.71,85
+
+vermont,0.7588,80
+iona,0.241,70
+
+dartmouth,0.2298,64
+marist,0.77,74
+
+little rock,0.1932,67
+vcu,0.8066,79
+
+long island,0.2956,69
+fau,0.7042,76
+
+south carolina upstate,0.4277,75
+east carolina,0.5722,78
+
+stetson,0.0324,70
+clemson,0.9676,97
+
+bucknell,0.4175,75
+maryland,0.5822,78
+
+eastern illinois,0.1403,64
+indiana,0.8596,79
+
+western carolina,0.2066,72
+north carolina,0.7933,84
+
+american,0.0899,71
+cincinnati,0.91,91
+
+charleston southern,0.3622,74
+south florida,0.6377,79
+
+air force,0.0427,82
+wright state,0.9573,108
+
+new hampshire,0.2219,68
+brown,0.7779,79
+
+youngstown state,0.6598,83
+saint bonaventure,0.3401,76
+
+unc asheville,0.567,77
+richmond,0.4328,74
+
+navy,0.356,74
+george washington,0.6439,79
+
+njit,0.1158,68
+dayton,0.8842,86
+
+ball state,0.5437,80
+georgia southern,0.4561,78
+
+miami (oh),0.6022,82
+james madison,0.3976,78
+
+umass,0.2544,71
+troy,0.7455,80
+
+toledo,0.1744,83
+arkansas state,0.8252,97
+
+eastern michigan,0.2656,66
+coastal carolina,0.7344,75
+
+western michigan,0.3638,74
+old dominion,0.636,79
+
+buffalo,0.1329,75
+marshall,0.867,91
+
+bowling green,0.5547,76
+georgia state,0.4451,74
+
+new haven,0.4129,73
+syracuse,0.5868,76
+
+rider,0.1537,70
+pittsburgh,0.8462,85
+
+mount saint mary's,0.6385,79
+xavier,0.3614,74
+
+maine,0.2361,70
+providence,0.7637,80
+
+lafayette,0.1936,71
+butler,0.8062,83
+
+gonzaga,0.7419,91
+purdue,0.2578,82
+
+morehead state,0.4325,73
+western kentucky,0.5673,75
+
+denver,0.0695,81
+wisconsin,0.9305,103
+
+saint peter's,0.5137,68
+seton hall,0.486,68
+
+southern indiana,0.1484,70
+belmont,0.8515,86
+
+lipscomb,0.552,78
+southeast missouri,0.4477,76
+
+le moyne,0.2956,76
+nebraska,0.7043,84
+
+campbell,0.5375,79
+north carolina state,0.4624,78
+
+canisius,0.2635,77
+penn state,0.7363,86
+
+kent state,0.2528,70
+louisiana tech,0.7472,79
+
+central michigan,0.8207,85
+ulm,0.1791,71
+
+mercyhurst,0.3347,76
+marquette,0.6652,82
+
+tennessee tech,0.4011,77
+mississippi state,0.5987,81
+
+north carolina central,0.3332,75
+georgia,0.6667,81
+
+fairleigh dickinson,0.0216,64
+illinois,0.9783,93
+
+fordham,0.0741,62
+kansas,0.9259,83
+
+western illinois,0.5317,71
+valparaiso,0.468,70
+
+texas a&m-corpus christi,0.6437,73
+texas state,0.3561,68
+
+siena,0.1731,63
+bryant,0.8268,76
+
+furman,0.7651,83
+bethune-cookman,0.2348,72
+
+binghamton,0.4131,73
+northwestern,0.5867,76
+
+lindenwood,0.4802,71
+tcu,0.5196,72
+
+tennessee-martin,0.5804,73
+tulane,0.4193,70
+
+southern,0.1556,69
+smu,0.8443,83
+
+lehigh,0.3684,76
+saint louis,0.6314,81
+
+the citadel,0.07,67
+loyola-chicago,0.9299,88
+
+ohio,0.4143,78
+south alabama,0.5855,81
+
+akron,0.9155,87
+louisiana,0.0844,68
+
+maryland eastern shore,0.1001,64
+wake forest,0.8998,82
+
+west georgia,0.276,79
+depaul,0.7239,88
+
+umkc,0.2578,77
+creighton,0.742,87
+
+east texas a&m,0.0333,70
+oklahoma,0.9666,98
+
+alcorn state,0.0754,74
+ole miss,0.9245,95
+
+oral roberts,0.6511,87
+central arkansas,0.3487,81
+
+florida a&m,0.3586,76
+florida state,0.6413,81
+
+gardner-webb,0.0032,63
+connecticut,0.9967,103
+
+chicago state,0.0071,64
+texas,0.9929,99
+
+la salle,0.0102,59
+houston,0.9897,91
+
+chattanooga,0.9494,99
+louisville,0.0505,75
+
+ohio state,0.473,84
+byu,0.5268,85
+
+davidson,0.4321,80
+washington state,0.5676,82
+
+utah tech,0.1252,71
+new mexico,0.8746,87
+
+long beach state,0.1426,76
+utah,0.8574,92
+
+incarnate word,0.5269,84
+oklahoma state,0.473,83
+
+north dakota,0.1596,75
+minnesota,0.8403,89
+
+texas southern,0.1452,65
+grand canyon,0.8547,80
+
+abilene christian,0.2341,74
+colorado,0.7658,85
+
+weber state,0.3519,80
+oregon state,0.6479,86
+
+idaho state,0.0649,74
+utah state,0.935,95
+
+northwestern state,0.1721,76
+baylor,0.8278,90
+
+arizona,0.9392,89
+ucla,0.0606,66
+
+montana state,0.4739,86
+colorado state,0.5259,87
+
+montana,0.787,87
+oregon,0.2128,75
+
+east tennessee state,0.6404,78
+arizona state,0.3593,72
+
+radford,0.28,76
+san francisco,0.7199,84
+
+colgate,0.4238,84
+washington,0.576,87
+
+eastern washington,0.3618,86
+stanford,0.6381,91
+
+towson,0.2484,68
+santa clara,0.7513,78
+
+illinois state,0.1071,64
+saint mary's college,0.8928,82
+
+north alabama,0.3344,75
+uc davis,0.6652,81
+
+robert morris,0.4964,80
+nevada,0.5034,80
+
+milwaukee,0.3048,79
+usc,0.695,87
+
+seattle university,0.5158,70
+hawaii,0.4839,70
+
+central connecticut,0.7394,77
+temple,0.2606,68
+

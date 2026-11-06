@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+playwright_profile/Default/Cache/
+playwright_profile/Default/Code Cache/
+playwright_profile/GrShaderCache/
+playwright_profile/ShaderCache/
+playwright_profile/component_crx_cache/
