@@ -8,14 +8,16 @@ from game_extractor import extract_games
 import csv
 import os
 import pandas as pd
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import sys
 
-
-file_path = "/Users/alexvazquez/Coding/cbb_stats/2026-27 Men's College Basketball Stats_code.xlsx"
+file_path = "2026-27 Men's College Basketball Stats_code.xlsx"
 dataset, nat_avgs = load_dataset(file_path)
 league_averages = calculate_league_averages(dataset)
 game_num = 0
-url_date = str(input("Enter date (Ex. 2026-01-18): "))
-url = "https://www.warrennolan.com/basketball/2027/scores-live?type=All%20Games&date="+url_date
+url_date = sys.argv[1] if len(sys.argv) > 1 else datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
+url = "https://www.warrennolan.com/basketball/2027/scores-live?type=All%20Games&date=" + url_date
 
 schedule = extract_games(url)
 adj_m_win_pcts = []

@@ -510,7 +510,7 @@ def simulate_game_with_rebounds_and_adjustments(
     }
 
 # Correct file path
-file_path = r"/Users/alexvazquez/Coding/cbb_stats/2026-27 Men's College Basketball Stats_code.xlsx"
+file_path = r"2026-27 Men's College Basketball Stats_code.xlsx"
 
 # Load the dataset
 try:

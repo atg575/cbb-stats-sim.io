@@ -3,6 +3,18 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+import sys
+
+# Inside def grade_games():
+if len(sys.argv) > 1:
+    url_date = sys.argv[1]
+else:
+    # Subtracting 4 hours keeps 12 AM - 2 AM EST anchored to tonight's game date
+    url_date = (datetime.now(ZoneInfo("America/New_York")) - timedelta(hours=4)).strftime("%Y-%m-%d")
+
+    
 # Your exact Excel logic translated into Python
 def get_accuracy(pred_away, pred_home, act_away, act_home):
     pred_margin = pred_away - pred_home
