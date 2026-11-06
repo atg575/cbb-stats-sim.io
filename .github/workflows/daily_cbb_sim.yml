@@ -44,7 +44,13 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y libreoffice-calc
           python batch_pull.py
-          libreoffice --headless --convert-to xlsx --outdir . "2026-27 Men's College Basketball Stats_code.xlsx"
+          
+          # Safely recalculate Excel formulas without file-locking errors
+          mkdir -p temp_calc
+          libreoffice --headless --convert-to xlsx --outdir temp_calc "2026-27 Men's College Basketball Stats_code.xlsx"
+          mv temp_calc/*.xlsx "2026-27 Men's College Basketball Stats_code.xlsx"
+          rm -rf temp_calc
+          
           python batch_sim.py
 
       # 7:00 PM - 2:00 AM EST JOB: Pull finished scores from Warren Nolan & grade models
