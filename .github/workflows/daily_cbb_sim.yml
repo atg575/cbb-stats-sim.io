@@ -45,7 +45,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y libreoffice-calc
           python batch_pull.py
           libreoffice --headless --convert-to xlsx --outdir . "2026-27 Men's College Basketball Stats_code.xlsx"
-          python batch_sim_4.py
+          python batch_sim.py
 
       # 7:00 PM - 2:00 AM EST JOB: Pull finished scores from Warren Nolan & grade models
       - name: Hourly Actual Score & Accuracy Grader
