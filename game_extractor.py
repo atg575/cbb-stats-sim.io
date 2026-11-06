@@ -1,6 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
-url_date = str(input("Enter date (Ex. 2026-01-18): "))
+# CORRECT (safely allows automated arguments or defaults):
+import sys
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+if len(sys.argv) > 1:
+    url_date = sys.argv[1]
+else:
+    url_date = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
+
+
 url = "https://www.warrennolan.com/basketball/2026/scores-live?type=All%20Games&date="+url_date
 
 def extract_games(url):
