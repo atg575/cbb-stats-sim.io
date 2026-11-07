@@ -14,7 +14,7 @@ else:
     # Subtracting 4 hours keeps 12 AM - 2 AM EST anchored to tonight's game date
     url_date = (datetime.now(ZoneInfo("America/New_York")) - timedelta(hours=4)).strftime("%Y-%m-%d")
 
-    
+
 # Your exact Excel logic translated into Python
 def get_accuracy(pred_away, pred_home, act_away, act_home):
     pred_margin = pred_away - pred_home
@@ -51,8 +51,7 @@ def get_certainty(prob_away, prob_home):
     elif max_prob >= 0.50: return "50%+"
     else: return "-"
 
-def grade_games():
-    url_date = input("Enter date to grade (Ex. 2026-11-04): ").strip()
+def grade_games(url_date):
     file_name = "Batch_Simulation_Results.xlsx"
     
     if not os.path.exists(file_name):
@@ -162,4 +161,4 @@ def grade_games():
     print(f"\nSuccessfully graded '{url_date}' and updated {file_name}!")
 
 if __name__ == "__main__":
-    grade_games()
+    grade_games(url_date)
