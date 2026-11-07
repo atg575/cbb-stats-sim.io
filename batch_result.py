@@ -83,7 +83,7 @@ def grade_games(url_date):
         if team_lower in clean_tokens:
             idx = clean_tokens.index(team_lower)
             # Find the numerical score sitting right next to the team name in the HTML
-            for i in range(idx + 1, min(idx + 5, len(clean_tokens))):
+            for i in range(idx + 4, min(idx + 5, len(clean_tokens))):
                 if clean_tokens[i].isdigit():
                     scores_dict[team_lower] = int(clean_tokens[i])
                     break
