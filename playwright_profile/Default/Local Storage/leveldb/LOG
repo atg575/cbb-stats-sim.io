@@ -1,3 +1,3 @@
-2026/11/07-08:20:12.902 6fc465 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
-2026/11/07-08:20:12.904 6fc465 Recovering log #3
-2026/11/07-08:20:12.905 6fc465 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/000003.log 
+2026/11/08-16:21:46.705 8691cd Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
+2026/11/08-16:21:46.708 8691cd Recovering log #3
+2026/11/08-16:21:46.708 8691cd Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/000003.log 

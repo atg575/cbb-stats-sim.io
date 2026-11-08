@@ -9,6 +9,9 @@ def clean_dataframe(df):
     if df.empty or 'Team' not in df.columns:
         return df
     
+    # Remove repeating header rows if any exist
+    df = df[df['Team'].astype(str).str.strip().str.lower() != 'team'].reset_index(drop=True)
+    
     # 1. Remove the specific newline + bandage emoji
     df['Team'] = df['Team'].astype(str).str.replace(r'\n🤕', '', regex=True)
     
@@ -20,6 +23,22 @@ def clean_dataframe(df):
     
     # 4. Strip whitespace
     df['Team'] = df['Team'].str.strip()
+    return df
+
+def force_numeric_columns(df):
+    """Converts all stat columns from strings to true numbers for Excel."""
+    if df.empty:
+        return df
+        
+    # Columns that should remain text (Team name, Conference, Win-Loss record)
+    text_cols = ['team', 'conf', 'conference', 'rec', 'record', 'w-l']
+    
+    for col in df.columns:
+        if not any(t in str(col).lower() for t in text_cols):
+            # Strip '+' signs, commas, or '%' that trick pandas into keeping strings
+            cleaned = df[col].astype(str).str.replace('+', '', regex=False).str.replace(',', '', regex=False).str.strip()
+            df[col] = pd.to_numeric(cleaned, errors='coerce').fillna(0)
+            
     return df
 
 def extract_grid_data(page):
@@ -75,6 +94,7 @@ def get_evanmiya_data_persistent():
         print("Extracting Regular Ratings...")
         regular_df = extract_grid_data(page)
         regular_df = clean_dataframe(regular_df)
+        regular_df = force_numeric_columns(regular_df)
         
         print("Switching to Injured Ratings...")
         try:
@@ -88,6 +108,7 @@ def get_evanmiya_data_persistent():
             
             injured_df = extract_grid_data(page)
             injured_df = clean_dataframe(injured_df)
+            injured_df = force_numeric_columns(injured_df)
         except Exception as e:
             print(f"Could not switch to injured ratings: {e}")
             injured_df = pd.DataFrame()
@@ -97,23 +118,25 @@ def get_evanmiya_data_persistent():
 
 if __name__ == "__main__":
     reg_df, inj_df = get_evanmiya_data_persistent()
-    file_name="2026-27 Men's College Basketball Stats_code.xlsx"
+    file_name = "2026-27 Men's College Basketball Stats_code.xlsx"
     if reg_df.empty:
         print("Failed to extract data.")
     else:
         print(f"Saving data to {file_name}...")
-        reg_sheet_name = str("EvanMiya Regular Ratings")
-        inj_sheet_name = str("EvanMiya Injured Ratings")
+        reg_sheet_name = "EvanMiya Regular Ratings"
+        inj_sheet_name = "EvanMiya Injured Ratings"
 
         if os.path.exists(file_name):
             with pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
                 reg_df.to_excel(writer, sheet_name=reg_sheet_name, index=False)
-                inj_df.to_excel(writer, sheet_name=inj_sheet_name, index=False)
+                if not inj_df.empty:
+                    inj_df.to_excel(writer, sheet_name=inj_sheet_name, index=False)
                 print(f"Data replaced in {file_name}")
         else:
             with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
                 reg_df.to_excel(writer, sheet_name=reg_sheet_name, index=False)
-                inj_df.to_excel(writer, sheet_name=inj_sheet_name, index=False)
+                if not inj_df.empty:
+                    inj_df.to_excel(writer, sheet_name=inj_sheet_name, index=False)
                 print(f"Data saved to new file {file_name}")
       
         print(f"Extraction complete! Pulled {len(reg_df)} regular rows and {len(inj_df)} injured rows.")
