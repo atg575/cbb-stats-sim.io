@@ -1,14 +1,14 @@
-2026/11/10-19:26:10.191 11ed Reusing MANIFEST /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
-2026/11/10-19:26:10.191 11ed Recovering log #50
-2026/11/10-19:26:10.192 11ed Reusing old log /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000050.log 
-2026/11/10-19:26:10.192 11ed Delete type=2 #48
-2026/11/10-19:26:10.933 11ed Level-0 table #55: started
-2026/11/10-19:26:10.940 11ed Level-0 table #55: 7555 bytes OK
-2026/11/10-19:26:10.943 11ed Delete type=0 #50
-2026/11/10-19:26:10.944 11ed Manual compaction at level-0 from '\x00\x10\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x11\x00\x00\x00' @ 0 : 0; will stop at '\x00\x10\x00\x00\x05' @ 972 : 1
-2026/11/10-19:26:10.944 11ed Compacting 1@0 + 1@1 files
-2026/11/10-19:26:10.945 11ed Generated table #56@0: 80 keys, 1596 bytes
-2026/11/10-19:26:10.945 11ed Compacted 1@0 + 1@1 files => 1596 bytes
-2026/11/10-19:26:10.945 11ed compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/11/10-19:26:10.945 11ed Delete type=2 #55
-2026/11/10-19:26:10.945 11ed Manual compaction at level-0 from '\x00\x10\x00\x00\x05' @ 972 : 1 .. '\x00\x11\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/11/11-19:20:02.500 11e0 Reusing MANIFEST /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/11/11-19:20:02.500 11e0 Recovering log #54
+2026/11/11-19:20:02.500 11e0 Reusing old log /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000054.log 
+2026/11/11-19:20:02.500 11e0 Delete type=2 #52
+2026/11/11-19:20:02.530 11e0 Level-0 table #59: started
+2026/11/11-19:20:02.531 11e0 Level-0 table #59: 7819 bytes OK
+2026/11/11-19:20:02.531 11e0 Delete type=0 #54
+2026/11/11-19:20:02.532 11e0 Manual compaction at level-0 from '\x00\x11\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x12\x00\x00\x00' @ 0 : 0; will stop at '\x00\x11\x00\x00\x05' @ 1055 : 1
+2026/11/11-19:20:02.532 11e0 Compacting 1@0 + 1@1 files
+2026/11/11-19:20:02.533 11e0 Generated table #60@0: 80 keys, 1598 bytes
+2026/11/11-19:20:02.533 11e0 Compacted 1@0 + 1@1 files => 1598 bytes
+2026/11/11-19:20:02.533 11e0 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/11-19:20:02.533 11e0 Delete type=2 #59
+2026/11/11-19:20:02.534 11e0 Manual compaction at level-0 from '\x00\x11\x00\x00\x05' @ 1055 : 1 .. '\x00\x12\x00\x00\x00' @ 0 : 0; will stop at (end)
