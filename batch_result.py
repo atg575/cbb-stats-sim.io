@@ -109,9 +109,9 @@ def extract_verified_total_from_numbers(nums):
             continue
         for start_idx in range(0, end_idx - 2):
             periods = nums[start_idx:end_idx - 1]
-            # A completed game must have at least 2 halves (first two periods >= 10 pts each)
+            # A completed game must have at least 2 halves (first two periods >= 5 pts each)
             # and all periods must sum to candidate_total
-            if len(periods) >= 2 and periods[0] >= 10 and periods[1] >= 10 and sum(periods) == candidate_total:
+            if len(periods) >= 2 and periods[0] >= 5 and periods[1] >= 5 and sum(periods) == candidate_total:
                 return candidate_total
 
     return None

@@ -1,6 +1,5 @@
 import os
 import requests
-from bs4 import BeautifulSoup
 import pandas as pd
 from io import StringIO
 
@@ -13,15 +12,8 @@ session.headers.update({
     "Connection": "keep-alive"
 })
 
-session.cookies.set("PHPSESSID", "2af90006f87506a3380d62647c82fcdc")
-
-def remove_mid_table_headers(df):
-    """Removes repeating header rows embedded inside the KenPom table body."""
-    team_col = next((col for col in df.columns if 'team' in str(col).lower()), None)
-    if team_col:
-        df = df[df[team_col].notna()]
-        df = df[~df[team_col].astype(str).str.strip().str.lower().isin(['team', 'nan', ''])]
-    return df.reset_index(drop=True)
+# Your active KenPom login cookie is required to access the download link
+session.cookies.set("PHPSESSID", "ae7f710eff40f888146979b5b3c56989")
 
 def clean_string_columns(df):
     """Standardizes string columns to prevent em/en-dashes from causing encoding issues."""
@@ -32,17 +24,17 @@ def clean_string_columns(df):
     return df
 
 def force_numeric_columns(df):
-    """Forces all stat and rank columns into true numbers while keeping Team, Conf, and W-L as text."""
+    """Forces all stat and rank columns into true numbers while keeping Team, Conf, etc as text."""
     text_cols = ['team', 'conf', 'w-l', 'record']
     for col in df.columns:
         if not any(t in str(col).lower() for t in text_cols):
-            # Remove '+' signs (e.g., '+25.4' -> '25.4') so pd.to_numeric succeeds
             cleaned = df[col].astype(str).str.replace('+', '', regex=False).str.replace(',', '', regex=False).str.strip()
             df[col] = pd.to_numeric(cleaned, errors='coerce').fillna(0)
     return df
 
 def scrape_and_save_to_excel(file_name="2026-27 Men's College Basketball Stats_code.xlsx"):
-    url = "https://kenpom.com/index.php"
+    # Target the direct CSV download link
+    url = "https://kenpom.com/getdata.php?file=summary27"
 
     try:
         response = session.get(url, timeout=10)
@@ -51,32 +43,23 @@ def scrape_and_save_to_excel(file_name="2026-27 Men's College Basketball Stats_c
         print(f"Error fetching data: {e}")
         return
 
-    soup = BeautifulSoup(response.content, 'html.parser')
-    table = soup.find('table', {'id': 'ratings-table'})
-    
-    if not table:
-        print("Table not found!")
-        return
+    # Check if the response is actually the CSV data or a redirect to the login page
+    if "Subscribe Now" in response.text or "<html" in response.text.lower():
+         print("Error: Received a webpage instead of CSV data. Your PHPSESSID cookie may be expired.")
+         return
 
     try:
-        df = pd.read_html(StringIO(str(table)))[0]
+        # Read the raw CSV text directly into Pandas
+        df = pd.read_csv(StringIO(response.text))
     except ValueError:
-        print("Error parsing table. It might be empty or malformed.")
+        print("Error parsing CSV data. It might be empty or malformed.")
         return
 
-    # Flatten MultiIndex columns if needed
-    if isinstance(df.columns, pd.MultiIndex):
-        df.columns = ['_'.join(col).strip() for col in df.columns.values]
-
-    # 1. Strip out repeating mid-table headers ('Rk', 'Team', etc.)
-    df = remove_mid_table_headers(df)
-    
-    # 2. Clean text strings
+    # Clean and format the data
     df = clean_string_columns(df)
-    
-    # 3. Force all rating and rank columns to true numeric types
     df = force_numeric_columns(df)
 
+    # Save to Sheet4
     sheet_name = "Kenpom Ratings"
 
     if os.path.exists(file_name):

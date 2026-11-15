@@ -5,6 +5,7 @@ def run_master_scraper():
     # List of all your scraping scripts verbatim
     scripts = [
         "kenpom_puller.py",
+        "height_puller.py",
         "evan-miya-ratings.py",
         "espn_bpi_puller.py",
         "elo_ratings.py",
