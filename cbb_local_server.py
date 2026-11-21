@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-Local Companion Server & Auto-Reload Watcher for CBB 2026-27 Analytics Hub.
-Place this file in /Users/alexvazquez/Coding/cbb_stats/ alongside:
-  - cbb_analytics_dashboard.html
-  - 2026-27 Men's College Basketball Stats_code.xlsx
-  - Batch_Simulation_Results.xlsx
-  - batch_pull.py, batch_sim.py, batch_result.py, daily_table_extender.py, weekly_table_extender.py
+Dual-Mode Server (Local Mac + Render Cloud) & Auto-Reload Watcher
+for the 2026-27 CBB Analytics & Simulation Hub.
 
-Usage:
+Local Mac usage:
   cd /Users/alexvazquez/Coding/cbb_stats && python3 cbb_local_server.py
+
+Render Cloud usage (via render.yaml):
+  Start Command: python3 cbb_local_server.py
+  Environment Variables:
+    - CBB_ADMIN_TOKEN (required to protect POST /api/run-script publicly)
+    - PORT (automatically injected by Render, defaults to 10000 on Render / 8765 locally)
 """
 
-import datetime
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
 import subprocess
@@ -20,7 +21,10 @@ import sys
 import webbrowser
 import openpyxl
 
-PORT = int(os.environ.get("CBB_PORT", "8765"))
+IS_RENDER = bool(os.environ.get("RENDER"))
+HOST = os.environ.get("HOST", "0.0.0.0" if IS_RENDER else "127.0.0.1")
+PORT = int(os.environ.get("PORT", os.environ.get("CBB_PORT", "10000" if IS_RENDER else "8765")))
+ADMIN_TOKEN = os.environ.get("CBB_ADMIN_TOKEN", "").strip()
 WORK_DIR = os.path.dirname(os.path.abspath(__file__))
 
 STATS_FILE = "2026-27 Men's College Basketball Stats_code.xlsx"
@@ -286,8 +290,16 @@ class CBBRequestHandler(SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Admin-Token")
         super().end_headers()
+
+    def _send_json(self, code, payload_obj):
+        body = json.dumps(payload_obj, separators=(",", ":")).encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -298,37 +310,37 @@ class CBBRequestHandler(SimpleHTTPRequestHandler):
             self.path = "/cbb_analytics_dashboard.html"
             return super().do_GET()
 
+        if self.path.startswith("/healthz"):
+            return self._send_json(200, {"status": "ok", "env": "render" if IS_RENDER else "local"})
+
         if self.path.startswith("/api/status"):
             f1 = os.path.join(WORK_DIR, STATS_FILE)
             f2 = os.path.join(WORK_DIR, SIM_FILE)
-            status = {
+            return self._send_json(200, {
                 "ok": True,
+                "env": "render" if IS_RENDER else "local",
+                "auth_required": bool(ADMIN_TOKEN),
                 "work_dir": WORK_DIR,
                 "stats_mtime": os.path.getmtime(f1) if os.path.exists(f1) else 0,
                 "sim_mtime": os.path.getmtime(f2) if os.path.exists(f2) else 0,
-            }
-            body = json.dumps(status).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-            return
+            })
 
         if self.path.startswith("/api/payload"):
-            payload = extract_live_payload()
-            body = json.dumps(payload, separators=(",", ":")).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-            return
+            return self._send_json(200, extract_live_payload())
 
         return super().do_GET()
 
     def do_POST(self):
         if self.path.startswith("/api/run-script"):
+            if ADMIN_TOKEN:
+                supplied = self.headers.get("X-Admin-Token", "").strip()
+                if supplied != ADMIN_TOKEN:
+                    return self._send_json(401, {
+                        "returncode": 401,
+                        "stdout": "",
+                        "stderr": "Unauthorized: Enter your CBB_ADMIN_TOKEN in the Script Runner tab to execute scripts on Render."
+                    })
+
             length = int(self.headers.get("Content-Length", "0"))
             raw = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
             req = json.loads(raw)
@@ -336,45 +348,48 @@ class CBBRequestHandler(SimpleHTTPRequestHandler):
             args = req.get("args", [])
 
             if script not in ALLOWED_SCRIPTS:
-                res = {"returncode": 1, "stdout": "", "stderr": f"Script '{script}' is not in ALLOWED_SCRIPTS."}
-            else:
-                script_path = os.path.join(WORK_DIR, script)
-                if not os.path.exists(script_path):
-                    res = {"returncode": 1, "stdout": "", "stderr": f"File not found: {script_path}"}
-                else:
-                    cmd = [sys.executable, script_path] + [str(a) for a in args if a]
-                    proc = subprocess.run(cmd, cwd=WORK_DIR, capture_output=True, text=True)
-                    res = {
-                        "returncode": proc.returncode,
-                        "stdout": proc.stdout,
-                        "stderr": proc.stderr,
-                    }
+                return self._send_json(400, {
+                    "returncode": 1,
+                    "stdout": "",
+                    "stderr": f"Script '{script}' is not in ALLOWED_SCRIPTS."
+                })
 
-            body = json.dumps(res).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-            return
+            script_path = os.path.join(WORK_DIR, script)
+            if not os.path.exists(script_path):
+                return self._send_json(404, {
+                    "returncode": 1,
+                    "stdout": "",
+                    "stderr": f"File not found: {script_path}"
+                })
+
+            cmd = [sys.executable, script_path] + [str(a) for a in args if a]
+            proc = subprocess.run(cmd, cwd=WORK_DIR, capture_output=True, text=True)
+            return self._send_json(200, {
+                "returncode": proc.returncode,
+                "stdout": proc.stdout,
+                "stderr": proc.stderr,
+            })
 
         self.send_response(404)
         self.end_headers()
 
 
 if __name__ == "__main__":
-    url = f"http://127.0.0.1:{PORT}/cbb_analytics_dashboard.html"
+    mode_label = "Render Cloud" if IS_RENDER else "Local Mac"
+    url = f"http://{HOST}:{PORT}/cbb_analytics_dashboard.html"
     print("=" * 68)
-    print(f"🏀 CBB 2026-27 Local Server & Auto-Watcher running at: {url}")
-    print(f"📂 Watching folder: {WORK_DIR}")
+    print(f"🏀 CBB 2026-27 Server ({mode_label}) listening on {HOST}:{PORT}")
+    print(f"📂 Working directory: {WORK_DIR}")
+    print(f"🔐 Admin Token Protection: {'ENABLED' if ADMIN_TOKEN else 'DISABLED (local mode)'}")
     print("=" * 68)
-    try:
-        webbrowser.open(url)
-    except Exception:
-        pass
-    server = HTTPServer(("127.0.0.1", PORT), CBBRequestHandler)
+    if not IS_RENDER:
+        try:
+            webbrowser.open(f"http://127.0.0.1:{PORT}/cbb_analytics_dashboard.html")
+        except Exception:
+            pass
+    server = ThreadingHTTPServer((HOST, PORT), CBBRequestHandler)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nShutting down CBB Local Server.")
+        print("\nShutting down CBB Server.")
         server.server_close()

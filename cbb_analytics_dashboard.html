@@ -975,7 +975,11 @@
           <div class="flex flex-wrap items-center gap-2.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800 shrink-0">
             <div>
               <label for="script-target-date" class="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">Target Game Date (`YYYY-MM-DD`)</label>
-              <input id="script-target-date" type="date" value="2026-11-16" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-orange-500" />
+              <input id="script-target-date" type="date" value="2026-11-21" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-orange-500" />
+            </div>
+            <div>
+              <label for="render-admin-token" class="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">Render Admin Token (Optional Locally)</label>
+              <input id="render-admin-token" type="password" placeholder="CBB_ADMIN_TOKEN" oninput="saveAdminToken(this.value)" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-orange-500 w-40" />
             </div>
             <button id="btn-run-full-chain" type="button" onclick="runFullDailyPipeline()" class="px-3.5 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-extrabold text-xs shadow-md transition">
               ⚡ Run Full Daily Pipeline
@@ -3497,11 +3501,23 @@
 
       if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
         try {
+          const adminTok = (document.getElementById('render-admin-token')?.value || '').trim();
+          const reqHeaders = { 'Content-Type': 'application/json' };
+          if (adminTok) reqHeaders['X-Admin-Token'] = adminTok;
           const resp = await fetch(['/api', 'run-script'].join('/'), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: reqHeaders,
             body: JSON.stringify({ script: scriptName, args })
           });
+          if (resp.status === 401) {
+            const errJson = await resp.json().catch(() => ({}));
+            appendPipelineLog('[401 Unauthorized] ' + (errJson.stderr || 'Enter your CBB_ADMIN_TOKEN above to run scripts on Render.'));
+            if (badge) {
+              badge.textContent = 'Auth Required';
+              badge.className = 'text-[10px] font-mono text-amber-400 font-bold';
+            }
+            return;
+          }
           if (resp.ok) {
             const res = await resp.json();
             if (res.stdout) appendPipelineLog(res.stdout.trim());
@@ -3743,8 +3759,17 @@
       reader.readAsArrayBuffer(file);
     }
 
+    function saveAdminToken(val) {
+      try { sessionStorage.setItem('cbb_admin_token', val || ''); } catch (e) {}
+    }
+
     // Start background watcher on load
     window.addEventListener('DOMContentLoaded', () => {
+      try {
+        const savedTok = sessionStorage.getItem('cbb_admin_token');
+        const tokInput = document.getElementById('render-admin-token');
+        if (savedTok && tokInput) tokInput.value = savedTok;
+      } catch (e) {}
       toggleAutoWatchLoop(true);
       if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
         probeLocalCompanionServer(false);
