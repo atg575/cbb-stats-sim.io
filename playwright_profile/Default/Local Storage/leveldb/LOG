@@ -1,3 +1,5 @@
-2026/11/15-07:04:39.270 e5cf07 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
-2026/11/15-07:04:39.272 e5cf07 Recovering log #3
-2026/11/15-07:04:39.272 e5cf07 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/000003.log 
+2026/11/20-06:08:42.339 1adcb4 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
+2026/11/20-06:08:42.341 1adcb4 Recovering log #3
+2026/11/20-06:08:42.342 1adcb4 Level-0 table #3: started
+2026/11/20-06:08:42.348 1adcb4 Level-0 table #3: 35945 bytes OK
+2026/11/20-06:08:42.352 1adcb4 Delete type=0 #3

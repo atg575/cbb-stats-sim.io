@@ -1,14 +1,14 @@
-2026/11/14-09:38:49.062 d8b330 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
-2026/11/14-09:38:49.062 d8b330 Recovering log #70
-2026/11/14-09:38:49.062 d8b330 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000070.log 
-2026/11/14-09:38:49.062 d8b330 Delete type=2 #68
-2026/11/14-09:38:49.075 d8b330 Level-0 table #75: started
-2026/11/14-09:38:49.076 d8b330 Level-0 table #75: 7802 bytes OK
-2026/11/14-09:38:49.078 d8b330 Delete type=0 #70
-2026/11/14-09:38:49.078 d8b330 Manual compaction at level-0 from '\x00\x15\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x16\x00\x00\x00' @ 0 : 0; will stop at '\x00\x15\x00\x00\x05' @ 1363 : 1
-2026/11/14-09:38:49.078 d8b330 Compacting 1@0 + 1@1 files
-2026/11/14-09:38:49.080 d8b330 Generated table #76@0: 80 keys, 1597 bytes
-2026/11/14-09:38:49.080 d8b330 Compacted 1@0 + 1@1 files => 1597 bytes
-2026/11/14-09:38:49.080 d8b330 compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/11/14-09:38:49.080 d8b330 Delete type=2 #75
-2026/11/14-09:38:49.081 d8b330 Manual compaction at level-0 from '\x00\x15\x00\x00\x05' @ 1363 : 1 .. '\x00\x16\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/11/19-05:59:18.224 bd72 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/11/19-05:59:18.224 bd72 Recovering log #86
+2026/11/19-05:59:18.225 bd72 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000086.log 
+2026/11/19-05:59:18.225 bd72 Delete type=2 #84
+2026/11/19-05:59:18.237 bd72 Level-0 table #91: started
+2026/11/19-05:59:18.237 bd72 Level-0 table #91: 7802 bytes OK
+2026/11/19-05:59:18.239 bd72 Delete type=0 #86
+2026/11/19-05:59:18.240 bd72 Manual compaction at level-0 from '\x00\x1a\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1b\x00\x00\x00' @ 0 : 0; will stop at '\x00\x1a\x00\x00\x05' @ 1778 : 1
+2026/11/19-05:59:18.240 bd72 Compacting 1@0 + 1@1 files
+2026/11/19-05:59:18.241 bd72 Generated table #92@0: 80 keys, 1599 bytes
+2026/11/19-05:59:18.241 bd72 Compacted 1@0 + 1@1 files => 1599 bytes
+2026/11/19-05:59:18.242 bd72 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/19-05:59:18.242 bd72 Delete type=2 #91
+2026/11/19-05:59:18.242 bd72 Manual compaction at level-0 from '\x00\x1a\x00\x00\x05' @ 1778 : 1 .. '\x00\x1b\x00\x00\x00' @ 0 : 0; will stop at (end)
