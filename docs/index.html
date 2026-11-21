@@ -432,10 +432,10 @@
           <div class="flex items-center justify-between mb-3">
             <div>
               <h3 class="text-sm sm:text-base font-bold text-white" id="model-trend-title">
-                Daily Performance Trajectory (Nov 5 – Nov 15, 2026)
+                Daily Performance Trajectory
               </h3>
               <p class="text-xs text-slate-400">
-                Day-by-day progression across all 11 graded slates for the active slider category
+                Day-by-day progression for the active slider category
               </p>
             </div>
             <div class="flex items-center gap-1.5">
@@ -915,7 +915,7 @@
         type: 'confidence',
         target: 90.0,
         title: '90%+ Confidence Bucket Win Accuracy',
-        desc: 'Percentage of games where the model predicted a team with >=90% win probability and got the winner right (TEAM, TEAM AND DIFF, ALL, or SUPER ALL).'
+        desc: 'Percentage of games where the model predicted a team with >=90% win probability and got the winner right.'
       },
       {
         key: '75%+',
@@ -951,7 +951,7 @@
         type: 'count',
         target: null,
         title: 'SUPER ALLS (Exact Score / Exact Spread & Total Hits)',
-        desc: 'Total count of SUPER ALL predictions achieved by each model across the selected date window (e.g. Brown vs. Lehigh on 2026-11-14).'
+        desc: 'Total count of SUPER ALL predictions achieved by each model across the selected date window.'
       },
       {
         key: 'ALL',
@@ -960,7 +960,7 @@
         type: 'outcome',
         target: null,
         title: 'ALL Outcome Rate (Winner + Point Differential + Total)',
-        desc: 'Share of all graded games where the model simultaneously nailed the winning team, the point spread tolerance, and the game total tolerance.'
+        desc: 'Share of all games where the model simultaneously nailed the winning team, the point spread within 5 points, and the game total tolerance within 10 points.'
       },
       {
         key: 'TEAM AND DIFF',
@@ -969,7 +969,7 @@
         type: 'outcome',
         target: null,
         title: 'TEAM AND DIFF Outcome Rate (Winner + Point Spread)',
-        desc: 'Share of all graded games where the model got the winning team AND point differential within threshold (excluding full ALL hits).'
+        desc: 'Share of all games where the model got the winning team and point spread within 5 points.'
       },
       {
         key: 'TEAM',
@@ -978,7 +978,7 @@
         type: 'outcome',
         target: null,
         title: 'TEAM Only Outcome Rate (Winner Correct Only)',
-        desc: 'Share of all graded games where the model predicted the correct winning team without hitting the exact spread and total simultaneously.'
+        desc: 'Share of all games where the model predicted only the correct winning team.'
       },
       {
         key: 'CORRECT',
@@ -987,7 +987,7 @@
         type: 'outcome',
         target: null,
         title: 'CORRECT Winner Rate (Combined TEAM + TEAM AND DIFF + ALL + SUPER ALL)',
-        desc: 'Overall straight-up game winner accuracy across all graded games (sum of TEAM, TEAM AND DIFF, ALL, and SUPER ALL divided by total games).'
+        desc: 'Overall game winner accuracy across all graded games (TEAM, TEAM AND DIFF, ALL, and SUPER ALL).'
       },
       {
         key: 'TOTAL',
@@ -996,7 +996,7 @@
         type: 'outcome',
         target: null,
         title: 'TOTAL Only Outcome Rate (Missed Winner, Hit Game Total)',
-        desc: 'Share of all graded games where the model missed the winning team but accurately projected the combined game total score.'
+        desc: 'Share of all games where the model missed the winning team but accurately projected the combined game total score within 10 points.'
       }
     ];
 
