@@ -1,23 +1,22 @@
 #!/usr/bin/env python3
 """
-Dual-Mode Server (Local Mac + Render Cloud) & Auto-Reload Watcher
+Dual-Mode Server (Local Mac + Render Docker Cloud) & Auto-Reload Watcher
 for the 2026-27 CBB Analytics & Simulation Hub.
 
-Local Mac usage:
-  cd /Users/alexvazquez/Coding/cbb_stats && python3 cbb_local_server.py
-
-Render Cloud usage (via render.yaml):
-  Start Command: python3 cbb_local_server.py
-  Environment Variables:
-    - CBB_ADMIN_TOKEN (required to protect POST /api/run-script publicly)
-    - PORT (automatically injected by Render, defaults to 10000 on Render / 8765 locally)
+Features:
+  - Local Mac: runs on 127.0.0.1:8765, watches Excel mtimes, runs local Python scripts.
+  - Render Cloud: runs on 0.0.0.0:$PORT, protects POST /api/run-script with CBB_ADMIN_TOKEN,
+    recalculates Excel formulas headlessly via LibreOffice Calc after scrapers run, and
+    commits + pushes updated .xlsx workbooks back to GitHub when CBB_AUTO_GIT_PUSH=true.
 """
 
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import webbrowser
 import openpyxl
 
@@ -25,23 +24,29 @@ IS_RENDER = bool(os.environ.get("RENDER"))
 HOST = os.environ.get("HOST", "0.0.0.0" if IS_RENDER else "127.0.0.1")
 PORT = int(os.environ.get("PORT", os.environ.get("CBB_PORT", "10000" if IS_RENDER else "8765")))
 ADMIN_TOKEN = os.environ.get("CBB_ADMIN_TOKEN", "").strip()
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "").strip()
+GITHUB_REPO = os.environ.get("GITHUB_REPO", "atg575/cbb-stats-sim").strip()
+AUTO_GIT_PUSH = os.environ.get("CBB_AUTO_GIT_PUSH", "false").strip().lower() in ("1", "true", "yes")
 WORK_DIR = os.path.dirname(os.path.abspath(__file__))
 
 STATS_FILE = "2026-27 Men's College Basketball Stats_code.xlsx"
 SIM_FILE = "Batch_Simulation_Results.xlsx"
 
-ALLOWED_SCRIPTS = {
+SCRAPER_SCRIPTS = {
     "batch_pull.py",
-    "batch_sim.py",
-    "batch_result.py",
-    "daily_table_extender.py",
-    "weekly_table_extender.py",
     "kenpom_puller.py",
     "height_puller.py",
     "evan-miya-ratings.py",
     "espn_bpi_puller.py",
     "elo_ratings.py",
     "old_stat_puller.py",
+}
+
+ALLOWED_SCRIPTS = SCRAPER_SCRIPTS | {
+    "batch_sim.py",
+    "batch_result.py",
+    "daily_table_extender.py",
+    "weekly_table_extender.py",
 }
 
 CONF_NAMES = {
@@ -60,6 +65,94 @@ def num(v, d=2):
     if isinstance(v, (int, float)):
         return round(float(v), d)
     return 0.0
+
+
+def sanitize_output(text):
+    if not text:
+        return ""
+    if GITHUB_TOKEN:
+        text = text.replace(GITHUB_TOKEN, "***REDACTED***")
+    return text
+
+
+def recalculate_excel_with_libreoffice(filename):
+    """Recalculates cached Excel formula values headlessly using LibreOffice Calc."""
+    lo_bin = shutil.which("libreoffice") or shutil.which("soffice")
+    target = os.path.join(WORK_DIR, filename)
+    if not lo_bin or not os.path.exists(target):
+        return f"[LibreOffice] Skipped recalculation for {filename} (binary or file unavailable)."
+
+    with tempfile.TemporaryDirectory(prefix="cbb_lo_out_") as out_dir, \
+         tempfile.TemporaryDirectory(prefix="cbb_lo_prof_") as prof_dir:
+        env = {**os.environ, "HOME": "/tmp", "TMPDIR": "/tmp"}
+        cmd = [
+            lo_bin,
+            f"-env:UserInstallation=file://{prof_dir}",
+            "--headless",
+            "--convert-to", "xlsx",
+            "--outdir", out_dir,
+            target,
+        ]
+        try:
+            proc = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=90)
+            recalc_path = os.path.join(out_dir, os.path.basename(target))
+            if proc.returncode == 0 and os.path.exists(recalc_path) and os.path.getsize(recalc_path) > 0:
+                shutil.move(recalc_path, target)
+                return f"[LibreOffice] Recalculated formulas in {filename} successfully."
+            return f"[LibreOffice] Recalculation returned code {proc.returncode}: {proc.stderr.strip()}"
+        except subprocess.TimeoutExpired:
+            return f"[LibreOffice] Timed out recalculating {filename}."
+
+
+def auto_git_push_workbooks(script_name):
+    """Commits and pushes updated Excel workbooks back to GitHub when enabled."""
+    if not AUTO_GIT_PUSH:
+        return ""
+    if not GITHUB_TOKEN or not GITHUB_REPO:
+        return "[Git Auto-Push] Skipped: GITHUB_TOKEN or GITHUB_REPO env var is not set."
+    if not os.path.exists(os.path.join(WORK_DIR, ".git")):
+        return "[Git Auto-Push] Skipped: no .git directory found in container."
+
+    logs = []
+    remote_url = f"https://x-access-token:{GITHUB_TOKEN}@github.com/{GITHUB_REPO}.git"
+
+    def run_git(args):
+        return subprocess.run(
+            ["git"] + args,
+            cwd=WORK_DIR,
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+
+    try:
+        run_git(["config", "user.name", "CBB Render Bot"])
+        run_git(["config", "user.email", "cbb-bot@users.noreply.github.com"])
+
+        files_to_stage = [f for f in (STATS_FILE, SIM_FILE) if os.path.exists(os.path.join(WORK_DIR, f))]
+        if not files_to_stage:
+            return "[Git Auto-Push] No Excel files found to commit."
+
+        run_git(["add", "--"] + files_to_stage)
+        status = run_git(["status", "--porcelain", "--"] + files_to_stage)
+        if not status.stdout.strip():
+            return "[Git Auto-Push] No workbook changes detected; nothing to push."
+
+        commit_msg = f"Auto-update CBB workbooks via Render ({script_name})"
+        c_res = run_git(["commit", "-m", commit_msg])
+        if c_res.returncode != 0:
+            return sanitize_output(f"[Git Auto-Push] Commit failed: {c_res.stderr.strip()}")
+        logs.append(f"[Git Auto-Push] Committed: {commit_msg}")
+
+        p_res = run_git(["push", remote_url, "HEAD:main"])
+        if p_res.returncode == 0:
+            logs.append(f"[Git Auto-Push] Pushed updated workbooks to github.com/{GITHUB_REPO} (main).")
+        else:
+            logs.append(f"[Git Auto-Push] Push failed: {p_res.stderr.strip()}")
+    except Exception as exc:
+        logs.append(f"[Git Auto-Push] Error: {exc}")
+
+    return sanitize_output("\n".join(logs))
 
 
 def extract_live_payload():
@@ -320,6 +413,7 @@ class CBBRequestHandler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "env": "render" if IS_RENDER else "local",
                 "auth_required": bool(ADMIN_TOKEN),
+                "auto_git_push": AUTO_GIT_PUSH and bool(GITHUB_TOKEN),
                 "work_dir": WORK_DIR,
                 "stats_mtime": os.path.getmtime(f1) if os.path.exists(f1) else 0,
                 "sim_mtime": os.path.getmtime(f2) if os.path.exists(f2) else 0,
@@ -364,10 +458,24 @@ class CBBRequestHandler(SimpleHTTPRequestHandler):
 
             cmd = [sys.executable, script_path] + [str(a) for a in args if a]
             proc = subprocess.run(cmd, cwd=WORK_DIR, capture_output=True, text=True)
+            out_lines = [proc.stdout.strip()] if proc.stdout.strip() else []
+            err_lines = [proc.stderr.strip()] if proc.stderr.strip() else []
+
+            # Post-run hooks when running in Docker / Render
+            if proc.returncode == 0:
+                if IS_RENDER and script in SCRAPER_SCRIPTS:
+                    out_lines.append(recalculate_excel_with_libreoffice(STATS_FILE))
+                elif IS_RENDER and script in ("daily_table_extender.py", "weekly_table_extender.py"):
+                    out_lines.append(recalculate_excel_with_libreoffice(SIM_FILE))
+
+                git_log = auto_git_push_workbooks(script)
+                if git_log:
+                    out_lines.append(git_log)
+
             return self._send_json(200, {
                 "returncode": proc.returncode,
-                "stdout": proc.stdout,
-                "stderr": proc.stderr,
+                "stdout": sanitize_output("\n".join(out_lines)),
+                "stderr": sanitize_output("\n".join(err_lines)),
             })
 
         self.send_response(404)
@@ -375,12 +483,12 @@ class CBBRequestHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    mode_label = "Render Cloud" if IS_RENDER else "Local Mac"
-    url = f"http://{HOST}:{PORT}/cbb_analytics_dashboard.html"
+    mode_label = "Render Docker Cloud" if IS_RENDER else "Local Mac"
     print("=" * 68)
     print(f"🏀 CBB 2026-27 Server ({mode_label}) listening on {HOST}:{PORT}")
     print(f"📂 Working directory: {WORK_DIR}")
     print(f"🔐 Admin Token Protection: {'ENABLED' if ADMIN_TOKEN else 'DISABLED (local mode)'}")
+    print(f"🔄 Auto Git Push: {'ENABLED (' + GITHUB_REPO + ')' if (AUTO_GIT_PUSH and GITHUB_TOKEN) else 'DISABLED'}")
     print("=" * 68)
     if not IS_RENDER:
         try:

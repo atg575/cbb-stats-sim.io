@@ -1,11 +1,16 @@
 services:
   - type: web
     name: cbb-analytics-hub
-    runtime: python
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python3 cbb_local_server.py
     healthCheckPath: /healthz
     envVars:
       - key: CBB_ADMIN_TOKEN
         sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        value: atg575/cbb-stats-sim
+      - key: CBB_AUTO_GIT_PUSH
+        value: "true"
