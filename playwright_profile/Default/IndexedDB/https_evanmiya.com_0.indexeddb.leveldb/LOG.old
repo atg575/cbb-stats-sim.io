@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 2026/11/19-05:59:18.224 bd72 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
 2026/11/19-05:59:18.224 bd72 Recovering log #86
 2026/11/19-05:59:18.225 bd72 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000086.log 
@@ -12,3 +13,19 @@
 2026/11/19-05:59:18.242 bd72 compacted to: files[ 0 1 1 0 0 0 0 ]
 2026/11/19-05:59:18.242 bd72 Delete type=2 #91
 2026/11/19-05:59:18.242 bd72 Manual compaction at level-0 from '\x00\x1a\x00\x00\x05' @ 1778 : 1 .. '\x00\x1b\x00\x00\x00' @ 0 : 0; will stop at (end)
+=======
+2026/11/14-17:43:44.391 dc1 Reusing MANIFEST /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/11/14-17:43:44.391 dc1 Recovering log #66
+2026/11/14-17:43:44.391 dc1 Reusing old log /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000066.log 
+2026/11/14-17:43:44.391 dc1 Delete type=2 #64
+2026/11/14-17:43:44.400 dc8 Level-0 table #71: started
+2026/11/14-17:43:44.400 dc8 Level-0 table #71: 7835 bytes OK
+2026/11/14-17:43:44.406 dc8 Delete type=0 #66
+2026/11/14-17:43:44.406 dc1 Manual compaction at level-0 from '\x00\x14\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x15\x00\x00\x00' @ 0 : 0; will stop at '\x00\x14\x00\x00\x05' @ 1304 : 1
+2026/11/14-17:43:44.406 dc1 Compacting 1@0 + 1@1 files
+2026/11/14-17:43:44.407 dc1 Generated table #72@0: 80 keys, 1596 bytes
+2026/11/14-17:43:44.407 dc1 Compacted 1@0 + 1@1 files => 1596 bytes
+2026/11/14-17:43:44.407 dc1 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/14-17:43:44.407 dc1 Delete type=2 #71
+2026/11/14-17:43:44.407 dc8 Manual compaction at level-0 from '\x00\x14\x00\x00\x05' @ 1304 : 1 .. '\x00\x15\x00\x00\x00' @ 0 : 0; will stop at (end)
+>>>>>>> aaebc560a27e3b11cc54b1885831b3b39d8f50bf

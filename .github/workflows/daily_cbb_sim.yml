@@ -59,14 +59,13 @@ jobs:
         run: |
           python batch_result.py
 
-      # Save updated spreadsheets back to your GitHub repo
-      - name: Commit Updated Excel Files to GitHub
+      - name: Save Updated Excel Files Back to GitHub
         run: |
           git config user.name "CBB-Auto-Bot"
           git config user.email "bot@github.com"
-          git add "2026-27 Men's College Basketball Stats_code.xlsx" "Batch_Simulation_Results.xlsx"
-          git diff --staged --quiet || git commit -m "Auto-update CBB spreadsheets"
-          git pull --rebase
+          git add -A
+          git diff --staged --quiet || git commit -m "Auto-update CBB spreadsheets and simulation results"
+          git pull --rebase origin main || true
           git push
 
       # Sync both spreadsheets directly to your Google Drive folder

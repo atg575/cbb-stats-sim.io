@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 2026/11/19-05:59:17.732 bd72 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/shared_proto_db/MANIFEST-000001
 2026/11/19-05:59:17.732 bd72 Recovering log #3
 2026/11/19-05:59:17.732 bd72 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/shared_proto_db/000003.log 
+=======
+2026/11/14-17:43:41.962 dc1 Reusing MANIFEST /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/shared_proto_db/MANIFEST-000001
+2026/11/14-17:43:41.962 dc1 Recovering log #3
+2026/11/14-17:43:41.962 dc1 Reusing old log /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/shared_proto_db/000003.log 
+>>>>>>> aaebc560a27e3b11cc54b1885831b3b39d8f50bf
