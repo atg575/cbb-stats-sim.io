@@ -1,9 +1,11 @@
 <<<<<<< HEAD
-2026/11/19-05:59:17.613 bd72 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
-2026/11/19-05:59:17.615 bd72 Recovering log #3
-2026/11/19-05:59:17.616 bd72 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/000003.log 
+2026/11/20-06:08:42.339 1adcb4 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
+2026/11/20-06:08:42.341 1adcb4 Recovering log #3
+2026/11/20-06:08:42.342 1adcb4 Level-0 table #3: started
+2026/11/20-06:08:42.348 1adcb4 Level-0 table #3: 35945 bytes OK
+2026/11/20-06:08:42.352 1adcb4 Delete type=0 #3
 =======
-2026/11/14-17:43:41.950 dc1 Reusing MANIFEST /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
-2026/11/14-17:43:41.950 dc1 Recovering log #3
-2026/11/14-17:43:41.950 dc1 Reusing old log /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/Local Storage/leveldb/000003.log 
+2026/11/15-18:32:55.406 dce Reusing MANIFEST /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/Local Storage/leveldb/MANIFEST-000001
+2026/11/15-18:32:55.407 dce Recovering log #3
+2026/11/15-18:32:55.408 dce Reusing old log /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/Local Storage/leveldb/000003.log 
 >>>>>>> aaebc560a27e3b11cc54b1885831b3b39d8f50bf
