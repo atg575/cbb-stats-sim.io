@@ -19,6 +19,7 @@ import subprocess
 import sys
 import urllib.request
 import openpyxl
+import ssl
 
 
 MODEL_NAMES = [
@@ -348,62 +349,87 @@ def parse_score_pair(val):
     return None
 
 
+MODEL_SHEET_ALIASES = {
+    "Live Morey Z": ("live morey", (1, 2, 19, 20)),
+    "Consensus Morey Z": ("consensus morey", (4, 5, 21, 22)),
+    "Live Log5": ("live log5", (7, 8, 23, 24)),
+    "Consensus Log5": ("consensus log5", (10, 11, 25, 26)),
+    "Adj. Eff.": ("adj eff", (13, 14, 27, 28)),
+    "Base": ("regular", (16, 17, 29, 30)),
+}
+
+
+def normalize_accuracy(raw):
+    s = clean_str(raw).upper()
+    if s in ("TEAM+DIFF", "TEAM + DIFF", "TEAM & DIFF"):
+        return "TEAM AND DIFF"
+    if s == "SUPER ALLS":
+        return "SUPER ALL"
+    return s
+
+
 def extract_simulations(sim_path):
     wb = openpyxl.load_workbook(sim_path, data_only=True, read_only=True)
     date_sheets = sorted(s for s in wb.sheetnames if re.match(r"^\d{4}-\d{2}-\d{2}$", s))
     games = []
 
-    # Model column blocks on daily sheets: each model has [wp1, wp2, ps1, ps2, acc, cert]
-    # Header-driven detection with standard fallback offsets
     for d_sheet in date_sheets:
         ws = wb[d_sheet]
         rows = list(ws.iter_rows(values_only=True))
         if len(rows) < 3:
             continue
 
-        # Locate model blocks from row 1 or row 2 headers
-        model_starts = {}
-        for h_row in rows[:2]:
-            for col_i, cell in enumerate(h_row):
-                if cell is None:
-                    continue
-                txt = str(cell).strip()
-                for m_name in MODEL_NAMES:
-                    if txt.lower() == m_name.lower() and m_name not in model_starts:
-                        model_starts[m_name] = col_i
+        # Map Row 1 headers (normalized) -> column index
+        hmap = {}
+        for idx, val in enumerate(rows[0]):
+            if val is not None:
+                key = re.sub(r"\s+", " ", str(val).strip().lower())
+                hmap[key] = idx
 
-        # Fallback standard column layout if headers aren't merged/labeled in row 1
-        if not model_starts:
-            fallback_cols = {
-                "Live Morey Z": 5,
-                "Consensus Morey Z": 11,
-                "Live Log5": 17,
-                "Consensus Log5": 23,
-                "Adj. Eff.": 29,
-                "Base": 35,
-            }
-            model_starts = fallback_cols
+        school_col = hmap.get("school", 0)
+        actual_col = hmap.get("actual score", 18)
 
-        for r in rows[2:]:
-            if not r or len(r) < 5 or not r[0] or not r[1]:
+        # Resolve (win_col, score_col, acc_col, cert_col) per model
+        model_cols = {}
+        for m_name, (prefix, fb) in MODEL_SHEET_ALIASES.items():
+            win_c = hmap.get(f"{prefix} win %", fb[0])
+            scr_c = hmap.get(f"{prefix} score", fb[1])
+            acc_c = hmap.get(f"{prefix} accuracy", fb[2])
+            cert_c = hmap.get(f"{prefix} certainty", fb[3])
+            model_cols[m_name] = (win_c, scr_c, acc_c, cert_c)
+
+        # Walk 2-row game blocks (Row i = Team 1, Row i+1 = Team 2, blank row between games)
+        i = 1
+        while i + 1 < len(rows):
+            r1 = rows[i]
+            t1 = clean_str(r1[school_col]) if r1 and school_col < len(r1) else ""
+            if not t1:
+                i += 1
                 continue
-            t1 = clean_str(r[0])
-            t2 = clean_str(r[1])
-            s1 = opt_int(r[2])
-            s2 = opt_int(r[3])
+
+            r2 = rows[i + 1]
+            t2 = clean_str(r2[school_col]) if r2 and school_col < len(r2) else ""
+            if not t2:
+                i += 1
+                continue
+
+            i += 2  # consume both rows of this game
+
+            s1 = opt_int(r1[actual_col]) if actual_col < len(r1) else None
+            s2 = opt_int(r2[actual_col]) if actual_col < len(r2) else None
             if s1 is None or s2 is None:
-                continue
+                continue  # skip ungraded / upcoming games
 
             m_dict = {}
-            for m_name, start_col in model_starts.items():
-                if start_col + 5 >= len(r):
+            for m_name, (win_c, scr_c, acc_c, cert_c) in model_cols.items():
+                if max(win_c, scr_c, acc_c, cert_c) >= len(r1) or max(win_c, scr_c) >= len(r2):
                     continue
-                wp1 = pct_val(r[start_col], 1)
-                wp2 = pct_val(r[start_col + 1], 1)
-                ps1 = opt_int(r[start_col + 2]) or 0
-                ps2 = opt_int(r[start_col + 3]) or 0
-                acc = clean_str(r[start_col + 4]).upper()
-                cert = clean_str(r[start_col + 5])
+                wp1 = pct_val(r1[win_c], 1)
+                wp2 = pct_val(r2[win_c], 1)
+                ps1 = opt_int(r1[scr_c]) or 0
+                ps2 = opt_int(r2[scr_c]) or 0
+                acc = normalize_accuracy(r1[acc_c])
+                cert = clean_str(r1[cert_c])
                 if acc:
                     m_dict[m_name] = [wp1, wp2, ps1, ps2, acc, cert]
 
@@ -428,10 +454,7 @@ def extract_simulations(sim_path):
             if not r or not r[0]:
                 continue
             d_val = r[0]
-            if isinstance(d_val, (datetime.datetime, datetime.date)):
-                d_str = d_val.strftime("%Y-%m-%d")
-            else:
-                d_str = clean_str(d_val)
+            d_str = d_val.strftime("%Y-%m-%d") if isinstance(d_val, (datetime.datetime, datetime.date)) else clean_str(d_val)
             if not re.match(r"^\d{4}-\d{2}-\d{2}$", d_str):
                 continue
 
@@ -469,51 +492,459 @@ def extract_simulations(sim_path):
     return games, sheet_model_daily, date_sheets
 
 
+from bs4 import BeautifulSoup
+
+import difflib
+from bs4 import BeautifulSoup
+
+import difflib
+import ssl
+from bs4 import BeautifulSoup
+
+BRACKET_ALIASES = {
+    "uconn": "Connecticut", "conn": "Connecticut",
+    "ole miss": "Mississippi", "miss": "Mississippi",
+    "nc state": "N.C. State", "ncst": "N.C. State", "n.c. state": "N.C. State",
+    "wv": "West Virginia", "wvu": "West Virginia",
+    "miami": "Miami FL", "miami (fl)": "Miami FL", "miami fl": "Miami FL", "mia": "Miami FL",
+    "miami (oh)": "Miami OH", "miami (ohio)": "Miami OH", "m-oh": "Miami OH",
+    "va. tech": "Virginia Tech", "va tech": "Virginia Tech", "vt": "Virginia Tech",
+    "n. carolina": "North Carolina", "unc": "North Carolina",
+    "okla. st.": "Oklahoma St.", "okst": "Oklahoma St.", "oklahoma state": "Oklahoma St.",
+    "st. john's": "St. John's", "saint john's": "St. John's", "sju": "St. John's",
+    "saint mary's": "Saint Mary's", "st. mary's": "Saint Mary's", "smc": "Saint Mary's",
+    "saint louis": "Saint Louis", "st. louis": "Saint Louis", "slu": "Saint Louis",
+    "cincy": "Cincinnati", "cin": "Cincinnati",
+    "pitt": "Pittsburgh", "smu": "SMU", "tcu": "TCU", "ucf": "UCF", "vcu": "VCU",
+    "lsu": "LSU", "byu": "BYU", "ucla": "UCLA", "usc": "USC", "unlv": "UNLV", "utep": "UTEP",
+    "xav": "Xavier", "iowa": "Iowa", "marq": "Marquette", "pur": "Purdue",
+    "fsu": "Florida St.", "ind": "Indiana", "nova": "Villanova", "vill": "Villanova",
+    "baylor": "Baylor", "bay": "Baylor", "ark": "Arkansas", "aub": "Auburn",
+    "mizzou": "Missouri", "mizz": "Missouri", "neb": "Nebraska", "wis": "Wisconsin",
+    "msu": "Michigan St.", "mich. st.": "Michigan St.", "mich": "Michigan",
+    "osu": "Ohio St.", "ohio state": "Ohio St.", "isu": "Iowa St.", "iowa state": "Iowa St.",
+    "ksu": "Kansas St.", "kansas state": "Kansas St.", "ttu": "Texas Tech", "tx tech": "Texas Tech",
+    "tamu": "Texas A&M", "texas a&m": "Texas A&M", "vandy": "Vanderbilt", "tenn": "Tennessee",
+    "bama": "Alabama", "ala": "Alabama", "uk": "Kentucky", "uga": "Georgia", "uf": "Florida",
+    "uva": "Virginia", "lou": "Louisville", "clem": "Clemson", "nd": "Notre Dame", "gt": "Georgia Tech",
+    "bc": "Boston College", "cal": "California", "stan": "Stanford", "wake": "Wake Forest",
+    "syr": "Syracuse", "dep": "DePaul", "prov": "Providence", "creigh": "Creighton",
+    "hall": "Seton Hall", "gtown": "Georgetown", "but": "Butler",
+    "asu": "Arizona St.", "arizona state": "Arizona St.", "colo": "Colorado",
+    "ore": "Oregon", "wash": "Washington", "rutg": "Rutgers", "minn": "Minnesota",
+    "psu": "Penn St.", "nw": "Northwestern", "mary": "Maryland", "md": "Maryland",
+    "hou": "Houston", "ku": "Kansas", "ariz": "Arizona", "ill": "Illinois", "duke": "Duke",
+    "gonz": "Gonzaga", "utst": "Utah St.", "usu": "Utah St.", "sdsu": "San Diego St.",
+    "gcu": "Grand Canyon", "unm": "New Mexico", "boise": "Boise St.", "nev": "Nevada",
+    "w. kentucky": "Western Kentucky", "wku": "Western Kentucky",
+    "ucsb": "UC Santa Barbara", "uncw": "UNC Wilmington", "uci": "UC Irvine", "ucsd": "UC San Diego",
+    "cook": "Bethune Cookman", "bethune-cookman": "Bethune Cookman", "bcu": "Bethune Cookman",
+    "tnst": "Tennessee St.", "tsu": "Tennessee St.",
+    "hwrd": "Howard", "how": "Howard",
+    "liu": "LIU", "long island": "LIU", "long island university": "LIU",
+    "harv": "Harvard", "penn": "Penn", "pennsylvania": "Penn",
+    "jmu": "James Madison", "queen": "Queens", "queens (nc)": "Queens", "queens university": "Queens",
+    "siena": "Siena", "cark": "Central Arkansas", "uca": "Central Arkansas", "c arkansas": "Central Arkansas",
+    "stthmn": "St. Thomas", "st. thomas (mn)": "St. Thomas", "st thomas": "St. Thomas",
+    "amer": "American", "american university": "American",
+    "uvm": "Vermont", "etsu": "East Tennessee St.", "east tennessee state": "East Tennessee St.",
+    "mcneese state": "McNeese", "mcneese st.": "McNeese", "mcn": "McNeese",
+    "sfa": "Stephen F. Austin", "sf austin": "Stephen F. Austin",
+    "illinois-chicago": "Illinois Chicago", "uic": "Illinois Chicago",
+    "ut martin": "Tennessee Martin", "utm": "Tennessee Martin",
+    "semo": "Southeast Missouri", "se missouri st.": "Southeast Missouri", "southeast missouri state": "Southeast Missouri",
+    "a&m-corpus christi": "Texas A&M Corpus Chris", "texas a&m-cc": "Texas A&M Corpus Chris",
+    "texas a&m-corpus christi": "Texas A&M Corpus Chris", "amcc": "Texas A&M Corpus Chris",
+    "hpu": "High Point", "murr": "Murray St.", "wrst": "Wright St.",
+    "sdak": "South Dakota St.", "ndsu": "North Dakota St.",
+    "fau": "Florida Atlantic", "usf": "South Florida", "mem": "Memphis", "wich": "Wichita St.",
+    "unt": "North Texas", "char": "Charlotte", "tul": "Tulsa", "cofc": "Charleston",
+    "col. of charleston": "Charleston", "college of charleston": "Charleston",
+    "sam": "Samford", "fur": "Furman", "lib": "Liberty", "kenn": "Kennesaw St.",
+    "lip": "Lipscomb", "mont": "Montana", "mtst": "Montana St.", "montana state": "Montana St.",
+    "akr": "Akron", "tol": "Toledo", "bgsu": "Bowling Green", "app": "Appalachian St.",
+    "app state": "Appalachian St.", "odu": "Old Dominion", "troy": "Troy",
+    "gwu": "George Washington", "gw": "George Washington", "gmu": "George Mason",
+    "day": "Dayton", "rich": "Richmond", "dav": "Davidson", "uri": "Rhode Island",
+    "st. bona": "St. Bonaventure", "st. bonaventure": "St. Bonaventure", "sbu": "St. Bonaventure",
+    "loyola-chicago": "Loyola Chicago", "loyola (chi)": "Loyola Chicago", "loyola chi": "Loyola Chicago",
+    "st. joe's": "Saint Joseph's", "saint joseph's": "Saint Joseph's",
+    "scu": "Santa Clara", "csun": "CSUN", "cal state northridge": "CSUN",
+    "utah valley": "Utah Valley", "uvu": "Utah Valley",
+    "miami-ohio": "Miami OH",
+    "texas-arlington": "UT Arlington",
+    "massachusetts-lowell": "UMass Lowell",
+}
+
+NON_TEAM_LABELS = {
+    "midwest", "east", "south", "west", "dayton", "detroit", "minneapolis",
+    "fort worth", "kansas city", "new york", "san antonio", "los angeles",
+    "chicago", "indianapolis", "buffalo", "charlotte", "greenville", "portland",
+    "st. louis", "tampa", "oklahoma city", "lexington", "providence", "seattle",
+    "denver", "sacramento", "san jose", "birmingham", "cleveland", "milwaukee",
+    "raleigh", "wichita", "first four", "opening round", "final four",
+}
+
+DIRECTIONAL_PREFIXES = [
+    (r"^c\.?\s+", ["central "]),
+    (r"^n\.?\s+", ["north ", "northern "]),
+    (r"^s\.?\s+", ["south ", "southern "]),
+    (r"^e\.?\s+", ["east ", "eastern "]),
+    (r"^w\.?\s+", ["west ", "western "]),
+    (r"^se\.?\s+", ["southeast ", "southeastern "]),
+    (r"^sw\.?\s+", ["southwest ", "southwestern "]),
+    (r"^ne\.?\s+", ["northeast ", "northeastern "]),
+    (r"^nw\.?\s+", ["northwest ", "northwestern "]),
+    (r"^g\.?\s+", ["george ", "georgia "]),
+    (r"^m\.?\s+", ["middle "]),
+]
+
+
+def _build_ssl_context():
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except Exception:
+        return ssl._create_unverified_context()
+
+
+SSL_CTX = _build_ssl_context()
+
+
+def _fetch_html(url, timeout=12):
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=timeout, context=SSL_CTX) as resp:
+        return resp.read().decode("utf-8", errors="ignore")
+
+
+def _fetch_html_playwright(url, wait_ms=2500, timeout_ms=25000):
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        return None
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        try:
+            page = browser.new_page(
+                user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
+            )
+            page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+            page.wait_for_timeout(wait_ms)
+            return page.content()
+        finally:
+            browser.close()
+
+
+from collections import Counter
+
+
+def build_team_matcher(teams):
+    lookup = {}
+
+    # Pass 1: Lock in exact canonical KenPom names & safe punctuation/St./State variants
+    for t in teams:
+        canon = t["team"]
+        for v in (
+            canon.lower(),
+            canon.lower().replace("st.", "state"),
+            canon.lower().replace("st.", "st"),
+            canon.lower().replace("saint ", "st. "),
+            canon.lower().replace("st. ", "saint "),
+            canon.lower().replace(".", ""),
+            re.sub(r"[^a-z0-9 ]+", "", canon.lower()).strip(),
+        ):
+            if v:
+                lookup[v] = canon
+        if t.get("espn_name"):
+            lookup.setdefault(t["espn_name"].lower(), canon)
+
+    # Pass 2: Only add 1-word-mascot-stripped ESPN names if unique and not already taken
+    espn_minus1 = []
+    for t in teams:
+        en = (t.get("espn_name") or "").lower()
+        parts = en.split()
+        if len(parts) >= 2:
+            espn_minus1.append((" ".join(parts[:-1]), t["team"]))
+    counts = Counter(k for k, _ in espn_minus1)
+    for k, canon in espn_minus1:
+        if counts[k] == 1 and k not in lookup:
+            lookup[k] = canon
+
+    all_keys = list(lookup.keys())
+
+    def _try_direct(low):
+        if low in BRACKET_ALIASES:
+            return BRACKET_ALIASES[low]
+        if low in lookup:
+            return lookup[low]
+        norm = re.sub(r"\bstate\b", "st.", low).strip()
+        if norm in lookup:
+            return lookup[norm]
+        norm2 = re.sub(r"\bst\b", "st.", low).strip()
+        if norm2 in lookup:
+            return lookup[norm2]
+        stripped = re.sub(r"[^a-z0-9 ]+", "", low).strip()
+        if stripped in BRACKET_ALIASES:
+            return BRACKET_ALIASES[stripped]
+        if stripped in lookup:
+            return lookup[stripped]
+        return None
+
+    def match_team(raw):
+        s = re.sub(r"\([^)]*\)", "", raw)
+        s = re.sub(r"\b(AQ|At-Large|automatic qualifier|play-in|first four|opening round)\b", "", s, flags=re.I)
+        s = re.sub(r"\s+", " ", s).strip(" -*•†‡#\u00a0")
+        if not s or len(s) < 2:
+            return None
+        low = s.lower()
+        if low in NON_TEAM_LABELS:
+            return None
+
+        hit = _try_direct(low)
+        if hit:
+            return hit
+
+        for pat, replacements in DIRECTIONAL_PREFIXES:
+            if re.match(pat, low):
+                for rep in replacements:
+                    hit = _try_direct(re.sub(pat, rep, low))
+                    if hit:
+                        return hit
+
+        stripped = re.sub(r"[^a-z0-9 ]+", "", low).strip()
+        if len(stripped) >= 5:
+            close = difflib.get_close_matches(stripped, all_keys, n=1, cutoff=0.90)
+            if close:
+                return lookup[close[0]]
+        return None
+
+    return match_team
+
+
+def _parse_seed_team_lines(text_lines, match_team):
+    parsed = {}
+    unmatched = []
+    line_re = re.compile(r"^\s*#?(\d{1,2})\.?\s+(.+?)\s*$")
+    for line in text_lines:
+        m = line_re.match(line)
+        if not m:
+            continue
+        seed = int(m.group(1))
+        if not (1 <= seed <= 16):
+            continue
+        parts = re.split(r"\s*(?:/|\||\bvs\.?\b)\s*", m.group(2))
+        for raw_part in parts[:2]:
+            cleaned = re.sub(r"\([^)]*\)", "", raw_part).strip(" -*•†‡#\u00a0")
+            if not cleaned or cleaned.lower() in NON_TEAM_LABELS or cleaned.isdigit():
+                continue
+            canon = match_team(cleaned)
+            if canon:
+                parsed.setdefault(canon, {"seed": seed})
+            elif len(cleaned) <= 35:
+                unmatched.append(f"{seed}: {cleaned}")
+    return parsed, unmatched
+
+
+def _extract_espn_bracket_from_html(html, match_team):
+    soup = BeautifulSoup(html, "html.parser")
+    parsed = {}
+    unmatched = []
+
+    # Pass 1: Bracket slot containers — grab the seed + ALL team links/lines inside the slot
+    slot_selectors = (
+        ".bracket__item, .bracket__team, .bracket-team, "
+        "[class*='bracket'] li, [class*='Bracket'] li, "
+        "[class*='matchup'] [class*='team'], [class*='seed']"
+    )
+    for el in soup.select(slot_selectors):
+        full_txt = re.sub(r"\s+", " ", el.get_text(" ", strip=True))
+        if not full_txt or len(full_txt) > 120:
+            continue
+        seed_m = re.match(r"^\s*#?(\d{1,2})\b", full_txt)
+        if not seed_m:
+            continue
+        seed = int(seed_m.group(1))
+        if not (1 <= seed <= 16):
+            continue
+
+        # 1a) Check all <a> tags inside the slot (handles 2-team play-in slots with separate links)
+        links = [a.get_text(" ", strip=True) for a in el.select("a") if a.get_text(strip=True)]
+        found_in_slot = 0
+        for raw_lbl in links:
+            for part in re.split(r"\s*(?:/|\||\bvs\.?\b)\s*", raw_lbl):
+                canon = match_team(part)
+                if canon:
+                    parsed.setdefault(canon, {"seed": seed})
+                    found_in_slot += 1
+
+        # 1b) Also parse the slot's raw text (catches play-ins without <a> tags)
+        if found_in_slot == 0:
+            p, miss = _parse_seed_team_lines([full_txt], match_team)
+            for k, v in p.items():
+                parsed.setdefault(k, v)
+            unmatched.extend(miss)
+
+    # Pass 2: Full-page line walk — handles 1-line ("11 TeamA/TeamB") and 2-line ("11", "TeamA", "TeamB") play-ins
+    if len(parsed) < 72:
+        raw_text = soup.get_text("\n")
+        for cutoff in ("First Four Out", "Next Four Out"):
+            if cutoff in raw_text:
+                raw_text = raw_text.split(cutoff)[0]
+                break
+        lines = [ln.strip() for ln in raw_text.splitlines() if ln.strip()]
+        i = 0
+        while i < len(lines):
+            if re.fullmatch(r"\d{1,2}\.?", lines[i]):
+                seed = int(lines[i].rstrip("."))
+                if 1 <= seed <= 16:
+                    # Look ahead up to 3 lines until the next seed number or non-team header
+                    j = i + 1
+                    consumed = 0
+                    while j < len(lines) and consumed < 3:
+                        nxt = lines[j]
+                        if re.fullmatch(r"\d{1,2}\.?", nxt) or nxt.lower() in NON_TEAM_LABELS:
+                            break
+                        if nxt in ("/", "vs", "vs.", "|"):
+                            j += 1
+                            continue
+                        parts = re.split(r"\s*(?:/|\||\bvs\.?\b)\s*", nxt)
+                        matched_any = False
+                        for part in parts[:2]:
+                            canon = match_team(part)
+                            if canon:
+                                parsed.setdefault(canon, {"seed": seed})
+                                matched_any = True
+                        if not matched_any:
+                            break
+                        consumed += 1
+                        j += 1
+                    i = max(i + 1, j)
+                    continue
+            else:
+                p, miss = _parse_seed_team_lines([lines[i]], match_team)
+                for k, v in p.items():
+                    parsed.setdefault(k, v)
+                unmatched.extend(miss)
+            i += 1
+
+    seen = set()
+    dedup_miss = [x for x in unmatched if not (x in seen or seen.add(x))]
+    return parsed, dedup_miss
+
+
 def fetch_latest_external_bracketology(teams, existing_ext=None):
-    """Best-effort fetch of CBS Sports bracketology; falls back cleanly if offline."""
+    """Fetch 76-team bracketologies from CBS Sports, ESPN Lunardi (Playwright), and Hoops HD JNG."""
     ext = dict(existing_ext or {})
     if os.environ.get("SKIP_BRACKETOLOGY_SYNC") == "1":
         print("[Bracketology Sync] Skipped (SKIP_BRACKETOLOGY_SYNC=1).")
         return ext
 
-    team_lookup = {t["team"].lower(): t["team"] for t in teams}
-    for t in teams:
-        if t.get("espn_name"):
-            team_lookup[t["espn_name"].lower()] = t["team"]
-
+    match_team = build_team_matcher(teams)
     today_label = datetime.datetime.now().strftime("%b %d, %Y")
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; CBBAnalyticsBot/1.0)"}
 
+    # 1. CBS Sports (static fetch first, Playwright fallback if throttled/JS-gated)
     try:
-        req = urllib.request.Request(
-            "https://www.cbssports.com/college-basketball/bracketology/",
-            headers=headers,
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            page = resp.read().decode("utf-8", errors="ignore")
+        def _parse_cbs_html(raw_html):
+            soup = BeautifulSoup(raw_html, "html.parser")
+            raw_text = soup.get_text("\n")
+            # Only cut at "On The Bubble" if it appears after the bracket body
+            bubble_idx = raw_text.rfind("On The Bubble")
+            bracket_chunk = raw_text[:bubble_idx] if bubble_idx > 1500 else raw_text
+            lines = [ln.strip() for ln in bracket_chunk.splitlines() if ln.strip()]
+            merged = []
+            i = 0
+            while i < len(lines):
+                if re.fullmatch(r"\d{1,2}\.?", lines[i]) and i + 1 < len(lines):
+                    if i + 3 < len(lines) and lines[i + 2] == "/":
+                        merged.append(f"{lines[i]} {lines[i + 1]} / {lines[i + 3]}")
+                        i += 4
+                    else:
+                        merged.append(f"{lines[i]} {lines[i + 1]}")
+                        i += 2
+                else:
+                    merged.append(lines[i])
+                    i += 1
+            return _parse_seed_team_lines(merged, match_team)
 
-        cbs_parsed = {}
-        # Match common seed + team patterns in CBS markup
-        for seed_str, raw_name in re.findall(r'class="[^"]*seed[^"]*"[^>]*>\s*(\d{1,2})\s*<.*?<a[^>]*>([^<]{2,40})</a>', page, flags=re.DOTALL):
-            seed_num = int(seed_str)
-            if not (1 <= seed_num <= 16):
-                continue
-            cand = re.sub(r"\s+", " ", raw_name).strip().lower()
-            matched = team_lookup.get(cand)
-            if matched and matched not in cbs_parsed:
-                cbs_parsed[matched] = {"seed": seed_num}
+        cbs_url = "https://www.cbssports.com/college-basketball/bracketology/"
+        cbs_parsed, cbs_miss = _parse_cbs_html(_fetch_html(cbs_url))
+        if len(cbs_parsed) < 60:
+            pw_html = _fetch_html_playwright(cbs_url)
+            if pw_html:
+                cbs_parsed, cbs_miss = _parse_cbs_html(pw_html)
 
-        if len(cbs_parsed) >= 32:
+        if len(cbs_parsed) >= 60:
             ext["cbs"] = cbs_parsed
             top1 = [k for k, v in cbs_parsed.items() if v["seed"] == 1][:4]
             if len(top1) == 4:
                 ext.setdefault("top1s", {})["cbs"] = top1
             ext.setdefault("updated", {})["cbs"] = today_label
-            print(f"[Bracketology Sync] Updated CBS Sports ({len(cbs_parsed)} teams).")
+            print(f"[Bracketology Sync] CBS Sports: {len(cbs_parsed)} teams matched.")
+            if cbs_miss:
+                print(f"  -> CBS unmatched ({len(cbs_miss)}): {cbs_miss[:15]}")
         else:
-            print("[Bracketology Sync] CBS markup changed or incomplete; keeping existing snapshot.")
+            print(f"[Bracketology Sync] CBS Sports only matched {len(cbs_parsed)} teams; keeping previous snapshot.")
     except Exception as exc:
-        print(f"[Bracketology Sync] Offline or unreachable ({exc}); keeping existing snapshot.")
+        print(f"[Bracketology Sync] CBS Sports failed ({exc}); keeping previous snapshot.")
+
+    # 2. ESPN Joe Lunardi (2027 URL first via Playwright)
+    espn_url = "https://www.espn.com/espn/feature/story/_/page/bracketology/ncaa-bracketology-projecting-2027-march-madness-men-field"
+    try:
+        html = _fetch_html_playwright(espn_url) or _fetch_html(espn_url)
+        espn_parsed, espn_miss = _extract_espn_bracket_from_html(html, match_team)
+        if len(espn_parsed) >= 60:
+            ext["espn"] = espn_parsed
+            top1 = [k for k, v in espn_parsed.items() if v["seed"] == 1][:4]
+            if len(top1) == 4:
+                ext.setdefault("top1s", {})["espn"] = top1
+            ext.setdefault("updated", {})["espn"] = today_label
+            print(f"[Bracketology Sync] ESPN Lunardi: {len(espn_parsed)} teams matched.")
+            if espn_miss:
+                print(f"  -> ESPN unmatched ({len(espn_miss)}): {espn_miss[:25]}")
+        else:
+            print(f"[Bracketology Sync] ESPN Lunardi only matched {len(espn_parsed)} teams; keeping previous snapshot.")
+            if espn_miss:
+                print(f"  -> ESPN unmatched ({len(espn_miss)}): {espn_miss[:25]}")
+    except Exception as exc:
+        print(f"[Bracketology Sync] ESPN Lunardi failed ({exc}); keeping previous snapshot.")
+
+    # 3. Hoops HD JNG
+    try:
+        html = _fetch_html("https://hoopshd.com/nitty-gritty-rankings/")
+        soup = BeautifulSoup(html, "html.parser")
+        jng_parsed = {}
+        jng_miss = []
+        for tr in soup.select("table tr"):
+            cells = [c.get_text(" ", strip=True) for c in tr.select("td")]
+            if len(cells) >= 2:
+                seed_m = re.match(r"^\s*#?(\d{1,2})\b", cells[0])
+                if not seed_m:
+                    continue
+                seed = int(seed_m.group(1))
+                if not (1 <= seed <= 16):
+                    continue
+                for raw_part in re.split(r"\s*(?:/|\bvs\.?\b)\s*", cells[1]):
+                    canon = match_team(raw_part)
+                    if canon:
+                        jng_parsed.setdefault(canon, {"seed": seed})
+                    elif raw_part.strip():
+                        jng_miss.append(f"{seed}: {raw_part.strip()}")
+        if len(jng_parsed) >= 60:
+            ext["jngHq"] = jng_parsed
+            ext.setdefault("updated", {})["jng"] = today_label
+            print(f"[Bracketology Sync] Hoops HD JNG: {len(jng_parsed)} teams matched.")
+            if jng_miss:
+                print(f"  -> Hoops HD unmatched ({len(jng_miss)}): {jng_miss[:20]}")
+        else:
+            print(f"[Bracketology Sync] Hoops HD JNG only matched {len(jng_parsed)} teams; keeping previous snapshot.")
+    except Exception as exc:
+        print(f"[Bracketology Sync] Hoops HD JNG failed ({exc}); keeping previous snapshot.")
 
     return ext
 
