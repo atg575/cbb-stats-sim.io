@@ -1,31 +1,17 @@
-<<<<<<< HEAD
-2026/11/20-06:08:42.997 1adcb4 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
-2026/11/20-06:08:42.998 1adcb4 Recovering log #90
-2026/11/20-06:08:42.998 1adcb4 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000090.log 
-2026/11/20-06:08:42.998 1adcb4 Delete type=2 #88
-2026/11/20-06:08:43.013 1adcbc Level-0 table #95: started
-2026/11/20-06:08:43.014 1adcbc Level-0 table #95: 7798 bytes OK
-2026/11/20-06:08:43.016 1adcbc Delete type=0 #90
-2026/11/20-06:08:43.017 1adcb4 Manual compaction at level-0 from '\x00\x1b\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1c\x00\x00\x00' @ 0 : 0; will stop at '\x00\x1b\x00\x00\x05' @ 1861 : 1
-2026/11/20-06:08:43.017 1adcb4 Compacting 1@0 + 1@1 files
-2026/11/20-06:08:43.018 1adcb4 Generated table #96@0: 80 keys, 1597 bytes
-2026/11/20-06:08:43.018 1adcb4 Compacted 1@0 + 1@1 files => 1597 bytes
-2026/11/20-06:08:43.019 1adcb4 compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/11/20-06:08:43.019 1adcb4 Delete type=2 #95
-2026/11/20-06:08:43.019 1adcb4 Manual compaction at level-0 from '\x00\x1b\x00\x00\x05' @ 1861 : 1 .. '\x00\x1c\x00\x00\x00' @ 0 : 0; will stop at (end)
-=======
-2026/11/15-18:32:59.092 dc8 Reusing MANIFEST /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
-2026/11/15-18:32:59.092 dc8 Recovering log #70
-2026/11/15-18:32:59.092 dc8 Reusing old log /home/runner/work/cbb-stats-sim/cbb-stats-sim/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000070.log 
-2026/11/15-18:32:59.092 dc8 Delete type=2 #68
-2026/11/15-18:32:59.115 dce Level-0 table #75: started
-2026/11/15-18:32:59.116 dce Level-0 table #75: 8063 bytes OK
-2026/11/15-18:32:59.117 dce Delete type=0 #70
-2026/11/15-18:32:59.118 dc1 Manual compaction at level-0 from '\x00\x15\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x16\x00\x00\x00' @ 0 : 0; will stop at '\x00\x15\x00\x00\x05' @ 1387 : 1
-2026/11/15-18:32:59.118 dc1 Compacting 1@0 + 1@1 files
-2026/11/15-18:32:59.119 dc1 Generated table #76@0: 80 keys, 1598 bytes
-2026/11/15-18:32:59.119 dc1 Compacted 1@0 + 1@1 files => 1598 bytes
-2026/11/15-18:32:59.119 dc1 compacted to: files[ 0 1 1 0 0 0 0 ]
-2026/11/15-18:32:59.119 dc1 Delete type=2 #75
-2026/11/15-18:32:59.120 dce Manual compaction at level-0 from '\x00\x15\x00\x00\x05' @ 1387 : 1 .. '\x00\x16\x00\x00\x00' @ 0 : 0; will stop at (end)
->>>>>>> aaebc560a27e3b11cc54b1885831b3b39d8f50bf
+2026/11/21-08:21:30.644 2aadd5 Reusing MANIFEST /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/11/21-08:21:30.645 2aadd5 Recovering log #94
+2026/11/21-08:21:30.645 2aadd5 Reusing old log /Users/alexvazquez/Coding/cbb_stats/playwright_profile/Default/IndexedDB/https_evanmiya.com_0.indexeddb.leveldb/000094.log 
+2026/11/21-08:21:30.645 2aadd5 Delete type=2 #76
+2026/11/21-08:21:30.645 2aadd5 Delete type=2 #72
+2026/11/21-08:21:30.646 2aadd5 Delete type=0 #74
+2026/11/21-08:21:30.646 2aadd5 Delete type=2 #92
+2026/11/21-08:21:30.652 2aaddd Level-0 table #99: started
+2026/11/21-08:21:30.652 2aaddd Level-0 table #99: 7811 bytes OK
+2026/11/21-08:21:30.653 2aaddd Delete type=0 #94
+2026/11/21-08:21:30.654 2aadd5 Manual compaction at level-0 from '\x00\x1c\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1d\x00\x00\x00' @ 0 : 0; will stop at '\x00\x1c\x00\x00\x05' @ 1944 : 1
+2026/11/21-08:21:30.654 2aadd5 Compacting 1@0 + 1@1 files
+2026/11/21-08:21:30.655 2aadd5 Generated table #100@0: 80 keys, 1595 bytes
+2026/11/21-08:21:30.655 2aadd5 Compacted 1@0 + 1@1 files => 1595 bytes
+2026/11/21-08:21:30.655 2aadd5 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/11/21-08:21:30.656 2aadd5 Delete type=2 #99
+2026/11/21-08:21:30.656 2aadd5 Manual compaction at level-0 from '\x00\x1c\x00\x00\x05' @ 1944 : 1 .. '\x00\x1d\x00\x00\x00' @ 0 : 0; will stop at (end)
