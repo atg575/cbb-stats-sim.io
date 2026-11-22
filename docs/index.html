@@ -377,11 +377,13 @@
           <div class="flex flex-wrap items-center gap-2">
             <input id="polls-search" type="text" oninput="renderPollsComparisonTab()" placeholder="Search team or conference..." class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 w-52" />
             <select id="polls-filter" onchange="renderPollsComparisonTab()" class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-orange-500">
-              <option value="ALL_TOP">All Ranked Teams (Polls + Model Top 25)</option>
+              <option value="ALL_TOP">All Ranked + Receiving Votes + Model Top 25</option>
               <option value="AP25">AP Top 25 Only</option>
-              <option value="COACHES25">USA Today Coaches Top 25 Only</option>
-              <option value="UNDERRATED">📈 Model Top 25 / Unranked in Polls</option>
-              <option value="OVERRATED">📉 Ranked in Polls / Outside Model Top 25</option>
+              <option value="AP_ALL">AP Top 25 + Receiving Votes</option>
+              <option value="COACHES25">Coaches Top 25 Only</option>
+              <option value="COACHES_ALL">Coaches Top 25 + Receiving Votes</option>
+              <option value="UNDERRATED">📈 Model Top 25 / Outside Poll Top 25</option>
+              <option value="OVERRATED">📉 Poll Top 25 / Outside Model Top 25</option>
               <option value="BIG_DIFF">Biggest Disagreements (|Δ vs AP| ≥ 5)</option>
             </select>
           </div>
@@ -1144,21 +1146,28 @@
     function renderPollsComparisonTab() {
       const ext = RAW_DATA.external_rankings || {};
       const apMap = ext.ap || {};
+      const apVotes = ext.ap_votes || {};
       const coachesMap = ext.coaches || {};
+      const coachesVotes = ext.coaches_votes || {};
       const updated = ext.updated?.ap || ext.updated?.coaches || 'Not synced yet';
       const modeLbl = getModeLabel();
 
+      const apRvCount = Object.keys(apVotes).length;
+      const cRvCount = Object.keys(coachesVotes).length;
       document.getElementById('polls-comp-title').textContent = `${modeLbl} vs. AP Poll & USA Today Coaches Poll`;
-      document.getElementById('polls-updated-pill').textContent = `AP (${Object.keys(apMap).length}) • Coaches (${Object.keys(coachesMap).length}) • ${updated}`;
+      document.getElementById('polls-updated-pill').textContent =
+        `AP (${Object.keys(apMap).length}${apRvCount ? ' incl. ' + apRvCount + ' RV' : ''}) • Coaches (${Object.keys(coachesMap).length}${cRvCount ? ' incl. ' + cRvCount + ' RV' : ''}) • ${updated}`;
       document.getElementById('polls-ours-hdr').textContent = `${modeLbl} Rk`;
 
       const allRows = RAW_DATA.teams.map(t => {
         const m = getTeamModeMetrics(t);
         const apRk = apMap[t.team] ?? null;
+        const apV = apVotes[t.team] ?? null;
         const cRk = coachesMap[t.team] ?? null;
+        const cV = coachesVotes[t.team] ?? null;
         const dAp = apRk !== null ? (apRk - m.rk) : null;
         const dCoach = cRk !== null ? (cRk - m.rk) : null;
-        return { t, m, apRk, cRk, dAp, dCoach };
+        return { t, m, apRk, apV, cRk, cV, dAp, dCoach };
       });
 
       const hasPolls = Object.keys(apMap).length > 0 || Object.keys(coachesMap).length > 0;
@@ -1167,7 +1176,7 @@
         document.getElementById('polls-count-label').textContent = '0 poll teams loaded';
         document.getElementById('polls-comp-tbody').innerHTML = `
           <tr><td colspan="9" class="p-6 text-center text-xs text-amber-300 mono-num">
-            No AP or Coaches Poll rankings found in data.json yet. Update build_pages_site.py with fetch_external_rankings() and re-run python3 build_pages_site.py.
+            No AP or Coaches Poll rankings found in data.json yet. Run python3 build_pages_site.py to sync.
           </td></tr>`;
         return;
       }
@@ -1175,8 +1184,12 @@
       const ap1 = allRows.find(r => r.apRk === 1);
       const coach1 = allRows.find(r => r.cRk === 1);
       const model1 = [...allRows].sort((a, b) => a.m.rk - b.m.rk)[0];
-      const sleepers = allRows.filter(r => r.m.rk <= 25 && r.apRk === null && r.cRk === null).sort((a, b) => a.m.rk - b.m.rk).slice(0, 3);
-      const overrated = allRows.filter(r => (r.apRk !== null || r.cRk !== null) && r.m.rk > 25).sort((a, b) => b.m.rk - a.m.rk).slice(0, 3);
+      const sleepers = allRows
+        .filter(r => r.m.rk <= 25 && (r.apRk === null || r.apRk > 25) && (r.cRk === null || r.cRk > 25))
+        .sort((a, b) => a.m.rk - b.m.rk).slice(0, 3);
+      const overrated = allRows
+        .filter(r => ((r.apRk !== null && r.apRk <= 25) || (r.cRk !== null && r.cRk <= 25)) && r.m.rk > 25)
+        .sort((a, b) => b.m.rk - a.m.rk).slice(0, 3);
 
       document.getElementById('polls-kpi-grid').innerHTML = `
         <div class="bg-slate-950/70 rounded-xl p-3.5 border border-slate-800">
@@ -1190,15 +1203,15 @@
           <div class="text-xs text-slate-400 mono-num mt-1">${coach1 ? `${modeLbl} Rank: #${coach1.m.rk} (${coach1.m.net >= 0 ? '+' : ''}${coach1.m.net.toFixed(1)})` : ''}</div>
         </div>
         <div class="bg-slate-950/70 rounded-xl p-3.5 border border-emerald-500/30">
-          <div class="text-[10px] font-bold uppercase text-emerald-400">📈 Analytics Sleepers (Model Top 25, Unranked)</div>
+          <div class="text-[10px] font-bold uppercase text-emerald-400">📈 Analytics Sleepers (Model Top 25, Outside Poll Top 25)</div>
           <div class="text-xs font-bold text-white mt-1 space-y-0.5 mono-num">
-            ${sleepers.length ? sleepers.map(r => `<div>#${r.m.rk} ${esc(r.t.team)} <span class="text-emerald-400">(${r.t.w}-${r.t.l})</span></div>`).join('') : '<div class="text-slate-400">All Model Top 25 ranked!</div>'}
+            ${sleepers.length ? sleepers.map(r => `<div>#${r.m.rk} ${esc(r.t.team)} <span class="text-emerald-400">${r.apRk ? '(AP RV #' + r.apRk + ')' : '(NR)'}</span></div>`).join('') : '<div class="text-slate-400">All Model Top 25 ranked!</div>'}
           </div>
         </div>
         <div class="bg-slate-950/70 rounded-xl p-3.5 border border-rose-500/30">
-          <div class="text-[10px] font-bold uppercase text-rose-400">📉 Poll Favorites Outside Model Top 25</div>
+          <div class="text-[10px] font-bold uppercase text-rose-400">📉 Poll Top 25 Outside Model Top 25</div>
           <div class="text-xs font-bold text-white mt-1 space-y-0.5 mono-num">
-            ${overrated.length ? overrated.map(r => `<div>${esc(r.t.team)}: AP ${r.apRk ? '#' + r.apRk : 'NR'} / C ${r.cRk ? '#' + r.cRk : 'NR'} <span class="text-rose-400">(Model #${r.m.rk})</span></div>`).join('') : '<div class="text-slate-400">None</div>'}
+            ${overrated.length ? overrated.map(r => `<div>${esc(r.t.team)}: AP ${r.apRk && r.apRk <= 25 ? '#' + r.apRk : 'RV/NR'} / C ${r.cRk && r.cRk <= 25 ? '#' + r.cRk : 'RV/NR'} <span class="text-rose-400">(Model #${r.m.rk})</span></div>`).join('') : '<div class="text-slate-400">None</div>'}
           </div>
         </div>
       `;
@@ -1209,13 +1222,24 @@
       let rows = allRows;
       if (q) rows = rows.filter(r => r.t.team.toLowerCase().includes(q) || r.t.conf.toLowerCase().includes(q) || r.t.conf_short.toLowerCase().includes(q));
       if (filter === 'ALL_TOP') rows = rows.filter(r => r.apRk !== null || r.cRk !== null || r.m.rk <= 25);
-      else if (filter === 'AP25') rows = rows.filter(r => r.apRk !== null).sort((a, b) => a.apRk - b.apRk);
-      else if (filter === 'COACHES25') rows = rows.filter(r => r.cRk !== null).sort((a, b) => a.cRk - b.cRk);
-      else if (filter === 'UNDERRATED') rows = rows.filter(r => r.m.rk <= 25 && r.apRk === null && r.cRk === null).sort((a, b) => a.m.rk - b.m.rk);
-      else if (filter === 'OVERRATED') rows = rows.filter(r => (r.apRk !== null || r.cRk !== null) && r.m.rk > 25).sort((a, b) => (a.apRk ?? a.cRk ?? 99) - (b.apRk ?? b.cRk ?? 99));
+      else if (filter === 'AP25') rows = rows.filter(r => r.apRk !== null && r.apRk <= 25).sort((a, b) => a.apRk - b.apRk);
+      else if (filter === 'AP_ALL') rows = rows.filter(r => r.apRk !== null).sort((a, b) => a.apRk - b.apRk);
+      else if (filter === 'COACHES25') rows = rows.filter(r => r.cRk !== null && r.cRk <= 25).sort((a, b) => a.cRk - b.cRk);
+      else if (filter === 'COACHES_ALL') rows = rows.filter(r => r.cRk !== null).sort((a, b) => a.cRk - b.cRk);
+      else if (filter === 'UNDERRATED') rows = rows.filter(r => r.m.rk <= 25 && (r.apRk === null || r.apRk > 25) && (r.cRk === null || r.cRk > 25)).sort((a, b) => a.m.rk - b.m.rk);
+      else if (filter === 'OVERRATED') rows = rows.filter(r => ((r.apRk !== null && r.apRk <= 25) || (r.cRk !== null && r.cRk <= 25)) && r.m.rk > 25).sort((a, b) => (a.apRk ?? a.cRk ?? 99) - (b.apRk ?? b.cRk ?? 99));
       else if (filter === 'BIG_DIFF') rows = rows.filter(r => r.dAp !== null && Math.abs(r.dAp) >= 5).sort((a, b) => Math.abs(b.dAp) - Math.abs(a.dAp));
 
-      if (filter === 'ALL_TOP') rows.sort((a, b) => (a.apRk ?? 99) - (b.apRk ?? 99) || (a.cRk ?? 99) - (b.cRk ?? 99) || a.m.rk - b.m.rk);
+      if (filter === 'ALL_TOP') {
+        rows.sort((a, b) => (a.apRk ?? 999) - (b.apRk ?? 999) || (a.cRk ?? 999) - (b.cRk ?? 999) || a.m.rk - b.m.rk);
+      }
+
+      const fmtPollCell = (rk, votes, topCls) => {
+        if (rk === null) return '<span class="text-slate-500 font-normal">NR</span>';
+        if (rk <= 25) return `<span class="font-bold ${topCls}">#${rk}</span>`;
+        const vTag = votes !== null ? ` • ${votes}v` : '';
+        return `<span class="text-slate-300 font-semibold">#${rk}</span> <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 font-normal">RV${vTag}</span>`;
+      };
 
       const fmtDelta = (d) => {
         if (d === null) return `<span class="text-slate-500">—</span>`;
@@ -1231,9 +1255,9 @@
           <td class="py-2 px-2.5 text-slate-400 mono-num">${esc(r.t.conf_short)}</td>
           <td class="py-2 px-2.5 text-slate-300 mono-num">${r.t.w}-${r.t.l}</td>
           <td class="py-2 px-3 mono-num font-bold text-orange-300">#${r.m.rk}</td>
-          <td class="py-2 px-3 mono-num font-bold text-sky-300">${r.apRk !== null ? '#' + r.apRk : '<span class="text-slate-500 font-normal">NR</span>'}</td>
+          <td class="py-2 px-3 mono-num whitespace-nowrap">${fmtPollCell(r.apRk, r.apV, 'text-sky-300')}</td>
           <td class="py-2 px-2.5 mono-num">${fmtDelta(r.dAp)}</td>
-          <td class="py-2 px-3 mono-num font-bold text-purple-300">${r.cRk !== null ? '#' + r.cRk : '<span class="text-slate-500 font-normal">NR</span>'}</td>
+          <td class="py-2 px-3 mono-num whitespace-nowrap">${fmtPollCell(r.cRk, r.cV, 'text-purple-300')}</td>
           <td class="py-2 px-2.5 mono-num">${fmtDelta(r.dCoach)}</td>
           <td class="py-2 px-3 mono-num ${r.m.net >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${r.m.net >= 0 ? '+' : ''}${r.m.net.toFixed(2)}</td>
         </tr>
@@ -1274,8 +1298,8 @@
         <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30 mono-num">Consensus #${t.con_rk}</span>
         <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30 mono-num">Live #${t.live_rk}</span>
         ${netRk ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-sky-300 border border-slate-700 mono-num">${esc(ext.net_label || 'NET')} #${netRk}</span>` : ''}
-        ${apRk ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-amber-300 border border-slate-700 mono-num">AP #${apRk}</span>` : ''}
-        ${coachRk ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-purple-300 border border-slate-700 mono-num">Coaches #${coachRk}</span>` : ''}
+        ${apRk ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-amber-300 border border-slate-700 mono-num">${apRk <= 25 ? 'AP #' + apRk : 'AP RV (#' + apRk + ')'}</span>` : ''}
+        ${coachRk ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-purple-300 border border-slate-700 mono-num">${coachRk <= 25 ? 'Coaches #' + coachRk : 'Coaches RV (#' + coachRk + ')'}</span>` : ''}
         ${t.inj_delta_pct < 0 ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 mono-num">Injury Δ ${t.inj_delta_pct.toFixed(2)}%</span>` : ''}
       `;
 

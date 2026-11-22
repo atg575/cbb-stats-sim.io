@@ -574,15 +574,35 @@ BRACKET_ALIASES = {
     "miami-ohio": "Miami OH",
     "texas-arlington": "UT Arlington",
     "massachusetts-lowell": "UMass Lowell",
+    "omaha": "Nebraska Omaha", "seattle u": "Seattle", "sam houston": "Sam Houston St.",
+    "grambling": "Grambling St.", "southern u.": "Southern", "army west point": "Army",
+    "lamar university": "Lamar", "alcorn": "Alcorn St.", "prairie view": "Prairie View A&M",
+    "fdu": "Fairleigh Dickinson", "fgcu": "Florida Gulf Coast", "uiw": "Incarnate Word",
+    "ulm": "Louisiana Monroe", "umes": "Maryland Eastern Shore", "utrgv": "UT Rio Grande Valley",
+    "ualbany": "Albany", "albany (ny)": "Albany", "umass": "Massachusetts",
+    "central conn. st.": "Central Connecticut", "california baptist": "Cal Baptist",
+    "csu bakersfield": "Cal St. Bakersfield", "lmu": "Loyola Marymount",
+    "lmu (ca)": "Loyola Marymount", "siu edwardsville": "SIUE", "uncg": "UNC Greensboro",
+    "unca": "UNC Asheville", "south fla.": "South Florida", "north fla.": "North Florida",
+    "southern miss.": "Southern Miss", "gardner-webb": "Gardner Webb",
+    "ark.-pine bluff": "Arkansas Pine Bluff", "texas a&m-commerce": "East Texas A&M",
+    "tex. a&m-commerce": "East Texas A&M", "mcneese": "McNeese", "nicholls": "Nicholls",
+    "southern california": "USC",
+    "southern cal": "USC",
+    "uni": "Northern Iowa",
+    "new orleans": "LSU New Orleans",
+    "southeast mo. st.": "Southeast Missouri",
+    "boston u.": "Boston University",
+    "niu": "Northern Illinois",
+    "mississippi val.": "Mississippi Valley St.",
+    "fla": "Florida", "tex": "Texas", "ari": "Arizona",
+    "mia-fl": "Miami FL", "txtch": "Texas Tech", "stjn": "St. John's",
 }
 
 NON_TEAM_LABELS = {
-    "midwest", "east", "south", "west", "dayton", "detroit", "minneapolis",
-    "fort worth", "kansas city", "new york", "san antonio", "los angeles",
-    "chicago", "indianapolis", "buffalo", "charlotte", "greenville", "portland",
-    "st. louis", "tampa", "oklahoma city", "lexington", "providence", "seattle",
-    "denver", "sacramento", "san jose", "birmingham", "cleveland", "milwaukee",
-    "raleigh", "wichita", "first four", "opening round", "final four",
+    "midwest", "east", "south", "west", "first four", "opening round", "final four",
+    "minneapolis", "fort worth", "indianapolis", "greenville", "tampa",
+    "oklahoma city", "lexington", "birmingham", "raleigh",
 }
 
 DIRECTIONAL_PREFIXES = [
@@ -599,6 +619,30 @@ DIRECTIONAL_PREFIXES = [
     (r"^m\.?\s+", ["middle "]),
 ]
 
+NCAA_WORD_EXPANSIONS = [
+    (r"(?<!\w)n\.c\.(?!\w)", "north carolina"),
+    (r"(?<!\w)s\.c\.(?!\w)", "south carolina"),
+    (r"(?<!\w)fla(?:\.|(?=\s|$))", "florida"),
+    (r"(?<!\w)ga(?:\.|(?=\s|$))", "georgia"),
+    (r"(?<!\w)ky(?:\.|(?=\s|$))", "kentucky"),
+    (r"(?<!\w)ill(?:\.|(?=\s|$))", "illinois"),
+    (r"(?<!\w)mich(?:\.|(?=\s|$))", "michigan"),
+    (r"(?<!\w)tenn(?:\.|(?=\s|$))", "tennessee"),
+    (r"(?<!\w)ala(?:\.|(?=\s|$))", "alabama"),
+    (r"(?<!\w)ark(?:\.|(?=\s|$))", "arkansas"),
+    (r"(?<!\w)caro(?:\.|(?=\s|$))", "carolina"),
+    (r"(?<!\w)wash(?:\.|(?=\s|$))", "washington"),
+    (r"(?<!\w)colo(?:\.|(?=\s|$))", "colorado"),
+    (r"(?<!\w)ariz(?:\.|(?=\s|$))", "arizona"),
+    (r"(?<!\w)conn(?:\.|(?=\s|$))", "connecticut"),
+    (r"(?<!\w)la(?:\.|(?=\s|$))", "louisiana"),
+    (r"(?<!\w)miss(?:\.|(?=\s|$))", "mississippi"),
+    (r"(?<!\w)ind(?:\.|(?=\s|$))", "indiana"),
+    (r"(?<!\w)so(?:\.|(?=\s|$))", "southern"),
+    (r"(?<!\w)mo(?:\.|(?=\s|$))", "missouri"),
+    (r"(?<!\w)okla(?:\.|(?=\s|$))", "oklahoma"),
+    (r"(?<!\w)tex(?:\.|(?=\s|$))", "texas"),
+]
 
 def _build_ssl_context():
     try:
@@ -716,6 +760,16 @@ def build_team_matcher(teams):
                     hit = _try_direct(re.sub(pat, rep, low))
                     if hit:
                         return hit
+
+        # Expand NCAA.com abbreviated state/direction tokens ("Western Ky.", "Fla. Atlantic", etc.)
+        expanded = low.replace("-", " ")
+        for pat, rep in NCAA_WORD_EXPANSIONS:
+            expanded = re.sub(pat, rep, expanded)
+        expanded = re.sub(r"\s+", " ", expanded).strip()
+        if expanded != low:
+            hit = _try_direct(expanded)
+            if hit:
+                return hit
 
         stripped = re.sub(r"[^a-z0-9 ]+", "", low).strip()
         if len(stripped) >= 5:
@@ -948,30 +1002,133 @@ def fetch_latest_external_bracketology(teams, existing_ext=None):
 
     return ext
 
-def _parse_ranked_table(html, match_team, max_rank=365):
-    """Parse standard NCAA / Warren Nolan / ESPN ranked tables (Rank in col 0, Team in col 1)."""
-    soup = BeautifulSoup(html, "html.parser")
+def _parse_single_ranked_table(table, match_team, max_rank=365):
+    """Parse one HTML <table> into (dict[team -> rank], list[unmatched]). Handles T-18 & blank tie rows."""
     ranks = {}
-    for tr in soup.select("table tr"):
+    unmatched = []
+    last_rk = None
+    for tr in table.select("tr"):
         cells = [c.get_text(" ", strip=True) for c in tr.select("td")]
         if len(cells) < 2:
             continue
-        m = re.match(r"^\s*#?(\d{1,3})\b", cells[0])
-        if not m:
+        rk_cell = cells[0].strip()
+        m = re.match(r"^(?:T-?|#)?(\d{1,3})\b", rk_cell, flags=re.I)
+        if m:
+            rk = int(m.group(1))
+            last_rk = rk
+        elif rk_cell in ("", "-", "—") and last_rk is not None:
+            rk = last_rk  # tied team with blank rank cell
+        else:
             continue
-        rk = int(m.group(1))
+
         if not (1 <= rk <= max_rank):
             continue
-        # Strip trailing "(12)" first-place votes or records
-        raw_team = re.sub(r"\s*\(\d+\)\s*$", "", cells[1]).strip()
+
+        # Strip trailing "(12)" first-place votes or "(5-0)" records
+        raw_team = re.sub(r"\s*\([^)]*\)\s*$", "", cells[1]).strip()
+        # On ESPN rankings, team cell may include abbreviation prefix or record; prefer <a> text if present
+        a_tags = [a.get_text(" ", strip=True) for a in tr.select("td:nth-of-type(2) a") if a.get_text(strip=True)]
+        canon = None
+        for cand in ([a_tags[-1]] if a_tags else []) + [raw_team]:
+            canon = match_team(re.sub(r"\s*\([^)]*\)\s*$", "", cand).strip())
+            if canon:
+                break
+        if canon:
+            ranks.setdefault(canon, rk)
+        elif raw_team:
+            unmatched.append(f"#{rk}: {raw_team}")
+    return ranks, unmatched
+
+
+def _parse_ranked_table(html, match_team, max_rank=365):
+    soup = BeautifulSoup(html, "html.parser")
+    best_ranks, best_miss = {}, []
+    for tbl in soup.select("table"):
+        r, m = _parse_single_ranked_table(tbl, match_team, max_rank=max_rank)
+        if len(r) > len(best_ranks):
+            best_ranks, best_miss = r, m
+    return best_ranks, best_miss
+
+
+def _extract_orv_blocks(soup):
+    """Find 'Others receiving votes' text blocks (handles both inline <p> and heading + sibling layouts)."""
+    blocks = []
+    seen = set()
+    for node in soup.find_all(string=re.compile(r"others\s+receiving\s+votes", re.I)):
+        parent = node.parent
+        if parent and parent.name in ("b", "strong", "span", "em", "a") and parent.parent:
+            parent = parent.parent
+        txt = re.sub(r"\s+", " ", parent.get_text(" ", strip=True)) if parent else str(node).strip()
+        tail = re.sub(r"^.*?others\s+receiving\s+votes\s*[:.]?\s*", "", txt, flags=re.I).strip()
+
+        # If the matched element was only a heading/label, grab the sibling or wrapper container
+        if len(tail) < 10 and parent is not None:
+            nxt = parent.find_next_sibling()
+            if nxt:
+                nxt_txt = re.sub(r"\s+", " ", nxt.get_text(" ", strip=True))
+                if re.search(r"\d", nxt_txt):
+                    txt = f"Others receiving votes: {nxt_txt}"
+                    tail = nxt_txt
+            if len(tail) < 10 and parent.parent is not None:
+                wrap_txt = re.sub(r"\s+", " ", parent.parent.get_text(" ", strip=True))
+                wrap_tail = re.sub(r"^.*?others\s+receiving\s+votes\s*[:.]?\s*", "", wrap_txt, flags=re.I).strip()
+                if len(wrap_tail) >= 10:
+                    txt = f"Others receiving votes: {wrap_tail}"
+
+        if txt and txt not in seen:
+            seen.add(txt)
+            blocks.append(txt)
+    return blocks
+
+
+def _parse_orv_text(orv_text, existing_ranks, match_team):
+    """
+    Parse 'Others receiving votes: Team A 54, Team B 41, Team C 41...'
+    Returns (rv_ranks, rv_votes, unmatched) ranked starting at max(26, len(existing_ranks) + 1).
+    """
+    text = re.split(r"(?:dropped from rankings|also receiving|next\s+games|\n)", orv_text, maxsplit=1, flags=re.I)[0]
+    text = re.sub(r"^.*?others\s+receiving\s+votes\s*[:.]?\s*", "", text, flags=re.I).strip()
+
+    entries = []
+    unmatched = []
+    for chunk in re.split(r"[,;]+", text):
+        chunk = chunk.strip().rstrip(".")
+        if not chunk:
+            continue
+        m = re.match(r"^(.*?)\s+(\d+)$", chunk)
+        if not m:
+            continue
+        raw_team, votes = m.group(1).strip(), int(m.group(2))
         canon = match_team(raw_team)
-        if canon and canon not in ranks:
-            ranks[canon] = rk
-    return ranks
+        if canon:
+            if canon not in existing_ranks:
+                entries.append((canon, votes))
+        elif raw_team:
+            unmatched.append(f"RV({votes}): {raw_team}")
+
+    # Sort descending by votes (stable sort preserves poll order on ties)
+    entries.sort(key=lambda x: x[1], reverse=True)
+    start_rk = max(26, len(existing_ranks) + 1)
+    rv_ranks, rv_votes = {}, {}
+    prev_votes, prev_rk = None, start_rk
+
+    for idx, (canon, votes) in enumerate(entries):
+        if canon in rv_ranks:
+            continue
+        if prev_votes is not None and votes == prev_votes:
+            rk = prev_rk
+        else:
+            rk = start_rk + idx
+            prev_rk = rk
+            prev_votes = votes
+        rv_ranks[canon] = rk
+        rv_votes[canon] = votes
+
+    return rv_ranks, rv_votes, unmatched
 
 
 def fetch_external_rankings(teams, existing_ext=None):
-    """Fetch NCAA NET (with live RPI fallback before Dec debut), AP Poll, and USA Today Coaches Poll."""
+    """Fetch NCAA NET (with RPI fallback), AP Poll (+RV), and USA Today Coaches Poll (+RV)."""
     ext = dict(existing_ext or {})
     if os.environ.get("SKIP_BRACKETOLOGY_SYNC") == "1":
         return ext
@@ -979,7 +1136,7 @@ def fetch_external_rankings(teams, existing_ext=None):
     match_team = build_team_matcher(teams)
     today_label = datetime.datetime.now().strftime("%b %d, %Y")
 
-    # 1. NCAA NET (falls back to Warren Nolan 2027 NET, then 2027 RPI if NCAA NET hasn't debuted yet)
+    # 1. NCAA NET (or Warren Nolan NET / RPI fallback)
     net_sources = [
         ("NCAA NET", "https://www.ncaa.com/rankings/basketball-men/d1/ncaa-mens-basketball-net-rankings"),
         ("NCAA NET", "https://www.warrennolan.com/basketball/2027/net"),
@@ -987,44 +1144,153 @@ def fetch_external_rankings(teams, existing_ext=None):
     ]
     for label, url in net_sources:
         try:
-            ranks = _parse_ranked_table(_fetch_html(url), match_team, max_rank=365)
+            ranks, miss = _parse_ranked_table(_fetch_html(url), match_team, max_rank=365)
             if len(ranks) >= 100:
                 ext["net"] = ranks
                 ext["net_label"] = label
                 ext.setdefault("updated", {})["net"] = today_label
                 print(f"[Rankings Sync] {label}: {len(ranks)} teams matched.")
+                if miss:
+                    print(f"  -> {label} unmatched ({len(miss)}): {miss[:20]}")
                 break
         except Exception:
             continue
 
-    # 2. AP Top 25 Poll
-    for url in (
-        "https://www.ncaa.com/rankings/basketball-men/d1/associated-press",
-        "https://www.espn.com/mens-college-basketball/rankings",
-    ):
-        try:
-            ranks = _parse_ranked_table(_fetch_html(url), match_team, max_rank=25)
-            if len(ranks) >= 20:
-                ext["ap"] = ranks
-                ext.setdefault("updated", {})["ap"] = today_label
-                print(f"[Rankings Sync] AP Poll: {len(ranks)} teams matched.")
-                break
-        except Exception:
-            continue
+    # 2. AP Top 25 + Receiving Votes (NCAA.com first)
+    ap_ok = False
+    try:
+        ap_html = _fetch_html("https://www.ncaa.com/rankings/basketball-men/d1/associated-press")
+        ap_soup = BeautifulSoup(ap_html, "html.parser")
+        ranks, miss = _parse_ranked_table(ap_html, match_team, max_rank=25)
+        if len(ranks) >= 20:
+            rv_votes = {}
+            orv_blocks = _extract_orv_blocks(ap_soup)
+            if orv_blocks:
+                rv_r, rv_v, rv_miss = _parse_orv_text(orv_blocks[0], ranks, match_team)
+                ranks.update(rv_r)
+                rv_votes.update(rv_v)
+                miss.extend(rv_miss)
+            ext["ap"] = ranks
+            ext["ap_votes"] = rv_votes
+            ext.setdefault("updated", {})["ap"] = today_label
+            print(f"[Rankings Sync] AP Poll: {len(ranks)} teams matched ({len(rv_votes)} RV).")
+            if miss:
+                print(f"  -> AP Poll unmatched: {miss}")
+            ap_ok = True
+    except Exception:
+        pass
 
-    # 3. USA Today Coaches Poll
-    for url in (
+    # 3. USA Today Coaches Poll + Receiving Votes (USA Today official page first, NCAA.com fallback)
+    coaches_ok = False
+    for c_url in (
+        "https://sportsdata.usatoday.com/basketball/ncaab/coaches-poll",
         "https://www.ncaa.com/rankings/basketball-men/d1/usa-today-coaches",
     ):
         try:
-            ranks = _parse_ranked_table(_fetch_html(url), match_team, max_rank=25)
+            c_html = _fetch_html(c_url)
+            c_soup = BeautifulSoup(c_html, "html.parser")
+
+            # On USA Today, team cells contain both a full-name span and a short-code span;
+            # strip hidden/mobile abbreviation spans if present, or fall back to full cell text.
+            ranks = {}
+            miss = []
+            for tbl in c_soup.select("table"):
+                r_try, m_try = {}, []
+                last_rk = None
+                for tr in tbl.select("tr"):
+                    cells = tr.select("td")
+                    if len(cells) < 2:
+                        continue
+                    rk_txt = cells[0].get_text(" ", strip=True)
+                    m = re.match(r"^(?:T-?|#)?(\d{1,2})\b", rk_txt, flags=re.I)
+                    if m:
+                        rk = int(m.group(1))
+                        last_rk = rk
+                    elif rk_txt in ("", "-", "—") and last_rk is not None:
+                        rk = last_rk
+                    else:
+                        continue
+                    if not (1 <= rk <= 25):
+                        continue
+
+                    # Try individual child spans/links first (avoids "Duke Blue DevilsDuke" concatenation)
+                    cands = [el.get_text(" ", strip=True) for el in cells[1].select("a, span") if el.get_text(strip=True)]
+                    cands.append(cells[1].get_text(" ", strip=True))
+                    canon = None
+                    for raw_c in cands:
+                        cleaned = re.sub(r"\s*\([^)]*\)\s*$", "", raw_c).strip()
+                        canon = match_team(cleaned)
+                        if canon:
+                            break
+                    if canon:
+                        r_try.setdefault(canon, rk)
+                    else:
+                        m_try.append(f"#{rk}: {cells[1].get_text(' ', strip=True)}")
+                if len(r_try) > len(ranks):
+                    ranks, miss = r_try, m_try
+
             if len(ranks) >= 20:
+                rv_votes = {}
+                orv_blocks = _extract_orv_blocks(c_soup)
+                if orv_blocks:
+                    rv_r, rv_v, rv_miss = _parse_orv_text(orv_blocks[0], ranks, match_team)
+                    ranks.update(rv_r)
+                    rv_votes.update(rv_v)
+                    miss.extend(rv_miss)
                 ext["coaches"] = ranks
+                ext["coaches_votes"] = rv_votes
                 ext.setdefault("updated", {})["coaches"] = today_label
-                print(f"[Rankings Sync] Coaches Poll: {len(ranks)} teams matched.")
+                print(f"[Rankings Sync] Coaches Poll: {len(ranks)} teams matched ({len(rv_votes)} RV).")
+                if miss:
+                    print(f"  -> Coaches Poll unmatched: {miss}")
+                coaches_ok = True
                 break
         except Exception:
             continue
+
+    # 4. ESPN Rankings fallback (1st table + 1st ORV = AP, 2nd table + 2nd ORV = Coaches)
+    if not ap_ok or not coaches_ok:
+        try:
+            espn_html = _fetch_html("https://www.espn.com/mens-college-basketball/rankings")
+            espn_soup = BeautifulSoup(espn_html, "html.parser")
+            orv_blocks = _extract_orv_blocks(espn_soup)
+            ranked_tables = []
+            for tbl in espn_soup.select("table"):
+                r, m = _parse_single_ranked_table(tbl, match_team, max_rank=25)
+                if len(r) >= 20:
+                    ranked_tables.append((r, m))
+
+            if not ap_ok and len(ranked_tables) >= 1:
+                ranks, miss = ranked_tables[0]
+                rv_votes = {}
+                if len(orv_blocks) >= 1:
+                    rv_r, rv_v, rv_miss = _parse_orv_text(orv_blocks[0], ranks, match_team)
+                    ranks.update(rv_r)
+                    rv_votes.update(rv_v)
+                    miss.extend(rv_miss)
+                ext["ap"] = ranks
+                ext["ap_votes"] = rv_votes
+                ext.setdefault("updated", {})["ap"] = today_label
+                print(f"[Rankings Sync] AP Poll (ESPN): {len(ranks)} teams matched ({len(rv_votes)} RV).")
+                if miss:
+                    print(f"  -> AP Poll unmatched: {miss}")
+
+            if not coaches_ok and len(ranked_tables) >= 2:
+                ranks, miss = ranked_tables[1]
+                rv_votes = {}
+                if len(orv_blocks) >= 2:
+                    rv_r, rv_v, rv_miss = _parse_orv_text(orv_blocks[1], ranks, match_team)
+                    ranks.update(rv_r)
+                    rv_votes.update(rv_v)
+                    miss.extend(rv_miss)
+                ext["coaches"] = ranks
+                ext["coaches_votes"] = rv_votes
+                ext.setdefault("updated", {})["coaches"] = today_label
+                print(f"[Rankings Sync] Coaches Poll (ESPN): {len(ranks)} teams matched ({len(rv_votes)} RV).")
+                if miss:
+                    print(f"  -> Coaches Poll unmatched: {miss}")
+        except Exception as exc:
+            print(f"[Rankings Sync] ESPN polls fallback failed ({exc}).")
 
     return ext
 
