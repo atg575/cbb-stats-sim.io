@@ -20,6 +20,7 @@ import sys
 import urllib.request
 import openpyxl
 import ssl
+from bs4 import BeautifulSoup, NavigableString
 
 
 MODEL_NAMES = [
@@ -597,6 +598,7 @@ BRACKET_ALIASES = {
     "mississippi val.": "Mississippi Valley St.",
     "fla": "Florida", "tex": "Texas", "ari": "Arizona",
     "mia-fl": "Miami FL", "txtch": "Texas Tech", "stjn": "St. John's",
+    "santa barbara": "UC Santa Barbara"
 }
 
 NON_TEAM_LABELS = {
@@ -804,88 +806,83 @@ def _parse_seed_team_lines(text_lines, match_team):
                 unmatched.append(f"{seed}: {cleaned}")
     return parsed, unmatched
 
+def _find_seed_before_link(a_tag):
+    """Return the 1-16 seed if the immediately preceding text node is a valid seed (skipping React HTML comments)."""
+    for el in a_tag.previous_elements:
+        if type(el) is not NavigableString:
+            continue
+        if el.parent and el.parent.name in ("script", "style"):
+            continue
+        txt = str(el).strip()
+        if not txt:
+            continue
+        m = re.fullmatch(r"#?(\d{1,2})\.?", txt)
+        if m:
+            s = int(m.group(1))
+            if 1 <= s <= 16:
+                return s
+        return None
+    return None
+
+
+SEED_MAX_TEAMS = {s: (8 if s in (10, 11, 12, 15, 16) else 4) for s in range(1, 17)}
 
 def _extract_espn_bracket_from_html(html, match_team):
     soup = BeautifulSoup(html, "html.parser")
+
+    # 1. Remove Bracket Watch <figure> cards, pod-city <p> headers (Omaha, Louisville, etc.), and chrome
+    for el in soup.select("figure, svg, script, style, nav, header, footer"):
+        el.decompose()
+    for p in soup.select("p"):
+        cls = " ".join(p.get("class") or [])
+        if "text-muted" in cls or "uppercase" in cls:
+            p.decompose()
+
+    raw_text = soup.get_text("\n")
+    # Cut off the bubble section at the bottom (use rfind so top-of-page labels don't truncate the bracket)
+    for cutoff in ("First Four Out", "Next Four Out", "Multi-Bid", "Conference Breakdown", "Women's Bracketology"):
+        idx = raw_text.rfind(cutoff)
+        if idx > 1500:
+            raw_text = raw_text[:idx]
+    
+    lines = [ln.strip() for ln in raw_text.splitlines() if ln.strip()]
     parsed = {}
+    seed_counts = Counter()
     unmatched = []
 
-    # Pass 1: Bracket slot containers — grab the seed + ALL team links/lines inside the slot
-    slot_selectors = (
-        ".bracket__item, .bracket__team, .bracket-team, "
-        "[class*='bracket'] li, [class*='Bracket'] li, "
-        "[class*='matchup'] [class*='team'], [class*='seed']"
-    )
-    for el in soup.select(slot_selectors):
-        full_txt = re.sub(r"\s+", " ", el.get_text(" ", strip=True))
-        if not full_txt or len(full_txt) > 120:
-            continue
-        seed_m = re.match(r"^\s*#?(\d{1,2})\b", full_txt)
-        if not seed_m:
-            continue
-        seed = int(seed_m.group(1))
-        if not (1 <= seed <= 16):
-            continue
+    def _add(team_name, seed):
+        if not team_name or team_name in parsed:
+            return False
+        if seed_counts[seed] >= SEED_MAX_TEAMS[seed]:
+            return False
+        parsed[team_name] = {"seed": seed}
+        seed_counts[seed] += 1
+        return True
 
-        # 1a) Check all <a> tags inside the slot (handles 2-team play-in slots with separate links)
-        links = [a.get_text(" ", strip=True) for a in el.select("a") if a.get_text(strip=True)]
-        found_in_slot = 0
-        for raw_lbl in links:
-            for part in re.split(r"\s*(?:/|\||\bvs\.?\b)\s*", raw_lbl):
-                canon = match_team(part)
-                if canon:
-                    parsed.setdefault(canon, {"seed": seed})
-                    found_in_slot += 1
-
-        # 1b) Also parse the slot's raw text (catches play-ins without <a> tags)
-        if found_in_slot == 0:
-            p, miss = _parse_seed_team_lines([full_txt], match_team)
-            for k, v in p.items():
-                parsed.setdefault(k, v)
-            unmatched.extend(miss)
-
-    # Pass 2: Full-page line walk — handles 1-line ("11 TeamA/TeamB") and 2-line ("11", "TeamA", "TeamB") play-ins
-    if len(parsed) < 72:
-        raw_text = soup.get_text("\n")
-        for cutoff in ("First Four Out", "Next Four Out"):
-            if cutoff in raw_text:
-                raw_text = raw_text.split(cutoff)[0]
-                break
-        lines = [ln.strip() for ln in raw_text.splitlines() if ln.strip()]
-        i = 0
-        while i < len(lines):
-            if re.fullmatch(r"\d{1,2}\.?", lines[i]):
-                seed = int(lines[i].rstrip("."))
-                if 1 <= seed <= 16:
-                    # Look ahead up to 3 lines until the next seed number or non-team header
-                    j = i + 1
-                    consumed = 0
-                    while j < len(lines) and consumed < 3:
-                        nxt = lines[j]
-                        if re.fullmatch(r"\d{1,2}\.?", nxt) or nxt.lower() in NON_TEAM_LABELS:
-                            break
-                        if nxt in ("/", "vs", "vs.", "|"):
-                            j += 1
-                            continue
-                        parts = re.split(r"\s*(?:/|\||\bvs\.?\b)\s*", nxt)
-                        matched_any = False
-                        for part in parts[:2]:
-                            canon = match_team(part)
-                            if canon:
-                                parsed.setdefault(canon, {"seed": seed})
-                                matched_any = True
-                        if not matched_any:
-                            break
-                        consumed += 1
-                        j += 1
-                    i = max(i + 1, j)
+    i = 0
+    while i < len(lines):
+        if re.fullmatch(r"\d{1,2}\.?", lines[i]):
+            seed = int(lines[i].rstrip("."))
+            if 1 <= seed <= 16 and i + 1 < len(lines):
+                nxt = lines[i + 1]
+                # Skip trailing seed-movement digits (always followed by another seed number, not a team)
+                if re.fullmatch(r"\d{1,2}\.?", nxt) or nxt.lower() in NON_TEAM_LABELS:
+                    i += 1
                     continue
-            else:
-                p, miss = _parse_seed_team_lines([lines[i]], match_team)
-                for k, v in p.items():
-                    parsed.setdefault(k, v)
-                unmatched.extend(miss)
-            i += 1
+
+                parts = re.split(r"\s*(?:/|\||\bvs\.?\b)\s*", nxt)
+                matched_any = False
+                for part in parts[:2]:
+                    canon = match_team(part)
+                    if canon:
+                        _add(canon, seed)
+                        matched_any = True
+                if matched_any:
+                    i += 2
+                    continue
+                elif len(nxt) <= 35:
+                    unmatched.append(f"{seed}: {nxt}")
+        i += 1
 
     seen = set()
     dedup_miss = [x for x in unmatched if not (x in seen or seen.add(x))]
