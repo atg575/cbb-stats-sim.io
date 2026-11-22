@@ -948,6 +948,85 @@ def fetch_latest_external_bracketology(teams, existing_ext=None):
 
     return ext
 
+def _parse_ranked_table(html, match_team, max_rank=365):
+    """Parse standard NCAA / Warren Nolan / ESPN ranked tables (Rank in col 0, Team in col 1)."""
+    soup = BeautifulSoup(html, "html.parser")
+    ranks = {}
+    for tr in soup.select("table tr"):
+        cells = [c.get_text(" ", strip=True) for c in tr.select("td")]
+        if len(cells) < 2:
+            continue
+        m = re.match(r"^\s*#?(\d{1,3})\b", cells[0])
+        if not m:
+            continue
+        rk = int(m.group(1))
+        if not (1 <= rk <= max_rank):
+            continue
+        # Strip trailing "(12)" first-place votes or records
+        raw_team = re.sub(r"\s*\(\d+\)\s*$", "", cells[1]).strip()
+        canon = match_team(raw_team)
+        if canon and canon not in ranks:
+            ranks[canon] = rk
+    return ranks
+
+
+def fetch_external_rankings(teams, existing_ext=None):
+    """Fetch NCAA NET (with live RPI fallback before Dec debut), AP Poll, and USA Today Coaches Poll."""
+    ext = dict(existing_ext or {})
+    if os.environ.get("SKIP_BRACKETOLOGY_SYNC") == "1":
+        return ext
+
+    match_team = build_team_matcher(teams)
+    today_label = datetime.datetime.now().strftime("%b %d, %Y")
+
+    # 1. NCAA NET (falls back to Warren Nolan 2027 NET, then 2027 RPI if NCAA NET hasn't debuted yet)
+    net_sources = [
+        ("NCAA NET", "https://www.ncaa.com/rankings/basketball-men/d1/ncaa-mens-basketball-net-rankings"),
+        ("NCAA NET", "https://www.warrennolan.com/basketball/2027/net"),
+        ("RPI (Pre-NET)", "https://www.warrennolan.com/basketball/2027/rpi"),
+    ]
+    for label, url in net_sources:
+        try:
+            ranks = _parse_ranked_table(_fetch_html(url), match_team, max_rank=365)
+            if len(ranks) >= 100:
+                ext["net"] = ranks
+                ext["net_label"] = label
+                ext.setdefault("updated", {})["net"] = today_label
+                print(f"[Rankings Sync] {label}: {len(ranks)} teams matched.")
+                break
+        except Exception:
+            continue
+
+    # 2. AP Top 25 Poll
+    for url in (
+        "https://www.ncaa.com/rankings/basketball-men/d1/associated-press",
+        "https://www.espn.com/mens-college-basketball/rankings",
+    ):
+        try:
+            ranks = _parse_ranked_table(_fetch_html(url), match_team, max_rank=25)
+            if len(ranks) >= 20:
+                ext["ap"] = ranks
+                ext.setdefault("updated", {})["ap"] = today_label
+                print(f"[Rankings Sync] AP Poll: {len(ranks)} teams matched.")
+                break
+        except Exception:
+            continue
+
+    # 3. USA Today Coaches Poll
+    for url in (
+        "https://www.ncaa.com/rankings/basketball-men/d1/usa-today-coaches",
+    ):
+        try:
+            ranks = _parse_ranked_table(_fetch_html(url), match_team, max_rank=25)
+            if len(ranks) >= 20:
+                ext["coaches"] = ranks
+                ext.setdefault("updated", {})["coaches"] = today_label
+                print(f"[Rankings Sync] Coaches Poll: {len(ranks)} teams matched.")
+                break
+        except Exception:
+            continue
+
+    return ext
 
 def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -984,15 +1063,18 @@ def main():
         print("[Build] Warning: No simulation workbook found; exporting teams only.")
 
     # Preserve previously saved external_bracketology if present
-    existing_ext = {}
+    existing_ext, existing_rankings = {}, {}
     if os.path.isfile(args.out):
         try:
             with open(args.out, "r", encoding="utf-8") as f:
-                existing_ext = json.load(f).get("external_bracketology", {})
+                prev_json = json.load(f)
+                existing_ext = prev_json.get("external_bracketology", {})
+                existing_rankings = prev_json.get("external_rankings", {})
         except Exception:
-            existing_ext = {}
+            pass
 
     ext_bracket = fetch_latest_external_bracketology(teams, existing_ext)
+    ext_rankings = fetch_external_rankings(teams, existing_rankings)
 
     payload = {
         "meta": {
@@ -1006,6 +1088,7 @@ def main():
         "games": games,
         "sheet_model_daily": sheet_model_daily,
         "external_bracketology": ext_bracket,
+        "external_rankings": ext_rankings
     }
 
     # Atomic, NaN-proof JSON write
