@@ -114,12 +114,10 @@
       </nav>
 
       <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
+      <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
       <div class="flex items-center gap-2 ml-auto">
-        <button id="theme-sun-pill" type="button" onclick="requestGeoForSun()" class="hidden xl:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-mono bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition" title="Click to refine sunrise/sunset with your local GPS">
-          <span id="theme-sun-label">☀ -- • 🌙 --</span>
-        </button>
         <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto switches to Light at sunrise and Dark at sunset">
-          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" onclick="requestGeoForSun()" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
           <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">☀️ Light</button>
           <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">🌙</button>
         </div>
