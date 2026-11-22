@@ -181,19 +181,21 @@ def extract_teams(stats_path):
         )
         conf_full = CONF_FULL_NAMES.get(conf_short, conf_short)
 
-        con_ortg = num(get_col(r, hmap, ["consensus ortg", "con ortg", "consensus off"], 163), 2)
-        con_drtg = num(get_col(r, hmap, ["consensus drtg", "con drtg", "consensus def"], 164), 2)
-        con_net = num(get_col(r, hmap, ["consensus net", "con net", "consensus net rtg"], 165), 2)
+        con_tempo = num(get_col(r, hmap, ["consensus tempo", "con tempo", "adjt"], 172), 1)
+        con_ortg = num(get_col(r, hmap, ["consensus ortg", "con ortg", "consensus off"], 173), 2)
+        con_drtg = num(get_col(r, hmap, ["consensus drtg", "con drtg", "consensus def"], 174), 2)
+        con_net = num(get_col(r, hmap, ["consensus net rtg", "consensus net", "con net"], 175), 2)
         if con_net == 0.0 and (con_ortg or con_drtg):
             con_net = round(con_ortg - con_drtg, 2)
 
-        live_ortg = num(get_col(r, hmap, ["live ortg", "live off"], 167), 2)
-        live_drtg = num(get_col(r, hmap, ["live drtg", "live def"], 168), 2)
-        live_net = num(get_col(r, hmap, ["live net", "live net rtg"], 169), 2)
+        live_tempo = num(get_col(r, hmap, ["live tempo"], 177), 1) or con_tempo
+        live_ortg = num(get_col(r, hmap, ["live ortg", "live off"], 178), 2)
+        live_drtg = num(get_col(r, hmap, ["live drtg", "live def"], 179), 2)
+        live_net = num(get_col(r, hmap, ["live net rtg", "live net"], 180), 2)
         if live_net == 0.0 and (live_ortg or live_drtg):
             live_net = round(live_ortg - live_drtg, 2)
 
-        net_score = num(get_col(r, hmap, ["net score", "av score"], 170), 2)
+        net_score = num(get_col(r, hmap, ["net score", "av score"], None), 2)
         if net_score == 0.0 and (con_net or live_net):
             net_score = round((con_net + live_net) / 2.0, 2)
 
@@ -207,15 +209,12 @@ def extract_teams(stats_path):
         if abs(inj_delta) > 0 and abs(inj_delta) < 0.25:
             inj_delta = round(inj_delta * 100.0, 2)
 
-        kp_ortg = num(get_col(r, hmap, ["kp ortg", "kenpom ortg", "adjoe"], 156), 2)
-        kp_drtg = num(get_col(r, hmap, ["kp drtg", "kenpom drtg", "adjde"], 157), 2)
-        kp_net = num(get_col(r, hmap, ["kp net", "kenpom net", "netrtg"], 158), 2)
-        kp_inj_ortg = num(get_col(r, hmap, ["kp inj ortg"], 160), 2)
-        kp_inj_drtg = num(get_col(r, hmap, ["kp inj drtg"], 161), 2)
-        kp_inj_net = num(get_col(r, hmap, ["kp inj net"], 162), 2)
-
-        con_tempo = num(get_col(r, hmap, ["consensus tempo", "con tempo", "adjt"], 162), 1)
-        live_tempo = num(get_col(r, hmap, ["live tempo"], 166), 1) or con_tempo
+        kp_ortg = num(get_col(r, hmap, ["adj. ortg", "kp ortg", "kenpom ortg", "adjoe"], 161), 2)
+        kp_drtg = num(get_col(r, hmap, ["adj. drtg", "kp drtg", "kenpom drtg", "adjde"], 162), 2)
+        kp_net = num(get_col(r, hmap, ["adj. net rtg", "kp net", "kenpom net", "netrtg"], 163), 2)
+        kp_inj_ortg = num(get_col(r, hmap, ["kp inj ortg"], 168), 2)
+        kp_inj_drtg = num(get_col(r, hmap, ["kp inj drtg"], 169), 2)
+        kp_inj_net = num(get_col(r, hmap, ["kp inj net rtg", "kp inj net"], 170), 2)
 
         teams.append({
             "id": int(round(r[0])),
@@ -230,9 +229,9 @@ def extract_teams(stats_path):
             "srs": num(get_col(r, hmap, ["srs"], 11), 2),
             "sos": num(get_col(r, hmap, ["sos"], 12), 2),
             "sor": num(get_col(r, hmap, ["sor"], 13), 2),
-            "ppg": num(get_col(r, hmap, ["ppg", "pts/g"], 24), 1),
-            "opp_ppg": num(get_col(r, hmap, ["opp ppg", "opp pts/g"], 25), 1),
-            "pd": num(get_col(r, hmap, ["pd", "margin"], 26), 1),
+            "ppg": num(get_col(r, hmap, ["tm.", "ppg", "pts/g"], 23), 1),
+            "opp_ppg": num(get_col(r, hmap, ["opp.", "opp ppg", "opp pts/g"], 24), 1),
+            "pd": num(get_col(r, hmap, ["pd", "margin"], 25), 1),
             "fg_pct": pct_val(get_col(r, hmap, ["fg%"], 38), 1),
             "two_pct": pct_val(get_col(r, hmap, ["2p%"], 41), 1),
             "three_pct": pct_val(get_col(r, hmap, ["3p%"], 44), 1),
@@ -244,14 +243,14 @@ def extract_teams(stats_path):
             "stl": num(get_col(r, hmap, ["stl"], 52), 1),
             "blk": num(get_col(r, hmap, ["blk"], 53), 1),
             "tov": num(get_col(r, hmap, ["tov"], 54), 1),
-            "efg_pct": pct_val(get_col(r, hmap, ["efg%"], 88), 1),
-            "tov_pct": pct_val(get_col(r, hmap, ["tov%"], 89), 1),
-            "orb_pct": pct_val(get_col(r, hmap, ["orb%"], 90), 1),
-            "ftr": pct_val(get_col(r, hmap, ["ftr", "ft rate"], 81), 1),
-            "opp_efg_pct": pct_val(get_col(r, hmap, ["opp efg%"], 109), 1),
-            "opp_tov_pct": pct_val(get_col(r, hmap, ["opp tov%"], 110), 1),
-            "opp_orb_pct": pct_val(get_col(r, hmap, ["opp orb%"], 111), 1),
-            "opp_ftr": pct_val(get_col(r, hmap, ["opp ftr"], 102), 1),
+            "efg_pct": pct_val(get_col(r, hmap, ["efg%"], 87), 1),
+            "tov_pct": pct_val(get_col(r, hmap, ["tov%"], 88), 1),
+            "orb_pct": pct_val(get_col(r, hmap, ["orb%"], 89), 1),
+            "ftr": pct_val(get_col(r, hmap, ["ftr", "ft rate"], 80), 1),
+            "opp_efg_pct": pct_val(get_col(r, hmap, ["opp efg%"], 108), 1),
+            "opp_tov_pct": pct_val(get_col(r, hmap, ["opp tov%"], 109), 1),
+            "opp_orb_pct": pct_val(get_col(r, hmap, ["opp orb%"], 110), 1),
+            "opp_ftr": pct_val(get_col(r, hmap, ["opp ftr"], 101), 1),
             "avg_ht": num(get_col(r, hmap, ["avg ht", "avg height"], 131), 2),
             "eff_ht": num(get_col(r, hmap, ["eff ht", "eff height"], 132), 2),
             "adj_net_ff": num(get_col(r, hmap, ["adj net ff"], 137), 2),
@@ -268,12 +267,12 @@ def extract_teams(stats_path):
             "em_inj_net": em_inj_net,
             "em_inj_rk": opt_int(get_col(r, hmap, ["em inj rk"], 151)) or em_inj_map.get(em_lookup_name) or em_inj_map.get(kp_name),
             "inj_delta_pct": inj_delta,
-            "elo": num(get_col(r, hmap, ["elo", "warren elo"], 153), 1),
-            "elo_rk": opt_int(get_col(r, hmap, ["elo rk", "elo rank"], 154)),
+            "elo": num(get_col(r, hmap, ["elo", "warren elo"], 158), 1),
+            "elo_rk": opt_int(get_col(r, hmap, ["elo rk", "elo rank"], None)),
             "kp_ortg": kp_ortg,
             "kp_drtg": kp_drtg,
             "kp_net": kp_net,
-            "kp_rk": opt_int(get_col(r, hmap, ["kp rk", "kenpom rk"], 159)),
+            "kp_rk": opt_int(get_col(r, hmap, ["kp rk", "kenpom rk"], None)),
             "kp_inj_ortg": kp_inj_ortg,
             "kp_inj_drtg": kp_inj_drtg,
             "kp_inj_net": kp_inj_net,
