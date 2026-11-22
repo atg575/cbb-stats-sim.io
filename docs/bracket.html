@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2027 Bracketology (76-Team) • The Consensus CBB</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: { 850: '#151e2e', 925: '#0b1120' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background-color: #0b1120; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+    .mono-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* Visual Bracket Tree */
+    .bracket-tree-scroll { overflow-x: auto; padding-bottom: 12px; }
+    .bracket-team-slot {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding: 4px 7px; font-size: 11px; line-height: 1.2; cursor: pointer;
+      transition: background-color 0.12s ease;
+    }
+    .bracket-team-slot:hover { background-color: rgba(249, 115, 22, 0.16); }
+    .bracket-team-slot.picked { background-color: rgba(16, 185, 129, 0.2); font-weight: 700; }
+
+    /* Light Mode Overrides */
+    html:not(.dark) body { background-color: #f8fafc; color: #0f172a; }
+    html:not(.dark) header { background-color: rgba(255, 255, 255, 0.94) !important; border-bottom-color: #e2e8f0 !important; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06) !important; }
+    html:not(.dark) .bg-slate-900, html:not(.dark) .bg-slate-900\/95, html:not(.dark) .bg-slate-850,
+    html:not(.dark) .from-slate-900, html:not(.dark) .via-slate-850, html:not(.dark) .to-slate-900 { background-color: #ffffff !important; background-image: none !important; }
+    html:not(.dark) .bg-slate-950, html:not(.dark) .bg-slate-950\/90, html:not(.dark) .bg-slate-950\/80, html:not(.dark) .bg-slate-950\/70, html:not(.dark) .bg-slate-950\/60, html:not(.dark) .bg-slate-950\/50 { background-color: #f1f5f9 !important; }
+    html:not(.dark) .bg-slate-800, html:not(.dark) .bg-slate-800\/90, html:not(.dark) .bg-slate-800\/80 { background-color: #e2e8f0 !important; }
+    html:not(.dark) .hover\:bg-slate-850:hover, html:not(.dark) .hover\:bg-slate-800:hover, html:not(.dark) .hover\:bg-slate-800\/90:hover, html:not(.dark) .hover\:bg-slate-800\/80:hover, html:not(.dark) .hover\:bg-slate-800\/70:hover, html:not(.dark) .hover\:bg-slate-700:hover { background-color: #e2e8f0 !important; }
+    html:not(.dark) .border-slate-800, html:not(.dark) .border-slate-800\/90, html:not(.dark) .border-slate-800\/80, html:not(.dark) .border-slate-700, html:not(.dark) .border-slate-700\/80 { border-color: #cbd5e1 !important; }
+    html:not(.dark) .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]) { border-color: #e2e8f0 !important; }
+    html:not(.dark) .text-white { color: #0f172a !important; }
+    html:not(.dark) .bg-orange-500, html:not(.dark) .bg-orange-500 *,
+    html:not(.dark) .bg-sky-500, html:not(.dark) .bg-sky-500 *,
+    html:not(.dark) .bg-emerald-500, html:not(.dark) .bg-emerald-500 *,
+    html:not(.dark) .bg-gradient-to-br.from-orange-500 { color: #ffffff !important; }
+    html:not(.dark) .text-slate-100, html:not(.dark) .text-slate-200 { color: #1e293b !important; }
+    html:not(.dark) .text-slate-300 { color: #334155 !important; }
+    html:not(.dark) .text-slate-400 { color: #475569 !important; }
+    html:not(.dark) .text-slate-500 { color: #64748b !important; }
+    html:not(.dark) .text-orange-300, html:not(.dark) .text-orange-400 { color: #c2410c !important; }
+    html:not(.dark) .text-emerald-300, html:not(.dark) .text-emerald-400 { color: #047857 !important; }
+    html:not(.dark) .text-sky-300, html:not(.dark) .text-sky-400 { color: #0369a1 !important; }
+    html:not(.dark) .text-amber-300, html:not(.dark) .text-amber-400 { color: #b45309 !important; }
+    html:not(.dark) .text-rose-300, html:not(.dark) .text-rose-400 { color: #be123c !important; }
+    html:not(.dark) .text-purple-300, html:not(.dark) .text-purple-400 { color: #7e22ce !important; }
+    html:not(.dark) input, html:not(.dark) select { background-color: #ffffff !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+    html:not(.dark) ::-webkit-scrollbar-track { background: #f1f5f9; }
+    html:not(.dark) ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+    html:not(.dark) #team-modal { background-color: rgba(15, 23, 42, 0.45) !important; }
+    html:not(.dark) .shadow-xl, html:not(.dark) .shadow-lg { box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-orange-500 selection:text-white">
+
+  <!-- TOP HEADER & MULTI-PAGE NAVIGATION -->
+  <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-500/20 font-extrabold text-white text-lg">
+          🏀
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">CBB 2026-27 Analytics &amp; Simulation Hub</h1>
+            <span id="header-counts-badge" class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 mono-num">
+              365 D1 Teams
+            </span>
+          </div>
+          <p id="site-last-updated" class="text-xs text-slate-400 mono-num">
+            theconsensuscbb.com • Loading update date...
+          </p>
+        </div>
+      </div>
+
+      <nav class="flex flex-wrap items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 gap-1" aria-label="Main Navigation">
+        <a href="index.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          1. Power Rankings
+        </a>
+        <a href="models.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          2. Model Performance
+        </a>
+        <a href="climate.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          3. Climate &amp; Matchup Lab
+        </a>
+        <a href="bracket.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-orange-500 text-white shadow">
+          4. 2027 Bracketology
+        </a>
+      </nav>
+
+      <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
+      <div class="flex items-center gap-2 ml-auto">
+        <button id="theme-sun-pill" type="button" onclick="requestGeoForSun()" class="hidden xl:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-mono bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition" title="Click to refine sunrise/sunset with your local GPS">
+          <span id="theme-sun-label">☀ -- • 🌙 --</span>
+        </button>
+        <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto switches to Light at sunrise and Dark at sunset">
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
+          <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">☀️ Light</button>
+          <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">🌙</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT: PAGE 4 2027 BRACKETOLOGY -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div id="data-load-banner" class="hidden rounded-xl px-4 py-3 border border-amber-500/40 bg-amber-500/10 text-xs text-amber-200 mono-num">
+      Loading 2026-27 CBB dataset (data.json)...
+    </div>
+
+    <!-- Hero & Seeding Mode Switcher -->
+    <div class="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="space-y-1.5">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30">
+            Official 2027 76-Team Format
+          </span>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 mono-num">
+            32 Auto-Bids (AQs) + 44 At-Large Bids
+          </span>
+          <span class="text-xs text-slate-400 mono-num">
+            Opening Round: Mar 16–17 (Dayton) • Final Four: Apr 3 &amp; 5 (Ford Field, Detroit)
+          </span>
+        </div>
+        <h2 id="brk-hero-title" class="text-xl sm:text-2xl font-extrabold text-white">
+          2027 NCAA Tournament Bracketology &amp; Bubble Watch (Net Score Projection)
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-3xl">
+          Expanded <strong>76-team field</strong> featuring <strong>32 automatic qualifiers</strong> and <strong>44 at-large selections</strong>. The 12 lowest-seeded AQs and 12 lowest-seeded at-large teams play in the <strong>12-game Opening Round</strong> in Dayton for spots in the 64-team main bracket.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 bg-slate-950/90 p-2.5 rounded-xl border border-slate-800 shrink-0">
+        <div class="flex flex-wrap items-center bg-slate-900 rounded-lg p-1 border border-slate-800 gap-1">
+          <button id="brk-mode-net" type="button" onclick="setBracketMode('net_score')" class="px-3 py-2 rounded-md text-xs font-bold transition-all bg-emerald-500 text-white shadow">
+            🏆 Net Score
+          </button>
+          <button id="brk-mode-con" type="button" onclick="setBracketMode('consensus')" class="px-3 py-2 rounded-md text-xs font-bold transition-all text-slate-400 hover:text-white">
+            📊 Consensus
+          </button>
+          <button id="brk-mode-live" type="button" onclick="setBracketMode('live')" class="px-3 py-2 rounded-md text-xs font-bold transition-all text-slate-400 hover:text-white">
+            ⚡ Live (Injury-Adj)
+          </button>
+        </div>
+        <button type="button" onclick="exportBracketCSV()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition whitespace-nowrap">
+          ⬇ Export 76-Team CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div id="brk-kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+    <!-- Bubble Watch Headquarters -->
+    <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">76-Team Cutline &amp; Bubble Watch</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">At-Large Cutline Breakdown (44 At-Large Bids)</h3>
+          <p class="text-xs text-slate-400">Top 32 At-Large teams earn direct Round of 64 byes; At-Large #33–#44 (<strong>Last 12 In</strong>) play in the Dayton Opening Round.</p>
+        </div>
+        <span id="brk-cutline-badge" class="text-xs font-mono px-2.5 py-1 rounded bg-slate-950 text-orange-300 border border-slate-800">
+          Cutline: At-Large #44
+        </span>
+      </div>
+      <div id="brk-bubble-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </div>
+
+    <!-- 12-Game Opening Round -->
+    <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+      <div class="border-b border-slate-800 pb-3">
+        <span class="text-xs font-bold uppercase tracking-wider text-orange-400">UD Arena (Dayton, OH) • March 16–17, 2027</span>
+        <h3 class="text-base sm:text-lg font-extrabold text-white">March Madness Opening Round (12 Play-In Games • 24 Teams)</h3>
+        <p class="text-xs text-slate-400">6 At-Large Play-In Games (#33–#44) and 6 Automatic Qualifier Play-In Games (#21–#32). Click any game to simulate in the Matchup Lab.</p>
+      </div>
+      <div id="brk-opening-round-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+    </div>
+
+    <!-- Visual Bracket Tree & Regional Matchup Cards -->
+    <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-400">S-Curve Regional Seeding (Seeds 1–16)</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">Projected 2027 Regional Brackets &amp; Interactive Visual Tree</h3>
+          <p class="text-xs text-slate-400">Click teams in the Visual Bracket to advance picks to Detroit, or switch to Matchup Cards to launch head-to-head simulations.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button id="brk-view-tree-btn" type="button" onclick="setBracketViewMode('tree')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow">🏆 Visual Bracket</button>
+            <button id="brk-view-cards-btn" type="button" onclick="setBracketViewMode('cards')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">📋 Matchup Cards</button>
+          </div>
+          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button id="reg-btn-ALL" type="button" onclick="setBracketRegionView('ALL')" class="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-orange-500 text-white">All 4 Regions</button>
+            <button id="reg-btn-Midwest" type="button" onclick="setBracketRegionView('Midwest')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">Midwest</button>
+            <button id="reg-btn-East" type="button" onclick="setBracketRegionView('East')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">East</button>
+            <button id="reg-btn-South" type="button" onclick="setBracketRegionView('South')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">South</button>
+            <button id="reg-btn-West" type="button" onclick="setBracketRegionView('West')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">West</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Tree Section -->
+      <div id="brk-visual-tree-section" class="space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/70 px-3.5 py-2.5 rounded-xl border border-slate-800">
+          <div class="text-xs text-slate-300">
+            <span class="font-bold text-orange-400">Interactive Bracket:</span> Click any team slot to advance round-by-round, or auto-fill with your model.
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="autoFillBracketByModel()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white transition">⚡ Auto-Fill by Model</button>
+            <button type="button" onclick="simBracketWithUpsets()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-500 hover:bg-sky-600 text-white transition">🎲 Sim with Upsets</button>
+            <button type="button" onclick="resetBracketPicks()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">↺ Reset</button>
+          </div>
+        </div>
+        <div id="brk-visual-tree-container" class="bracket-tree-scroll"></div>
+      </div>
+
+      <!-- Matchup Cards Section -->
+      <div id="brk-regions-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-5 hidden"></div>
+    </div>
+
+    <!-- External Bracketology Comparison (Selectable Source + Most Bullish vs Most Bearish) -->
+    <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-5">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Consensus vs. National Bracketologists</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">2027 Bracketology Comparison: Most Bullish vs. Most Bearish</h3>
+          <p class="text-xs text-slate-400">
+            Compare your active projection against
+            <a href="https://www.cbssports.com/college-basketball/bracketology/" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">CBS Sports</a>,
+            <a href="https://www.espn.com/espn/feature/story/_/page/bracketology/ncaa-bracketology-projecting-2026-march-madness-men-field" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">ESPN Joe Lunardi</a>,
+            <a href="https://www.hoopshq.com/rankings/bracketology-2026-november-11-1" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">Hoops HQ</a>, and
+            <a href="https://hoopshd.com/nitty-gritty-rankings/" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">Hoops HD JNG</a>.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-950 p-2 rounded-xl border border-slate-800 shrink-0">
+          <label for="brk-comp-source" class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Compare vs:</label>
+          <select id="brk-comp-source" onchange="renderBracketComparison()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-semibold focus:outline-none focus:border-orange-500">
+            <option value="cbs">CBS Sports (Full 76-Team)</option>
+            <option value="espn">ESPN Joe Lunardi</option>
+            <option value="jngHq">Hoops HD JNG / Hoops HQ</option>
+            <option value="avg">Outside Sources Average</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="brk-comp-top4" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+      <div id="brk-comp-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+
+      <div class="space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <input id="brk-comp-search" type="text" oninput="renderBracketComparisonTable()" placeholder="Search team or conference..." class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 w-52" />
+            <select id="brk-comp-filter" onchange="renderBracketComparisonTable()" class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-orange-500">
+              <option value="ALL">All Projected &amp; Bubble Teams</option>
+              <option value="BULLISH">📈 Most Bullish (Our Model Higher)</option>
+              <option value="BEARISH">📉 Most Bearish (Our Model Lower)</option>
+              <option value="DIFF2">Biggest Disagreements (|Δ| ≥ 2)</option>
+              <option value="TOP4">Top 4 Seed Lines (Seeds 1–4)</option>
+              <option value="OURS_ONLY">In Our 76-Team Field / Out in Source</option>
+              <option value="SOURCE_ONLY">In Source Field / Out in Ours</option>
+            </select>
+          </div>
+          <span id="brk-comp-count" class="text-xs font-mono text-slate-400">Showing -- teams</span>
+        </div>
+
+        <div class="overflow-x-auto max-h-[460px] rounded-xl border border-slate-800">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-slate-950 sticky top-0 z-10 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-3">Team</th>
+                <th class="py-2.5 px-2.5">Conf</th>
+                <th id="brk-comp-ours-hdr" class="py-2.5 px-2.5 text-orange-400">Your Seed</th>
+                <th id="brk-comp-src-hdr" class="py-2.5 px-2.5 text-sky-400">CBS Sports</th>
+                <th id="brk-comp-delta-hdr" class="py-2.5 px-2.5 text-amber-300">Bullish / Bearish Δ</th>
+                <th class="py-2.5 px-2.5 text-emerald-400">ESPN Lunardi</th>
+                <th class="py-2.5 px-2.5 text-purple-300">Hoops HD / HQ</th>
+              </tr>
+            </thead>
+            <tbody id="brk-comp-tbody" class="divide-y divide-slate-800/60"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Bid Conferences & All 32 Projected Champions -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Conference Bid Distribution</span>
+          <h3 class="text-base font-bold text-white">Multi-Bid Conferences (76-Team Field)</h3>
+          <p class="text-xs text-slate-400">Total tournament bids (Auto-Bid + At-Large) by conference:</p>
+        </div>
+        <div id="brk-multibid-list" class="space-y-2 max-h-[460px] overflow-y-auto pr-1"></div>
+      </div>
+
+      <div class="lg:col-span-2 bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-orange-400">32 Automatic Qualifiers (AQ)</span>
+            <h3 class="text-base font-bold text-white">Projected Conference Champions</h3>
+            <p class="text-xs text-slate-400">Highest-rated team per conference earns the AQ; bottom 12 AQs play in Dayton.</p>
+          </div>
+          <input id="brk-aq-search" type="text" oninput="renderBracketAQTable()" placeholder="Search conference or team..." class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500" />
+        </div>
+
+        <div class="overflow-x-auto max-h-[420px]">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead class="bg-slate-950 sticky top-0 z-10 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="py-2.5 px-2.5">AQ #</th>
+                <th class="py-2.5 px-2.5">Conference</th>
+                <th class="py-2.5 px-2.5">Projected Champion</th>
+                <th class="py-2.5 px-2.5">Nat'l Rk</th>
+                <th class="py-2.5 px-2.5">Net Rtg</th>
+                <th class="py-2.5 px-2.5">Seed Line</th>
+                <th class="py-2.5 px-2.5">Bracket Status</th>
+              </tr>
+            </thead>
+            <tbody id="brk-aq-tbody" class="divide-y divide-slate-800/60"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TEAM DOSSIER MODAL -->
+  <div id="team-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4" onclick="if (event.target === this) closeTeamModal()">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-5 sm:p-6 space-y-5">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
+        <div>
+          <div id="modal-team-badges" class="flex flex-wrap items-center gap-2"></div>
+          <h2 id="modal-team-name" class="text-xl sm:text-2xl font-extrabold text-white mt-1">Team Name</h2>
+          <p id="modal-team-sub" class="text-xs text-slate-400 mono-num">Conference • Record</p>
+        </div>
+        <button type="button" onclick="closeTeamModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">
+          ✕ Close
+        </button>
+      </div>
+      <div id="modal-team-content" class="space-y-5"></div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------------------------------------------------
+    // STATE, EXTERNAL BRACKETOLOGY SNAPSHOT & DATA LOADER
+    // -----------------------------------------------------------------------
+    let RAW_DATA = { teams: [], games: [] };
+    let CURRENT_BRACKET_DATA = null;
+    let BRACKET_PICKS = {}; // { 'Midwest_R32_0': teamObj, ..., 'FF_0': teamObj, 'CHAMP': teamObj }
+
+    const STATE = {
+      bracketMode: 'net_score', // 'net_score' | 'consensus' | 'live'
+      bracketRegionView: 'ALL',
+      bracketViewMode: 'tree',  // 'tree' | 'cards'
+      themeMode: localStorage.getItem('cbb_theme_mode') || 'auto',
+      userCoords: null
+    };
+
+    // Default snapshot; automatically overridden if data.json includes `external_bracketology`
+    let EXTERNAL_BRACKETOLOGY = {
+      top1s: {
+        cbs: ['Florida', 'Houston', 'Connecticut', 'Michigan St.'],
+        espn: ['Houston', 'Arizona', 'Florida', 'Illinois'],
+        hoopsHq: ['Florida', 'Duke', 'Illinois', 'Connecticut']
+      },
+      updated: { cbs: 'Nov 13, 2026', espn: 'Nov 20, 2026', hoopsHq: 'Nov 1, 2026', jng: 'Nov 20, 2026' },
+      cbs: {
+        'Florida': { seed: 1 }, 'Houston': { seed: 1 }, 'Connecticut': { seed: 1 }, 'Michigan St.': { seed: 1 },
+        'Duke': { seed: 2 }, 'Illinois': { seed: 2 }, 'Kansas': { seed: 2 }, 'Arizona': { seed: 2 },
+        'Texas': { seed: 3 }, 'Virginia': { seed: 3 }, 'Texas Tech': { seed: 3 }, 'Gonzaga': { seed: 3 },
+        'UCLA': { seed: 4 }, 'Vanderbilt': { seed: 4 }, 'St. John\'s': { seed: 4 }, 'Louisville': { seed: 4 },
+        'Miami FL': { seed: 5 }, 'Iowa St.': { seed: 5 }, 'Alabama': { seed: 5 }, 'Nebraska': { seed: 5 },
+        'Tennessee': { seed: 6 }, 'Michigan': { seed: 6 }, 'Texas A&M': { seed: 6 }, 'BYU': { seed: 6 },
+        'USC': { seed: 7 }, 'Arkansas': { seed: 7 }, 'Missouri': { seed: 7 }, 'Marquette': { seed: 7 },
+        'Utah St.': { seed: 8 }, 'Auburn': { seed: 8 }, 'Cincinnati': { seed: 8 }, 'LSU': { seed: 8 },
+        'Saint Louis': { seed: 9 }, 'Baylor': { seed: 9 }, 'West Virginia': { seed: 9 }, 'Xavier': { seed: 9 },
+        'Mississippi': { seed: 10 }, 'Wisconsin': { seed: 10 }, 'Purdue': { seed: 10 }, 'Indiana': { seed: 10 },
+        'Virginia Tech': { seed: 11 }, 'Grand Canyon': { seed: 11 }, 'Villanova': { seed: 11 }, 'Iowa': { seed: 11 },
+        'TCU': { seed: 11 }, 'Ohio St.': { seed: 11 }, 'N.C. State': { seed: 12 }, 'Kentucky': { seed: 12 },
+        'Georgia': { seed: 12 }, 'North Carolina': { seed: 12 }, 'Oklahoma St.': { seed: 12 }, 'VCU': { seed: 12 },
+        'Minnesota': { seed: 12 }, 'Creighton': { seed: 12 }, 'Santa Clara': { seed: 13 }, 'Saint Mary\'s': { seed: 13 },
+        'New Mexico': { seed: 13 }, 'High Point': { seed: 13 }, 'Murray St.': { seed: 14 }, 'Wright St.': { seed: 14 },
+        'Memphis': { seed: 14 }, 'Akron': { seed: 14 }, 'McNeese': { seed: 15 }, 'UC Santa Barbara': { seed: 15 },
+        'UNC Wilmington': { seed: 15 }, 'Furman': { seed: 15 }, 'Liberty': { seed: 15 }, 'Montana St.': { seed: 15 },
+        'Penn': { seed: 16 }, 'South Dakota St.': { seed: 16 }, 'Central Arkansas': { seed: 16 }, 'Lipscomb': { seed: 16 },
+        'Howard': { seed: 16 }, 'Siena': { seed: 16 }, 'Vermont': { seed: 16 }, 'American': { seed: 16 }
+      },
+      espn: {
+        'Houston': { seed: 1 }, 'Arizona': { seed: 1 }, 'Florida': { seed: 1 }, 'Illinois': { seed: 1 },
+        'Duke': { seed: 2 }, 'Connecticut': { seed: 2 }, 'Kansas': { seed: 2 }, 'Michigan St.': { seed: 2 },
+        'Texas': { seed: 3 }, 'Gonzaga': { seed: 3 }, 'Alabama': { seed: 3 }, 'Iowa St.': { seed: 3 },
+        'UCLA': { seed: 4 }, 'Texas Tech': { seed: 4 }, 'St. John\'s': { seed: 4 }, 'Tennessee': { seed: 4 },
+        'Louisville': { seed: 5 }, 'Virginia': { seed: 5 }, 'BYU': { seed: 5 }, 'Michigan': { seed: 5 },
+        'Auburn': { seed: 6 }, 'Purdue': { seed: 6 }, 'Vanderbilt': { seed: 6 }, 'Arkansas': { seed: 6 },
+        'Marquette': { seed: 7 }, 'Kentucky': { seed: 7 }, 'North Carolina': { seed: 7 }, 'Baylor': { seed: 7 },
+        'Wisconsin': { seed: 8 }, 'Indiana': { seed: 8 }, 'N.C. State': { seed: 8 }, 'Missouri': { seed: 8 },
+        'Creighton': { seed: 9 }, 'Ohio St.': { seed: 9 }, 'Villanova': { seed: 9 }, 'Cincinnati': { seed: 9 },
+        'Nebraska': { seed: 10 }, 'Texas A&M': { seed: 10 }, 'Mississippi': { seed: 10 }, 'Utah St.': { seed: 10 },
+        'Miami FL': { seed: 11 }, 'USC': { seed: 11 }, 'Xavier': { seed: 11 }, 'Saint Mary\'s': { seed: 11 }
+      },
+      jngHq: {
+        'Florida': { seed: 1 }, 'Duke': { seed: 1 }, 'Illinois': { seed: 1 }, 'Connecticut': { seed: 1 },
+        'Houston': { seed: 2 }, 'Kansas': { seed: 2 }, 'Michigan St.': { seed: 2 }, 'Arizona': { seed: 2 },
+        'Texas': { seed: 3 }, 'Gonzaga': { seed: 3 }, 'Virginia': { seed: 3 }, 'UCLA': { seed: 3 },
+        'Alabama': { seed: 4 }, 'St. John\'s': { seed: 4 }, 'Texas Tech': { seed: 4 }, 'Vanderbilt': { seed: 4 },
+        'Louisville': { seed: 5 }, 'Iowa St.': { seed: 5 }, 'Tennessee': { seed: 5 }, 'BYU': { seed: 5 },
+        'Michigan': { seed: 6 }, 'Auburn': { seed: 6 }, 'Purdue': { seed: 6 }, 'Nebraska': { seed: 6 },
+        'Arkansas': { seed: 7 }, 'Marquette': { seed: 7 }, 'Missouri': { seed: 7 }, 'Texas A&M': { seed: 7 },
+        'Wisconsin': { seed: 8 }, 'Kentucky': { seed: 8 }, 'North Carolina': { seed: 8 }, 'Utah St.': { seed: 8 }
+      }
+    };
+
+    const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const escJs = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+    async function loadDashboardData() {
+      const banner = document.getElementById('data-load-banner');
+      banner.textContent = 'Loading 2026-27 CBB dataset (data.json)...';
+      banner.classList.remove('hidden');
+
+      try {
+        const resp = await fetch(`data.json?v=${Date.now()}`, { cache: 'no-store' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const payload = await resp.json();
+        if (!payload || !Array.isArray(payload.teams) || payload.teams.length === 0) {
+          throw new Error('data.json contains no teams');
+        }
+        RAW_DATA = {
+          teams: payload.teams,
+          games: Array.isArray(payload.games) ? payload.games : []
+        };
+        if (payload.external_bracketology) {
+          const ext = payload.external_bracketology;
+          if (ext.cbs && Object.keys(ext.cbs).length > 10) EXTERNAL_BRACKETOLOGY.cbs = ext.cbs;
+          if (ext.espn && Object.keys(ext.espn).length > 10) EXTERNAL_BRACKETOLOGY.espn = ext.espn;
+          if (ext.jngHq && Object.keys(ext.jngHq).length > 10) EXTERNAL_BRACKETOLOGY.jngHq = ext.jngHq;
+          if (ext.top1s) EXTERNAL_BRACKETOLOGY.top1s = { ...EXTERNAL_BRACKETOLOGY.top1s, ...ext.top1s };
+          if (ext.updated) EXTERNAL_BRACKETOLOGY.updated = { ...EXTERNAL_BRACKETOLOGY.updated, ...ext.updated };
+        }
+        banner.classList.add('hidden');
+        const badge = document.getElementById('header-counts-badge');
+        if (badge) badge.textContent = `${RAW_DATA.teams.length} D1 Teams • ${RAW_DATA.games.length} Graded Sims`;
+        return true;
+      } catch (err) {
+        banner.textContent = `Could not load data.json (${err.message}). Run python3 build_pages_site.py to generate docs/data.json.`;
+        return false;
+      }
+    }
+
+    async function fetchLastMainCommitDate() {
+      const el = document.getElementById('site-last-updated');
+      if (!el) return;
+      try {
+        const resp = await fetch('https://api.github.com/repos/atg575/cbb-stats-sim/commits/main', {
+          headers: { 'Accept': 'application/vnd.github+json' }
+        });
+        if (!resp.ok) throw new Error();
+        const data = await resp.json();
+        const isoDate = data?.commit?.committer?.date || data?.commit?.author?.date;
+        if (!isoDate) throw new Error();
+        const formatted = new Date(isoDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        el.textContent = `theconsensuscbb.com • Updated ${formatted}`;
+      } catch {
+        el.textContent = 'theconsensuscbb.com • 2026-27 Season';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // SUNRISE / SUNSET AUTOMATIC LIGHT & DARK THEME
+    // -----------------------------------------------------------------------
+    function computeSunTimes(date, lat, lng) {
+      const rad = Math.PI / 180;
+      const start = new Date(date.getFullYear(), 0, 0);
+      const dayOfYear = Math.floor((date - start) / 86400000);
+      const decl = -23.44 * Math.cos(rad * (360 / 365) * (dayOfYear + 10));
+      const cosH = Math.max(-1, Math.min(1, -Math.tan(lat * rad) * Math.tan(decl * rad)));
+      const H = Math.acos(cosH) / rad / 15;
+      const tzOffset = -date.getTimezoneOffset() / 60;
+      const solarNoon = 12 - (lng / 15) + tzOffset;
+      return { sunrise: solarNoon - H, sunset: solarNoon + H };
+    }
+
+    function fmtHour(h) {
+      const norm = ((h % 24) + 24) % 24;
+      const hr = Math.floor(norm);
+      const min = Math.floor((norm - hr) * 60);
+      return `${hr % 12 || 12}:${String(min).padStart(2, '0')}${hr >= 12 ? 'p' : 'a'}`;
+    }
+
+    function applyTheme() {
+      const now = new Date();
+      const lat = STATE.userCoords ? STATE.userCoords.lat : 40.0;
+      const lng = STATE.userCoords ? STATE.userCoords.lng : -(now.getTimezoneOffset() / 60) * 15;
+      const { sunrise, sunset } = computeSunTimes(now, lat, lng);
+
+      const sunLabel = document.getElementById('theme-sun-label');
+      if (sunLabel) sunLabel.textContent = `☀ ${fmtHour(sunrise)} • 🌙 ${fmtHour(sunset)}`;
+
+      let isDark = true;
+      if (STATE.themeMode === 'light') isDark = false;
+      else if (STATE.themeMode === 'dark') isDark = true;
+      else {
+        const curHr = now.getHours() + now.getMinutes() / 60;
+        isDark = curHr < sunrise || curHr >= sunset;
+      }
+      document.documentElement.classList.toggle('dark', isDark);
+
+      ['auto', 'light', 'dark'].forEach(m => {
+        const btn = document.getElementById('theme-btn-' + m);
+        if (!btn) return;
+        btn.className = m === STATE.themeMode
+          ? 'px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white'
+          : 'px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white';
+      });
+    }
+
+    function setThemeMode(mode) {
+      STATE.themeMode = mode;
+      localStorage.setItem('cbb_theme_mode', mode);
+      applyTheme();
+    }
+
+    function requestGeoForSun() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(pos => {
+        STATE.userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        applyTheme();
+      });
+    }
+
+    function initThemeSystem() {
+      applyTheme();
+      setInterval(() => { if (STATE.themeMode === 'auto') applyTheme(); }, 60000);
+    }
+
+    // -----------------------------------------------------------------------
+    // 76-TEAM BRACKETOLOGY ENGINE
+    // -----------------------------------------------------------------------
+    function setBracketMode(mode) {
+      STATE.bracketMode = mode;
+      BRACKET_PICKS = {};
+      const inactive = 'px-3 py-2 rounded-md text-xs font-bold transition-all text-slate-400 hover:text-white';
+      document.getElementById('brk-mode-net').className = inactive;
+      document.getElementById('brk-mode-con').className = inactive;
+      document.getElementById('brk-mode-live').className = inactive;
+
+      const title = document.getElementById('brk-hero-title');
+      if (mode === 'net_score') {
+        document.getElementById('brk-mode-net').className = 'px-3 py-2 rounded-md text-xs font-bold transition-all bg-emerald-500 text-white shadow';
+        title.textContent = '2027 NCAA Tournament Bracketology & Bubble Watch (Net Score Projection)';
+      } else if (mode === 'consensus') {
+        document.getElementById('brk-mode-con').className = 'px-3 py-2 rounded-md text-xs font-bold transition-all bg-orange-500 text-white shadow';
+        title.textContent = '2027 NCAA Tournament Bracketology & Bubble Watch (Consensus Projection)';
+      } else {
+        document.getElementById('brk-mode-live').className = 'px-3 py-2 rounded-md text-xs font-bold transition-all bg-sky-500 text-white shadow';
+        title.textContent = '2027 NCAA Tournament Bracketology & Bubble Watch (Live Injury-Adjusted)';
+      }
+      renderBracketologyPage();
+    }
+
+    function setBracketViewMode(view) {
+      STATE.bracketViewMode = view;
+      const treeBtn = document.getElementById('brk-view-tree-btn');
+      const cardsBtn = document.getElementById('brk-view-cards-btn');
+      const treeSec = document.getElementById('brk-visual-tree-section');
+      const cardsGrid = document.getElementById('brk-regions-grid');
+
+      if (view === 'tree') {
+        treeBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow';
+        cardsBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white';
+        treeSec.classList.remove('hidden');
+        cardsGrid.classList.add('hidden');
+        renderBracketVisualTree();
+      } else {
+        cardsBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow';
+        treeBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white';
+        cardsGrid.classList.remove('hidden');
+        treeSec.classList.add('hidden');
+        renderBracketRegions();
+      }
+    }
+
+    function setBracketRegionView(regionName) {
+      STATE.bracketRegionView = regionName;
+      ['ALL', 'Midwest', 'East', 'South', 'West'].forEach(r => {
+        const btn = document.getElementById('reg-btn-' + r);
+        if (!btn) return;
+        btn.className = r === regionName
+          ? 'px-2.5 py-1.5 rounded-lg text-xs font-bold bg-orange-500 text-white'
+          : 'px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white';
+      });
+      renderBracketRegions();
+      renderBracketVisualTree();
+    }
+
+    function simulateBracketMatchup(teamA, teamB) {
+      window.location.href = `climate.html?a=${encodeURIComponent(teamA)}&b=${encodeURIComponent(teamB)}#matchup-simulator-card`;
+    }
+
+    function computeBracketology76() {
+      RAW_DATA.teams.forEach(t => {
+        if (typeof t.net_score !== 'number' || isNaN(t.net_score)) {
+          t.net_score = Number((((t.con_net || 0) + (t.live_net || 0)) / 2).toFixed(2));
+        }
+      });
+      [...RAW_DATA.teams].sort((a, b) => b.net_score - a.net_score).forEach((t, i) => { t.net_score_rk = i + 1; });
+
+      const mode = STATE.bracketMode;
+      const rkKey = mode === 'net_score' ? 'net_score_rk' : (mode === 'consensus' ? 'con_rk' : 'live_rk');
+      const netKey = mode === 'net_score' ? 'net_score' : (mode === 'consensus' ? 'con_net' : 'live_net');
+
+      const sortedTeams = [...RAW_DATA.teams].sort((a, b) => a[rkKey] - b[rkKey]);
+      const confChampsMap = {};
+      sortedTeams.forEach(t => {
+        if (t.conf_short && !confChampsMap[t.conf_short]) confChampsMap[t.conf_short] = t;
+      });
+
+      const aqList = Object.values(confChampsMap).sort((a, b) => a[rkKey] - b[rkKey]);
+      const aqSet = new Set(aqList.map(t => t.id));
+      const numAq = aqList.length;
+      const aqPlayInCount = Math.min(12, Math.max(0, numAq - 20));
+      const aqByes = aqList.slice(0, numAq - aqPlayInCount);
+      const aqPlayIn = aqList.slice(numAq - aqPlayInCount);
+
+      const remainingPool = sortedTeams.filter(t => !aqSet.has(t.id));
+      const atLargeTotal = 76 - numAq;
+      const atLargeAll = remainingPool.slice(0, atLargeTotal);
+      const atLargeByes = atLargeAll.slice(0, atLargeTotal - 12);
+      const atLargePlayIn = atLargeAll.slice(atLargeTotal - 12, atLargeTotal);
+
+      const lastFourByes = atLargeByes.slice(-4);
+      const lastTwelveIn = atLargePlayIn;
+      const firstFourOut = remainingPool.slice(atLargeTotal, atLargeTotal + 4);
+      const nextFourOut = remainingPool.slice(atLargeTotal + 4, atLargeTotal + 8);
+      const nextEightOut = remainingPool.slice(atLargeTotal + 8, atLargeTotal + 16);
+
+      const atLargeOpeningGames = [];
+      for (let i = 0; i < Math.floor(atLargePlayIn.length / 2); i++) {
+        atLargeOpeningGames.push({ type: 'At-Large Play-In', tA: atLargePlayIn[i], tB: atLargePlayIn[atLargePlayIn.length - 1 - i] });
+      }
+      const aqOpeningGames = [];
+      for (let i = 0; i < Math.floor(aqPlayIn.length / 2); i++) {
+        aqOpeningGames.push({ type: 'Auto-Bid (AQ) Play-In', tA: aqPlayIn[i], tB: aqPlayIn[aqPlayIn.length - 1 - i] });
+      }
+
+      const slots64 = [];
+      aqByes.forEach(t => slots64.push({ isPlayIn: false, bidType: 'AQ', team: t, sortRk: t[rkKey] }));
+      atLargeByes.forEach(t => slots64.push({ isPlayIn: false, bidType: 'AL', team: t, sortRk: t[rkKey] }));
+      atLargeOpeningGames.forEach(g => slots64.push({ isPlayIn: true, bidType: 'AL Play-In', team: g.tA, teamB: g.tB, playInGame: g, sortRk: g.tA[rkKey] + 0.1 }));
+      aqOpeningGames.forEach(g => slots64.push({ isPlayIn: true, bidType: 'AQ Play-In', team: g.tA, teamB: g.tB, playInGame: g, sortRk: g.tA[rkKey] + 0.1 }));
+      slots64.sort((a, b) => a.sortRk - b.sortRk);
+
+      const regionOrder = ['Midwest', 'East', 'South', 'West'];
+      const regionMeta = {
+        Midwest: { city: 'Kansas City, MO' },
+        East: { city: 'New York, NY' },
+        South: { city: 'San Antonio, TX' },
+        West: { city: 'Los Angeles, CA' }
+      };
+      const regions = { Midwest: {}, East: {}, South: {}, West: {} };
+
+      for (let seedLine = 1; seedLine <= 16; seedLine++) {
+        const lineSlots = slots64.slice((seedLine - 1) * 4, seedLine * 4);
+        const dirs = (seedLine % 2 === 1) ? [0, 1, 2, 3] : [3, 2, 1, 0];
+        lineSlots.forEach((slot, idx) => {
+          const regName = regionOrder[dirs[idx]];
+          slot.seedLine = seedLine;
+          slot.region = regName;
+          regions[regName][seedLine] = slot;
+          if (slot.isPlayIn && slot.playInGame) {
+            slot.playInGame.seedLine = seedLine;
+            slot.playInGame.region = regName;
+          }
+        });
+      }
+
+      const teamBracketInfo = {};
+      const teamSeedByName = {};
+      slots64.forEach(s => {
+        if (!s.isPlayIn) {
+          teamBracketInfo[s.team.id] = { seedLine: s.seedLine, region: s.region, status: s.bidType === 'AQ' ? 'Auto-Bid (R64 Bye)' : 'At-Large (R64 Bye)', isPlayIn: false };
+          teamSeedByName[s.team.team] = { seed: s.seedLine, region: s.region, bidType: s.bidType };
+        } else {
+          teamBracketInfo[s.team.id] = { seedLine: s.seedLine, region: s.region, status: s.bidType + ' (Dayton)', isPlayIn: true, opponent: s.teamB.team };
+          teamBracketInfo[s.teamB.id] = { seedLine: s.seedLine, region: s.region, status: s.bidType + ' (Dayton)', isPlayIn: true, opponent: s.team.team };
+          teamSeedByName[s.team.team] = { seed: s.seedLine, region: s.region, bidType: s.bidType };
+          teamSeedByName[s.teamB.team] = { seed: s.seedLine, region: s.region, bidType: s.bidType };
+        }
+      });
+
+      const all76Teams = [...aqList, ...atLargeAll];
+      const confBidCounts = {};
+      all76Teams.forEach(t => {
+        if (!confBidCounts[t.conf]) confBidCounts[t.conf] = { conf: t.conf, conf_short: t.conf_short, total: 0, aq: 0, al: 0, teams: [] };
+        confBidCounts[t.conf].total++;
+        if (aqSet.has(t.id)) confBidCounts[t.conf].aq++; else confBidCounts[t.conf].al++;
+        confBidCounts[t.conf].teams.push(t);
+      });
+
+      return {
+        rkKey, netKey, aqList, atLargeAll, lastFourByes, lastTwelveIn, firstFourOut, nextFourOut, nextEightOut,
+        atLargeOpeningGames, aqOpeningGames, regions, regionOrder, regionMeta, teamBracketInfo, teamSeedByName,
+        confBidCounts: Object.values(confBidCounts).sort((a, b) => b.total - a.total || a.conf.localeCompare(b.conf)),
+        all76Teams
+      };
+    }
+
+    function renderBracketologyPage() {
+      if (RAW_DATA.teams.length < 76) return;
+      CURRENT_BRACKET_DATA = computeBracketology76();
+      const b = CURRENT_BRACKET_DATA;
+
+      const s1M = b.regions.Midwest[1].team, s1E = b.regions.East[1].team, s1S = b.regions.South[1].team, s1W = b.regions.West[1].team;
+      const lastIn = b.lastTwelveIn[b.lastTwelveIn.length - 1];
+      const firstOut = b.firstFourOut[0];
+      const topConf = b.confBidCounts[0];
+
+      document.getElementById('brk-cutline-badge').textContent = `Last Team In: ${lastIn.team} (#${lastIn[b.rkKey]}) • First Out: ${firstOut.team} (#${firstOut[b.rkKey]})`;
+
+      document.getElementById('brk-kpi-grid').innerHTML = `
+        <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-lg">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">Projected #1 Seeds</span>
+            <span class="px-2 py-0.5 rounded bg-orange-500/15 text-orange-400 font-mono font-bold">Top 4 Overall</span>
+          </div>
+          <div class="text-sm font-extrabold text-white truncate">1. ${esc(s1M.team)} • 2. ${esc(s1E.team)}</div>
+          <div class="text-sm font-extrabold text-slate-200 truncate">3. ${esc(s1S.team)} • 4. ${esc(s1W.team)}</div>
+          <div class="mt-1.5 text-[11px] text-slate-400 mono-num">Midwest / East / South / West</div>
+        </div>
+        <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-lg">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">2027 Field Structure</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono font-bold">76 Teams</span>
+          </div>
+          <div class="text-xl font-extrabold text-white mono-num">${b.aqList.length} AQ + ${b.atLargeAll.length} At-Large</div>
+          <div class="mt-2 flex items-center justify-between text-xs mono-num">
+            <span class="text-emerald-400">52 Direct R64 Byes</span>
+            <span class="text-slate-400">24 in Dayton</span>
+          </div>
+        </div>
+        <div onclick="openTeamModalByName('${escJs(lastIn.team)}')" class="bg-slate-900 hover:bg-slate-850 cursor-pointer transition rounded-2xl p-4 border border-slate-800 shadow-lg">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">At-Large Cutline</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono font-bold">Last Team In</span>
+          </div>
+          <div class="text-xl font-extrabold text-white">${esc(lastIn.team)} <span class="text-xs font-normal text-slate-400">(${esc(lastIn.conf_short)})</span></div>
+          <div class="mt-2 flex items-center justify-between text-xs mono-num">
+            <span class="text-amber-300">Rk #${lastIn[b.rkKey]} (+${lastIn[b.netKey].toFixed(1)})</span>
+            <span class="text-rose-400">1st Out: ${esc(firstOut.team)}</span>
+          </div>
+        </div>
+        <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-lg">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span class="font-semibold uppercase tracking-wider">Most Tournament Bids</span>
+            <span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-400 font-mono font-bold">${topConf.total} Bids</span>
+          </div>
+          <div class="text-xl font-extrabold text-white">${esc(topConf.conf)}</div>
+          <div class="mt-2 flex items-center justify-between text-xs mono-num">
+            <span class="text-sky-400">1 AQ + ${topConf.al} At-Large</span>
+            <span class="text-slate-400">${b.confBidCounts.filter(c => c.total > 1).length} Multi-Bid Confs</span>
+          </div>
+        </div>
+      `;
+
+      const bubbleRow = (t, lbl, col) => `
+        <div onclick="openTeamModalByName('${escJs(t.team)}')" class="p-2 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 cursor-pointer transition flex items-center justify-between gap-2">
+          <div class="truncate">
+            <span class="text-[10px] font-mono ${col} mr-1">${lbl}</span>
+            <span class="text-xs font-bold text-white">${esc(t.team)}</span>
+            <span class="text-[10px] text-slate-400 mono-num ml-1">(${esc(t.conf_short)})</span>
+          </div>
+          <span class="text-[11px] font-mono text-slate-300 shrink-0">#${t[b.rkKey]}</span>
+        </div>`;
+
+      document.getElementById('brk-bubble-grid').innerHTML = `
+        <div class="bg-slate-950/60 rounded-xl p-3.5 border border-emerald-500/30 space-y-2">
+          <div class="flex items-center justify-between"><span class="text-xs font-extrabold uppercase text-emerald-400">Last Four Byes</span><span class="text-[10px] font-mono text-slate-400">R64 Direct</span></div>
+          <div class="space-y-1.5">${b.lastFourByes.map((t, i) => bubbleRow(t, `BYE #${i + 1}`, 'text-emerald-400')).join('')}</div>
+        </div>
+        <div class="bg-slate-950/60 rounded-xl p-3.5 border border-orange-500/40 space-y-2">
+          <div class="flex items-center justify-between"><span class="text-xs font-extrabold uppercase text-orange-400">Last 12 In (Dayton)</span><span class="text-[10px] font-mono text-slate-400">Opening Rd</span></div>
+          <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">${b.lastTwelveIn.map((t, i) => bubbleRow(t, `IN #${i + 1}`, 'text-orange-400')).join('')}</div>
+        </div>
+        <div class="bg-slate-950/60 rounded-xl p-3.5 border border-rose-500/40 space-y-2">
+          <div class="flex items-center justify-between"><span class="text-xs font-extrabold uppercase text-rose-400">First Four Out</span><span class="text-[10px] font-mono text-slate-400">Just Missed</span></div>
+          <div class="space-y-1.5">${b.firstFourOut.map((t, i) => bubbleRow(t, `OUT #${i + 1}`, 'text-rose-400')).join('')}</div>
+        </div>
+        <div class="bg-slate-950/60 rounded-xl p-3.5 border border-slate-700 space-y-2">
+          <div class="flex items-center justify-between"><span class="text-xs font-extrabold uppercase text-amber-300">Next Four Out &amp; Watch</span><span class="text-[10px] font-mono text-slate-400">On Radar</span></div>
+          <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">${[...b.nextFourOut, ...b.nextEightOut.slice(0, 4)].map((t, i) => bubbleRow(t, `OUT #${i + 5}`, 'text-amber-300')).join('')}</div>
+        </div>
+      `;
+
+      const playInCard = (g, idx) => `
+        <div onclick="simulateBracketMatchup('${escJs(g.tA.team)}', '${escJs(g.tB.team)}')" class="p-3 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 cursor-pointer transition flex items-center justify-between gap-2">
+          <div class="space-y-0.5">
+            <div class="flex items-center gap-2">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-orange-500/20 text-orange-300 border border-orange-500/30">${esc(g.region)} #${g.seedLine} Play-In</span>
+              <span class="text-[10px] text-slate-400 mono-num">Game #${idx + 1}</span>
+            </div>
+            <div class="text-xs sm:text-sm font-bold text-white">
+              ${esc(g.tA.team)} <span class="text-[11px] font-normal text-slate-400">(${esc(g.tA.conf_short)} • #${g.tA[b.rkKey]})</span>
+              <span class="text-orange-400 mx-1">vs.</span>
+              ${esc(g.tB.team)} <span class="text-[11px] font-normal text-slate-400">(${esc(g.tB.conf_short)} • #${g.tB[b.rkKey]})</span>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-orange-400 shrink-0">Sim ➔</span>
+        </div>`;
+
+      document.getElementById('brk-opening-round-grid').innerHTML = `
+        <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800 space-y-2.5">
+          <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-orange-400">6 At-Large Opening Round Games (Last 12 In)</h4>
+          <div class="grid grid-cols-1 gap-2">${b.atLargeOpeningGames.map((g, i) => playInCard(g, i)).join('')}</div>
+        </div>
+        <div class="bg-slate-950/50 rounded-xl p-4 border border-slate-800 space-y-2.5">
+          <h4 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-400">6 Auto-Bid (AQ) Opening Round Games</h4>
+          <div class="grid grid-cols-1 gap-2">${b.aqOpeningGames.map((g, i) => playInCard(g, i + 6)).join('')}</div>
+        </div>
+      `;
+
+      renderBracketRegions();
+      renderBracketVisualTree();
+      renderBracketComparison();
+
+      document.getElementById('brk-multibid-list').innerHTML = b.confBidCounts.map(c => `
+        <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-white">${esc(c.conf)} <span class="text-slate-400 font-normal">(${esc(c.conf_short)})</span></span>
+            <span class="font-mono font-bold ${c.total > 1 ? 'text-orange-400' : 'text-slate-400'}">${c.total} ${c.total === 1 ? 'Bid' : `Bids (1 AQ + ${c.al} AL)`}</span>
+          </div>
+          <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div class="h-full rounded-full ${c.total >= 6 ? 'bg-orange-500' : (c.total >= 2 ? 'bg-sky-400' : 'bg-emerald-500')}" style="width: ${Math.min(100, (c.total / 14) * 100)}%"></div>
+          </div>
+          <div class="text-[11px] text-slate-400 leading-snug">
+            ${c.teams.map(t => `<span onclick="openTeamModalByName('${escJs(t.team)}')" class="hover:text-white cursor-pointer">${esc(t.team)} (#${b.teamBracketInfo[t.id]?.seedLine || '-'})</span>`).join(', ')}
+          </div>
+        </div>
+      `).join('');
+
+      renderBracketAQTable();
+    }
+
+    // -----------------------------------------------------------------------
+    // INTERACTIVE VISUAL BRACKET TREE
+    // -----------------------------------------------------------------------
+    const R64_PAIRS = [[1, 16], [8, 9], [5, 12], [4, 13], [6, 11], [3, 14], [7, 10], [2, 15]];
+
+    function winProbByModel(tA, tB) {
+      const b = CURRENT_BRACKET_DATA;
+      const diff = (tA[b.netKey] || 0) - (tB[b.netKey] || 0);
+      return 1 / (1 + Math.exp(-diff / 6.5));
+    }
+
+    function pickBracketSlot(key, teamName, seed) {
+      const t = RAW_DATA.teams.find(x => x.team === teamName);
+      if (!t) return;
+      BRACKET_PICKS[key] = { team: t, seed };
+      renderBracketVisualTree();
+    }
+
+    function resetBracketPicks() {
+      BRACKET_PICKS = {};
+      renderBracketVisualTree();
+    }
+
+    function fillBracket(randomize) {
+      const b = CURRENT_BRACKET_DATA;
+      if (!b) return;
+      BRACKET_PICKS = {};
+      const choose = (a, bObj) => {
+        if (!a) return bObj;
+        if (!bObj) return a;
+        const pA = winProbByModel(a.team, bObj.team);
+        return (randomize ? Math.random() < pA : pA >= 0.5) ? a : bObj;
+      };
+
+      const regChamps = {};
+      b.regionOrder.forEach(reg => {
+        const slots = b.regions[reg];
+        const r32 = R64_PAIRS.map(([sH, sL], i) => {
+          const w = choose({ team: slots[sH].team, seed: sH }, { team: slots[sL].team, seed: sL });
+          BRACKET_PICKS[`${reg}_R32_${i}`] = w;
+          return w;
+        });
+        const s16 = [0, 1, 2, 3].map(i => {
+          const w = choose(r32[i * 2], r32[i * 2 + 1]);
+          BRACKET_PICKS[`${reg}_S16_${i}`] = w;
+          return w;
+        });
+        const e8 = [0, 1].map(i => {
+          const w = choose(s16[i * 2], s16[i * 2 + 1]);
+          BRACKET_PICKS[`${reg}_E8_${i}`] = w;
+          return w;
+        });
+        const champ = choose(e8[0], e8[1]);
+        BRACKET_PICKS[`${reg}_CHAMP`] = champ;
+        regChamps[reg] = champ;
+      });
+
+      const ff0 = choose(regChamps.Midwest, regChamps.West);
+      const ff1 = choose(regChamps.East, regChamps.South);
+      BRACKET_PICKS.FF_0 = ff0;
+      BRACKET_PICKS.FF_1 = ff1;
+      BRACKET_PICKS.CHAMP = choose(ff0, ff1);
+      renderBracketVisualTree();
+    }
+
+    function autoFillBracketByModel() { fillBracket(false); }
+    function simBracketWithUpsets() { fillBracket(true); }
+
+    function renderBracketVisualTree() {
+      const b = CURRENT_BRACKET_DATA;
+      if (!b) return;
+      const container = document.getElementById('brk-visual-tree-container');
+      const regionsToShow = STATE.bracketRegionView === 'ALL' ? b.regionOrder : [STATE.bracketRegionView];
+
+      const slotHtml = (entry, nextKey, isPicked) => {
+        if (!entry) return `<div class="bracket-team-slot text-slate-500 italic">TBD</div>`;
+        return `<div onclick="pickBracketSlot('${nextKey}', '${escJs(entry.team.team)}', ${entry.seed})" class="bracket-team-slot ${isPicked ? 'picked text-emerald-300' : 'text-slate-200'}">
+          <span class="truncate"><span class="font-mono text-orange-400 mr-1">${entry.seed}</span>${esc(entry.team.team)}</span>
+          <span class="text-[9px] font-mono text-slate-400">${esc(entry.team.conf_short)}</span>
+        </div>`;
+      };
+
+      const regBlocks = regionsToShow.map(reg => {
+        const slots = b.regions[reg];
+        const r64Col = R64_PAIRS.map(([sH, sL], i) => {
+          const nextK = `${reg}_R32_${i}`;
+          const picked = BRACKET_PICKS[nextK]?.team?.team;
+          const a = { team: slots[sH].team, seed: sH }, c = { team: slots[sL].team, seed: sL };
+          return `<div class="rounded-lg border border-slate-800 bg-slate-900 overflow-hidden divide-y divide-slate-800/60">
+            ${slotHtml(a, nextK, picked === a.team.team)}
+            ${slotHtml(c, nextK, picked === c.team.team)}
+          </div>`;
+        }).join('');
+
+        const r32Col = [0, 1, 2, 3].map(i => {
+          const nextK = `${reg}_S16_${i}`;
+          const a = BRACKET_PICKS[`${reg}_R32_${i * 2}`], c = BRACKET_PICKS[`${reg}_R32_${i * 2 + 1}`];
+          const picked = BRACKET_PICKS[nextK]?.team?.team;
+          return `<div class="rounded-lg border border-slate-800 bg-slate-900 overflow-hidden divide-y divide-slate-800/60">
+            ${slotHtml(a, nextK, a && picked === a.team.team)}
+            ${slotHtml(c, nextK, c && picked === c.team.team)}
+          </div>`;
+        }).join('');
+
+        const s16Col = [0, 1].map(i => {
+          const nextK = `${reg}_E8_${i}`;
+          const a = BRACKET_PICKS[`${reg}_S16_${i * 2}`], c = BRACKET_PICKS[`${reg}_S16_${i * 2 + 1}`];
+          const picked = BRACKET_PICKS[nextK]?.team?.team;
+          return `<div class="rounded-lg border border-slate-800 bg-slate-900 overflow-hidden divide-y divide-slate-800/60">
+            ${slotHtml(a, nextK, a && picked === a.team.team)}
+            ${slotHtml(c, nextK, c && picked === c.team.team)}
+          </div>`;
+        }).join('');
+
+        const e8A = BRACKET_PICKS[`${reg}_E8_0`], e8B = BRACKET_PICKS[`${reg}_E8_1`];
+        const champ = BRACKET_PICKS[`${reg}_CHAMP`];
+
+        return `
+          <div class="bg-slate-950/70 rounded-2xl p-4 border border-slate-800 min-w-[720px] space-y-2.5">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <span class="text-sm font-extrabold text-white">${reg} Region <span class="text-xs font-mono text-orange-300 ml-1">${b.regionMeta[reg].city}</span></span>
+              <span class="text-xs font-mono text-emerald-400">Region Winner: <strong>${champ ? `#${champ.seed} ${esc(champ.team.team)}` : 'TBD'}</strong></span>
+            </div>
+            <div class="grid grid-cols-4 gap-3 items-center">
+              <div class="space-y-1.5"><div class="text-[10px] font-mono uppercase text-slate-400">Round of 64</div>${r64Col}</div>
+              <div class="space-y-4"><div class="text-[10px] font-mono uppercase text-slate-400">Round of 32</div>${r32Col}</div>
+              <div class="space-y-10"><div class="text-[10px] font-mono uppercase text-slate-400">Sweet 16</div>${s16Col}</div>
+              <div class="space-y-2">
+                <div class="text-[10px] font-mono uppercase text-orange-400">Elite 8</div>
+                <div class="rounded-lg border border-orange-500/40 bg-slate-900 overflow-hidden divide-y divide-slate-800/60">
+                  ${slotHtml(e8A, `${reg}_CHAMP`, e8A && champ?.team?.team === e8A.team.team)}
+                  ${slotHtml(e8B, `${reg}_CHAMP`, e8B && champ?.team?.team === e8B.team.team)}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Final Four Box
+      const mw = BRACKET_PICKS.Midwest_CHAMP, we = BRACKET_PICKS.West_CHAMP;
+      const ea = BRACKET_PICKS.East_CHAMP, so = BRACKET_PICKS.South_CHAMP;
+      const ff0 = BRACKET_PICKS.FF_0, ff1 = BRACKET_PICKS.FF_1, natChamp = BRACKET_PICKS.CHAMP;
+
+      const ffHtml = `
+        <div class="bg-slate-950/80 rounded-2xl p-4 border border-orange-500/40 min-w-[720px] grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <div class="space-y-1.5">
+            <div class="text-[10px] font-mono uppercase text-orange-400 font-bold">Final Four Semifinal 1 (Detroit)</div>
+            <div class="rounded-lg border border-slate-800 bg-slate-900 overflow-hidden divide-y divide-slate-800/60">
+              ${slotHtml(mw, 'FF_0', mw && ff0?.team?.team === mw.team.team)}
+              ${slotHtml(we, 'FF_0', we && ff0?.team?.team === we.team.team)}
+            </div>
+          </div>
+          <div class="space-y-1.5 text-center">
+            <div class="text-[10px] font-mono uppercase text-emerald-400 font-bold">🏆 2027 National Championship</div>
+            <div class="rounded-lg border border-emerald-500/50 bg-slate-900 overflow-hidden divide-y divide-slate-800/60 text-left">
+              ${slotHtml(ff0, 'CHAMP', ff0 && natChamp?.team?.team === ff0.team.team)}
+              ${slotHtml(ff1, 'CHAMP', ff1 && natChamp?.team?.team === ff1.team.team)}
+            </div>
+            <div class="text-xs font-extrabold text-amber-300 mono-num pt-1">
+              Champion: ${natChamp ? `#${natChamp.seed} ${esc(natChamp.team.team)}` : 'Click teams to pick'}
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <div class="text-[10px] font-mono uppercase text-orange-400 font-bold">Final Four Semifinal 2 (Detroit)</div>
+            <div class="rounded-lg border border-slate-800 bg-slate-900 overflow-hidden divide-y divide-slate-800/60">
+              ${slotHtml(ea, 'FF_1', ea && ff1?.team?.team === ea.team.team)}
+              ${slotHtml(so, 'FF_1', so && ff1?.team?.team === so.team.team)}
+            </div>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = `<div class="space-y-4">${ffHtml}${regBlocks}</div>`;
+    }
+
+    function renderBracketRegions() {
+      const b = CURRENT_BRACKET_DATA;
+      if (!b) return;
+      const regionsToShow = STATE.bracketRegionView === 'ALL' ? b.regionOrder : [STATE.bracketRegionView];
+      const gridEl = document.getElementById('brk-regions-grid');
+      gridEl.className = (STATE.bracketViewMode === 'cards' ? '' : 'hidden ') + (regionsToShow.length === 1 ? 'grid grid-cols-1 gap-5' : 'grid grid-cols-1 lg:grid-cols-2 gap-5');
+
+      const slotLbl = (slot) => !slot.isPlayIn
+        ? `<div class="flex items-center justify-between gap-2"><div class="truncate"><span class="font-bold text-white">${esc(slot.team.team)}</span> <span class="text-[10px] text-slate-400 mono-num">(${esc(slot.team.conf_short)})</span></div><span class="text-[10px] font-mono text-slate-400 shrink-0">#${slot.team[b.rkKey]}</span></div>`
+        : `<div class="flex items-center justify-between gap-2"><div class="truncate"><span class="font-bold text-orange-300">${esc(slot.team.team)}</span> / <span class="font-bold text-orange-300">${esc(slot.teamB.team)}</span></div><span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-orange-500/20 text-orange-300">${slot.bidType}</span></div>`;
+
+      gridEl.innerHTML = regionsToShow.map(reg => {
+        const slots = b.regions[reg];
+        return `
+          <div class="bg-slate-950/70 rounded-2xl p-4 border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h4 class="text-sm sm:text-base font-extrabold text-white">${reg} Region <span class="text-xs font-mono text-orange-300 ml-1">${b.regionMeta[reg].city}</span></h4>
+              <span class="text-[11px] font-mono text-slate-400">Click game to sim</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              ${R64_PAIRS.map(([sH, sL]) => `
+                <div onclick="simulateBracketMatchup('${escJs(slots[sH].team.team)}', '${escJs(slots[sL].team.team)}')" class="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800/90 border border-slate-800/90 cursor-pointer transition space-y-1.5">
+                  <div class="flex items-center gap-2 text-xs"><span class="w-5 h-5 rounded bg-slate-800 text-orange-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">${sH}</span><div class="flex-1 min-w-0">${slotLbl(slots[sH])}</div></div>
+                  <div class="flex items-center gap-2 text-xs pt-1 border-t border-slate-800/60"><span class="w-5 h-5 rounded bg-slate-800 text-sky-400 font-mono font-bold text-[11px] flex items-center justify-center shrink-0">${sL}</span><div class="flex-1 min-w-0">${slotLbl(slots[sL])}</div></div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // -----------------------------------------------------------------------
+    // EXTERNAL BRACKETOLOGY COMPARISON (SELECTABLE SOURCE + BULLISH/BEARISH)
+    // -----------------------------------------------------------------------
+    function getSelectedSourceSeed(teamName, sourceKey) {
+      const ext = EXTERNAL_BRACKETOLOGY;
+      if (sourceKey === 'cbs') return ext.cbs[teamName]?.seed ?? null;
+      if (sourceKey === 'espn') return ext.espn[teamName]?.seed ?? null;
+      if (sourceKey === 'jngHq') return ext.jngHq[teamName]?.seed ?? null;
+      // Average across available outside sources
+      const vals = [ext.cbs[teamName]?.seed, ext.espn[teamName]?.seed, ext.jngHq[teamName]?.seed].filter(v => typeof v === 'number');
+      return vals.length ? Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1)) : null;
+    }
+
+    function renderBracketComparison() {
+      const b = CURRENT_BRACKET_DATA;
+      if (!b) return;
+      const srcKey = document.getElementById('brk-comp-source')?.value || 'cbs';
+      const srcLabel = { cbs: 'CBS Sports', espn: 'ESPN Lunardi', jngHq: 'Hoops HD / HQ', avg: 'Outside Avg' }[srcKey];
+      const modeName = STATE.bracketMode === 'net_score' ? 'Net Score' : (STATE.bracketMode === 'consensus' ? 'Consensus' : 'Live');
+
+      document.getElementById('brk-comp-ours-hdr').textContent = `Your Seed (${modeName})`;
+      document.getElementById('brk-comp-src-hdr').textContent = srcLabel;
+
+      const ourTop1s = [b.regions.Midwest[1].team.team, b.regions.East[1].team.team, b.regions.South[1].team.team, b.regions.West[1].team.team];
+      const topCard = (title, sub, arr, cls) => `
+        <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800 space-y-1">
+          <div class="flex items-center justify-between"><span class="text-xs font-extrabold ${cls}">${title}</span><span class="text-[10px] font-mono text-slate-400">${sub}</span></div>
+          <div class="text-xs text-slate-200 font-semibold">${arr.map((n, i) => `${i + 1}. ${esc(n)}`).join(' • ')}</div>
+        </div>`;
+
+      document.getElementById('brk-comp-top4').innerHTML = [
+        topCard(`Your #1s (${modeName})`, 'Active Model', ourTop1s, 'text-orange-400'),
+        topCard('CBS Sports #1s', EXTERNAL_BRACKETOLOGY.updated.cbs, EXTERNAL_BRACKETOLOGY.top1s.cbs, 'text-sky-400'),
+        topCard('ESPN Lunardi #1s', EXTERNAL_BRACKETOLOGY.updated.espn, EXTERNAL_BRACKETOLOGY.top1s.espn, 'text-emerald-400'),
+        topCard('Hoops HQ #1s', EXTERNAL_BRACKETOLOGY.updated.hoopsHq, EXTERNAL_BRACKETOLOGY.top1s.hoopsHq, 'text-purple-400')
+      ].join('');
+
+      // Compute overlap, mean abs diff, most bullish, most bearish
+      const allNames = new Set([
+        ...Object.keys(b.teamSeedByName),
+        ...Object.keys(EXTERNAL_BRACKETOLOGY.cbs),
+        ...Object.keys(EXTERNAL_BRACKETOLOGY.espn),
+        ...Object.keys(EXTERNAL_BRACKETOLOGY.jngHq)
+      ]);
+      const diffs = [];
+      let overlap = 0, srcTotal = 0;
+
+      allNames.forEach(name => {
+        const ours = b.teamSeedByName[name]?.seed ?? null;
+        const theirs = getSelectedSourceSeed(name, srcKey);
+        if (theirs !== null) srcTotal++;
+        if (ours !== null && theirs !== null) {
+          overlap++;
+          // Positive delta = we seed them HIGHER (lower seed number) = Most Bullish
+          diffs.push({ name, ours, theirs, delta: Number((theirs - ours).toFixed(1)) });
+        }
+      });
+
+      const meanDiff = diffs.length ? (diffs.reduce((s, d) => s + Math.abs(d.delta), 0) / diffs.length).toFixed(2) : '0.00';
+      const bullish = [...diffs].sort((a, b) => b.delta - a.delta).slice(0, 3).filter(d => d.delta > 0);
+      const bearish = [...diffs].sort((a, b) => a.delta - b.delta).slice(0, 3).filter(d => d.delta < 0);
+
+      document.getElementById('brk-comp-kpis').innerHTML = `
+        <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800">
+          <div class="text-[10px] font-bold uppercase text-slate-400">Field Overlap vs ${srcLabel}</div>
+          <div class="text-lg font-extrabold text-white mono-num mt-0.5">${overlap} / ${srcTotal} Teams</div>
+          <div class="text-[11px] text-slate-400 mono-num">${srcTotal ? ((overlap / srcTotal) * 100).toFixed(1) : '0'}% shared field</div>
+        </div>
+        <div class="bg-slate-950/70 rounded-xl p-3 border border-slate-800">
+          <div class="text-[10px] font-bold uppercase text-slate-400">Mean Seed Diff (|Δ|)</div>
+          <div class="text-lg font-extrabold text-sky-400 mono-num mt-0.5">${meanDiff} Seed Lines</div>
+          <div class="text-[11px] text-slate-400 mono-num">Across ${diffs.length} common teams</div>
+        </div>
+        <div class="bg-slate-950/70 rounded-xl p-3 border border-emerald-500/30">
+          <div class="text-[10px] font-bold uppercase text-emerald-400">📈 Most Bullish (Our Model Higher)</div>
+          <div class="text-xs font-bold text-white mt-1 space-y-0.5 mono-num">
+            ${bullish.length ? bullish.map(d => `<div>${esc(d.name)}: #${d.ours} vs #${d.theirs} <span class="text-emerald-400">(+${d.delta})</span></div>`).join('') : '<div class="text-slate-400">None</div>'}
+          </div>
+        </div>
+        <div class="bg-slate-950/70 rounded-xl p-3 border border-rose-500/30">
+          <div class="text-[10px] font-bold uppercase text-rose-400">📉 Most Bearish (Our Model Lower)</div>
+          <div class="text-xs font-bold text-white mt-1 space-y-0.5 mono-num">
+            ${bearish.length ? bearish.map(d => `<div>${esc(d.name)}: #${d.ours} vs #${d.theirs} <span class="text-rose-400">(${d.delta})</span></div>`).join('') : '<div class="text-slate-400">None</div>'}
+          </div>
+        </div>
+      `;
+
+      renderBracketComparisonTable();
+    }
+
+    function renderBracketComparisonTable() {
+      const b = CURRENT_BRACKET_DATA;
+      if (!b) return;
+      const srcKey = document.getElementById('brk-comp-source')?.value || 'cbs';
+      const filter = document.getElementById('brk-comp-filter')?.value || 'ALL';
+      const q = (document.getElementById('brk-comp-search')?.value || '').trim().toLowerCase();
+
+      const allNames = new Set([
+        ...Object.keys(b.teamSeedByName),
+        ...Object.keys(EXTERNAL_BRACKETOLOGY.cbs),
+        ...Object.keys(EXTERNAL_BRACKETOLOGY.espn),
+        ...Object.keys(EXTERNAL_BRACKETOLOGY.jngHq)
+      ]);
+
+      let rows = Array.from(allNames).map(name => {
+        const t = RAW_DATA.teams.find(x => x.team === name);
+        const ours = b.teamSeedByName[name]?.seed ?? null;
+        const src = getSelectedSourceSeed(name, srcKey);
+        const espn = EXTERNAL_BRACKETOLOGY.espn[name]?.seed ?? null;
+        const jng = EXTERNAL_BRACKETOLOGY.jngHq[name]?.seed ?? null;
+        const delta = (ours !== null && src !== null) ? Number((src - ours).toFixed(1)) : null;
+        return { name, conf: t?.conf_short || '-', ours, src, delta, espn, jng };
+      });
+
+      if (q) rows = rows.filter(r => r.name.toLowerCase().includes(q) || r.conf.toLowerCase().includes(q));
+      if (filter === 'BULLISH') rows = rows.filter(r => r.delta !== null && r.delta > 0).sort((a, b) => b.delta - a.delta);
+      else if (filter === 'BEARISH') rows = rows.filter(r => r.delta !== null && r.delta < 0).sort((a, b) => a.delta - b.delta);
+      else if (filter === 'DIFF2') rows = rows.filter(r => r.delta !== null && Math.abs(r.delta) >= 2).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+      else if (filter === 'TOP4') rows = rows.filter(r => (r.ours !== null && r.ours <= 4) || (r.src !== null && r.src <= 4)).sort((a, b) => (a.ours ?? 99) - (b.ours ?? 99));
+      else if (filter === 'OURS_ONLY') rows = rows.filter(r => r.ours !== null && r.src === null).sort((a, b) => a.ours - b.ours);
+      else if (filter === 'SOURCE_ONLY') rows = rows.filter(r => r.ours === null && r.src !== null).sort((a, b) => a.src - b.src);
+      else rows.sort((a, b) => (a.ours ?? 99) - (b.ours ?? 99) || (a.src ?? 99) - (b.src ?? 99));
+
+      document.getElementById('brk-comp-count').textContent = `Showing ${rows.length} teams`;
+
+      document.getElementById('brk-comp-tbody').innerHTML = rows.map(r => {
+        const dHtml = r.delta === null
+          ? `<span class="text-slate-500">—</span>`
+          : (r.delta > 0
+            ? `<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-bold">📈 +${r.delta}</span>`
+            : (r.delta < 0
+              ? `<span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 font-bold">📉 ${r.delta}</span>`
+              : `<span class="text-slate-400">0</span>`));
+        return `
+          <tr onclick="openTeamModalByName('${escJs(r.name)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
+            <td class="py-2 px-3 font-bold text-white">${esc(r.name)}</td>
+            <td class="py-2 px-2.5 text-slate-400 mono-num">${esc(r.conf)}</td>
+            <td class="py-2 px-2.5 mono-num font-bold text-orange-300">${r.ours !== null ? '#' + r.ours : 'OUT'}</td>
+            <td class="py-2 px-2.5 mono-num font-bold text-sky-300">${r.src !== null ? '#' + r.src : 'OUT'}</td>
+            <td class="py-2 px-2.5 mono-num">${dHtml}</td>
+            <td class="py-2 px-2.5 mono-num text-emerald-300">${r.espn !== null ? '#' + r.espn : '—'}</td>
+            <td class="py-2 px-2.5 mono-num text-purple-300">${r.jng !== null ? '#' + r.jng : '—'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderBracketAQTable() {
+      const b = CURRENT_BRACKET_DATA;
+      if (!b) return;
+      const q = (document.getElementById('brk-aq-search')?.value || '').trim().toLowerCase();
+      let list = b.aqList;
+      if (q) list = list.filter(t => t.team.toLowerCase().includes(q) || t.conf.toLowerCase().includes(q) || t.conf_short.toLowerCase().includes(q));
+
+      document.getElementById('brk-aq-tbody').innerHTML = list.map(t => {
+        const aqRank = b.aqList.indexOf(t) + 1;
+        const info = b.teamBracketInfo[t.id] || { seedLine: 16, region: 'TBD', isPlayIn: false };
+        return `
+          <tr onclick="openTeamModalByName('${escJs(t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
+            <td class="py-2 px-2.5 mono-num font-bold text-slate-300">#${aqRank}</td>
+            <td class="py-2 px-2.5 font-semibold text-slate-200">${esc(t.conf)} <span class="text-[10px] text-slate-500 mono-num">(${esc(t.conf_short)})</span></td>
+            <td class="py-2 px-2.5 font-bold text-white">${esc(t.team)} <span class="text-[10px] font-normal text-slate-400 mono-num">(${t.w}-${t.l})</span></td>
+            <td class="py-2 px-2.5 mono-num text-slate-200">#${t[b.rkKey]}</td>
+            <td class="py-2 px-2.5 mono-num ${t[b.netKey] >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${t[b.netKey] >= 0 ? '+' : ''}${t[b.netKey].toFixed(2)}</td>
+            <td class="py-2 px-2.5 mono-num font-bold text-orange-300">#${info.seedLine} (${info.region})</td>
+            <td class="py-2 px-2.5">
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold ${info.isPlayIn ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'}">
+                ${info.isPlayIn ? 'Dayton vs ' + esc(info.opponent) : 'R64 Direct Bye'}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportBracketCSV() {
+      const b = CURRENT_BRACKET_DATA || computeBracketology76();
+      const headers = ['Overall_Seed', 'Team', 'Conference', 'Record', 'Mode_Rank', 'Net_Rtg', 'Bid_Type', 'Region', 'Seed_Line', 'Bracket_Status'];
+      const sorted76 = [...b.all76Teams].sort((x, y) => x[b.rkKey] - y[b.rkKey]);
+      const rows = sorted76.map((t, idx) => {
+        const info = b.teamBracketInfo[t.id] || {};
+        const isAQ = b.aqList.some(a => a.id === t.id);
+        return [idx + 1, `"${t.team}"`, `"${t.conf}"`, `"${t.w}-${t.l}"`, t[b.rkKey], t[b.netKey].toFixed(2), isAQ ? 'AQ' : 'At-Large', info.region || '', info.seedLine || '', `"${info.status || ''}"`];
+      });
+      const blob = new Blob([[headers.join(','), ...rows.map(r => r.join(','))].join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `cbb_2027_bracketology_76_${STATE.bracketMode}.csv`;
+      a.click();
+    }
+
+    // -----------------------------------------------------------------------
+    // TEAM DOSSIER MODAL
+    // -----------------------------------------------------------------------
+    function openTeamModalByName(teamName) {
+      const t = RAW_DATA.teams.find(x => x.team.toLowerCase() === teamName.toLowerCase());
+      if (!t) return;
+
+      document.getElementById('modal-team-name').textContent = `${t.team}${t.espn_name ? ' (' + t.espn_name + ')' : ''}`;
+      document.getElementById('modal-team-sub').textContent = `${t.conf} • Record: ${t.w}-${t.l} • Proj Conf: ${t.proj_conf_wl || 'N/A'}`;
+      document.getElementById('modal-team-badges').innerHTML = `
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30 mono-num">Consensus #${t.con_rk}</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30 mono-num">Live #${t.live_rk}</span>
+        ${t.inj_delta_pct < 0 ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 mono-num">Injury Δ ${t.inj_delta_pct.toFixed(2)}%</span>` : ''}
+      `;
+      document.getElementById('modal-team-content').innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 space-y-2">
+            <div class="text-xs font-bold uppercase text-orange-400">Consensus Profile</div>
+            <div class="grid grid-cols-3 gap-2 pt-1 mono-num">
+              <div><div class="text-[11px] text-slate-400">Net Rtg</div><div class="text-lg font-extrabold text-white">${t.con_net >= 0 ? '+' : ''}${t.con_net.toFixed(2)} (#${t.con_rk})</div></div>
+              <div><div class="text-[11px] text-slate-400">ORtg</div><div class="text-lg font-bold text-emerald-400">${t.con_ortg.toFixed(1)}</div></div>
+              <div><div class="text-[11px] text-slate-400">DRtg</div><div class="text-lg font-bold text-sky-400">${t.con_drtg.toFixed(1)}</div></div>
+            </div>
+          </div>
+          <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 space-y-2">
+            <div class="text-xs font-bold uppercase text-sky-400">Live Profile (Injury-Adj)</div>
+            <div class="grid grid-cols-3 gap-2 pt-1 mono-num">
+              <div><div class="text-[11px] text-slate-400">Live Net</div><div class="text-lg font-extrabold text-white">${t.live_net >= 0 ? '+' : ''}${t.live_net.toFixed(2)} (#${t.live_rk})</div></div>
+              <div><div class="text-[11px] text-slate-400">Live ORtg</div><div class="text-lg font-bold text-emerald-400">${t.live_ortg.toFixed(1)}</div></div>
+              <div><div class="text-[11px] text-slate-400">Live DRtg</div><div class="text-lg font-bold text-sky-400">${t.live_drtg.toFixed(1)}</div></div>
+            </div>
+          </div>
+        </div>
+      `;
+      const modal = document.getElementById('team-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeTeamModal() {
+      const modal = document.getElementById('team-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // -----------------------------------------------------------------------
+    // BOOTSTRAP
+    // -----------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', async () => {
+      initThemeSystem();
+      fetchLastMainCommitDate();
+      const ok = await loadDashboardData();
+      if (!ok) return;
+      renderBracketologyPage();
+    });
+  </script>
+</body>
+</html>

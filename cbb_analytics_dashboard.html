@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -117,7 +118,6 @@
     html:not(.dark) .bg-slate-950,
     html:not(.dark) .bg-slate-950\/90,
     html:not(.dark) .bg-slate-950\/80,
-    html:not(.dark) .bg-slate-950\/75,
     html:not(.dark) .bg-slate-950\/70,
     html:not(.dark) .bg-slate-950\/60,
     html:not(.dark) .bg-slate-950\/50 {
@@ -153,7 +153,6 @@
     html:not(.dark) .text-white {
       color: #0f172a !important;
     }
-    /* Keep white text on solid accent buttons & badges */
     html:not(.dark) .bg-orange-500,
     html:not(.dark) .bg-orange-500 *,
     html:not(.dark) .bg-sky-500,
@@ -223,7 +222,8 @@
     html:not(.dark) ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
     }
-    html:not(.dark) #team-modal {
+    html:not(.dark) #team-modal,
+    html:not(.dark) #upload-modal {
       background-color: rgba(15, 23, 42, 0.45) !important;
     }
     html:not(.dark) .shadow-xl,
@@ -266,7 +266,6 @@
   <!-- TOP HEADER & NAVIGATION -->
   <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <!-- Brand & Live Push Timestamp -->
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-500/20 font-extrabold text-white text-lg">
           🏀
@@ -278,8 +277,8 @@
               365 D1 Teams • 488 Graded Sims
             </span>
           </div>
-          <p id="site-last-updated" class="text-xs text-slate-400 mono-num">
-            Updated Nov 21, 2026
+          <p id="site-last-updated" class="text-xs text-slate-400 mono-num truncate max-w-md sm:max-w-xl" title="theconsensuscbb.com • 2026-27 CBB Analytics &amp; Batch Simulation Results">
+            theconsensuscbb.com • Updated Nov 15, 2026
           </p>
         </div>
       </div>
@@ -300,16 +299,19 @@
         </button>
       </nav>
 
-      <!-- Top-Right Sunrise/Sunset Light & Dark Mode Toggle -->
-      <div class="flex items-center gap-2 ml-auto">
+      <!-- Utility Actions & Sunrise/Sunset Theme Switcher -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto mode switches to Light at local sunrise and Dark at local sunset">
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white" title="Automatic Sunrise/Sunset Mode">🌓 Auto</button>
+          <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white" title="Force Light Mode">☀️</button>
+          <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white" title="Force Dark Mode">🌙</button>
+        </div>
         <button id="theme-sun-pill" type="button" onclick="requestGeoForSun()" class="hidden xl:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-mono bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition" title="Click to use your exact GPS location for sunrise/sunset times">
           <span id="theme-sun-label">☀ -- • 🌙 --</span>
         </button>
-        <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto mode switches to Light at local sunrise and Dark at local sunset">
-          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white" title="Automatic Sunrise/Sunset Mode">🌓 Auto</button>
-          <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white" title="Light Mode">☀️ Light</button>
-          <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white" title="Dark Mode">🌙</button>
-        </div>
+        <button id="btn-open-upload" type="button" onclick="toggleUploadModal(true)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+          <span>📂</span><span>Sync Local .xlsx</span>
+        </button>
       </div>
     </div>
   </header>
@@ -324,7 +326,7 @@
       <!-- Mode Toggle Hero Bar -->
       <div class="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div class="space-y-1">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <span id="rk-mode-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30">
               Consensus Rankings Active
             </span>
@@ -336,7 +338,7 @@
             2026-27 Division I Consensus Power Rankings
           </h2>
           <p class="text-xs sm:text-sm text-slate-300 max-w-2xl" id="rk-hero-desc">
-            Combining 4 major national rating systems across all 365 D1 programs. Switch between Consensus, Live Injury-Adjusted, and the AV Poll (Net Score) anytime.
+            Combining 4 major national rating systems across Division I programs. Flip the toggle to switch every metric, chart, and rank between Consensus, Live Injury-Adjusted, and AV Poll (Net Score).
           </p>
         </div>
 
@@ -360,9 +362,7 @@
       </div>
 
       <!-- Top KPI Summary Row -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="rk-kpi-grid">
-        <!-- Populated by JS -->
-      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="rk-kpi-grid"></div>
 
       <!-- Charts Row: Efficiency Frontier Scatter & Top Risers/Fallers Between Modes -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -370,14 +370,14 @@
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <h3 class="text-sm sm:text-base font-bold text-white" id="scatter-chart-title">
-                Efficiency Landscape: Regular Offensive vs. Defensive Rating (Top 60 Teams)
+                Efficiency Landscape: Offensive vs. Defensive Rating (Top 60 Teams)
               </h3>
               <p class="text-xs text-slate-400">
-                Upper-right quadrant = Elite Regular Offense (high ORtg) &amp; Elite Regular Defense (low DRtg, inverted Y-axis). Click any point to inspect team.
+                Upper-right quadrant = Elite Offense (high ORtg) &amp; Elite Defense (low DRtg, inverted Y-axis). Click any point to inspect team.
               </p>
             </div>
             <span class="text-xs font-mono px-2 py-1 rounded bg-slate-800 text-slate-300 border border-slate-700" id="scatter-mode-tag">
-              Regular ORtg vs DRtg
+              Mode: Consensus
             </span>
           </div>
           <div class="relative h-72 w-full">
@@ -396,9 +396,7 @@
             <p class="text-xs text-slate-400 mb-3">
               How top programs shift when switching between 4-Source Consensus and Injury-Adjusted Live ratings:
             </p>
-            <div id="rk-divergence-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-              <!-- Populated by JS -->
-            </div>
+            <div id="rk-divergence-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
           </div>
           <div class="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
             <span>Click any team row for full dossier</span>
@@ -409,7 +407,7 @@
         </div>
       </div>
 
-      <!-- Filter & Control Bar for 365-Team Table -->
+      <!-- Filter & Control Bar for Team Table -->
       <div class="bg-slate-900 rounded-2xl p-4 border border-slate-800 shadow-lg space-y-3">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           <div class="lg:col-span-2">
@@ -420,14 +418,14 @@
           <div>
             <label for="rk-conf-filter" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Conference</label>
             <select id="rk-conf-filter" onchange="handleRankingFilterChange()" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-orange-500">
-              <option value="ALL">All 32 Conferences (365)</option>
+              <option value="ALL">All Conferences</option>
             </select>
           </div>
 
           <div>
             <label for="rk-tier-filter" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Team Slice</label>
             <select id="rk-tier-filter" onchange="handleRankingFilterChange()" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-orange-500">
-              <option value="ALL">All 365 D1 Teams</option>
+              <option value="ALL">All Loaded Teams</option>
               <option value="TOP25">Top 25 Ranked</option>
               <option value="TOP50">Top 50 Ranked</option>
               <option value="TOP100">Top 100 Ranked</option>
@@ -448,7 +446,7 @@
 
         <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80 text-xs text-slate-400">
           <div class="flex items-center gap-2">
-            <span id="rk-results-count" class="font-semibold text-slate-200 mono-num">Showing 365 teams</span>
+            <span id="rk-results-count" class="font-semibold text-slate-200 mono-num">Showing teams</span>
             <span>•</span>
             <span>Click any column header to sort</span>
           </div>
@@ -467,12 +465,8 @@
       <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
         <div class="overflow-x-auto max-h-[640px]">
           <table class="w-full text-left border-collapse">
-            <thead id="rk-table-head" class="bg-slate-950/95 sticky top-0 z-10 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
-              <!-- Populated by JS -->
-            </thead>
-            <tbody id="rk-table-body" class="divide-y divide-slate-800/60 text-xs sm:text-sm">
-              <!-- Populated by JS -->
-            </tbody>
+            <thead id="rk-table-head" class="bg-slate-950/95 sticky top-0 z-10 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800"></thead>
+            <tbody id="rk-table-body" class="divide-y divide-slate-800/60 text-xs sm:text-sm"></tbody>
           </table>
         </div>
       </div>
@@ -485,12 +479,12 @@
       <div class="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-xl space-y-5">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
               <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-500/20 text-orange-400 border border-orange-500/30">
                 Batch_Simulation_Results.xlsx
               </span>
               <span class="text-xs text-slate-400 mono-num" id="sim-window-badge">
-                11 Graded Days (Nov 5 – Nov 15, 2026) • 488 Games
+                11 Graded Days (Nov 5 – Nov 15, 2026)
               </span>
             </div>
             <h2 class="text-xl sm:text-2xl font-extrabold text-white">
@@ -505,20 +499,20 @@
             <div>
               <label for="sim-date-filter" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Date Window</label>
               <select id="sim-date-filter" onchange="handleSimFilterChange()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-medium focus:outline-none focus:border-orange-500">
-                <option value="ALL">All 11 Days (Nov 5–15 • 488 G)</option>
-                <option value="WEEK1">Week 1 (Nov 5–8 • 179 G)</option>
-                <option value="WEEK2">Week 2 (Nov 9–15 • 309 G)</option>
-                <option value="2026-11-05">2026-11-05 (43 Games)</option>
-                <option value="2026-11-06">2026-11-06 (59 Games)</option>
-                <option value="2026-11-07">2026-11-07 (48 Games)</option>
-                <option value="2026-11-08">2026-11-08 (29 Games)</option>
-                <option value="2026-11-09">2026-11-09 (34 Games)</option>
-                <option value="2026-11-10">2026-11-10 (56 Games)</option>
-                <option value="2026-11-11">2026-11-11 (48 Games)</option>
-                <option value="2026-11-12">2026-11-12 (24 Games)</option>
-                <option value="2026-11-13">2026-11-13 (55 Games)</option>
-                <option value="2026-11-14">2026-11-14 (57 Games)</option>
-                <option value="2026-11-15">2026-11-15 (35 Games)</option>
+                <option value="ALL">All 11 Days (Nov 5–15)</option>
+                <option value="WEEK1">Week 1 (Nov 5–8)</option>
+                <option value="WEEK2">Week 2 (Nov 9–15)</option>
+                <option value="2026-11-05">2026-11-05</option>
+                <option value="2026-11-06">2026-11-06</option>
+                <option value="2026-11-07">2026-11-07</option>
+                <option value="2026-11-08">2026-11-08</option>
+                <option value="2026-11-09">2026-11-09</option>
+                <option value="2026-11-10">2026-11-10</option>
+                <option value="2026-11-11">2026-11-11</option>
+                <option value="2026-11-12">2026-11-12</option>
+                <option value="2026-11-13">2026-11-13</option>
+                <option value="2026-11-14">2026-11-14</option>
+                <option value="2026-11-15">2026-11-15</option>
               </select>
             </div>
             <div>
@@ -562,16 +556,12 @@
             <input id="category-range-slider" type="range" min="0" max="9" step="1" value="0" oninput="setCategoryIndex(this.value)" aria-label="Simulation Confidence Category Slider" class="cat-slider" />
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-1.5 pt-1" id="category-pills-container">
-            <!-- Populated by JS -->
-          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-1.5 pt-1" id="category-pills-container"></div>
         </div>
       </div>
 
-      <!-- 6 Model Performance Cards for Active Category -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5" id="model-cards-grid">
-        <!-- Populated by JS -->
-      </div>
+      <!-- 6 Model Performance Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5" id="model-cards-grid"></div>
 
       <!-- Charts Row -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -601,7 +591,7 @@
                 Daily Performance Trajectory (Nov 5 – Nov 15, 2026)
               </h3>
               <p class="text-xs text-slate-400">
-                Day-by-day progression across all 11 graded slates for the active slider category
+                Day-by-day progression across graded slates for the active slider category
               </p>
             </div>
             <div class="flex items-center gap-1.5">
@@ -615,7 +605,7 @@
         </div>
       </div>
 
-      <!-- Full 6-Model x 10-Category Matrix Heatmap Table -->
+      <!-- Full 6-Model x 10-Category Matrix -->
       <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
@@ -631,12 +621,8 @@
 
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
-            <thead id="matrix-table-head" class="bg-slate-950 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800">
-              <!-- Populated by JS -->
-            </thead>
-            <tbody id="matrix-table-body" class="divide-y divide-slate-800/70 text-xs sm:text-sm">
-              <!-- Populated by JS -->
-            </tbody>
+            <thead id="matrix-table-head" class="bg-slate-950 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800"></thead>
+            <tbody id="matrix-table-body" class="divide-y divide-slate-800/70 text-xs sm:text-sm"></tbody>
           </table>
         </div>
       </div>
@@ -667,7 +653,7 @@
           </div>
         </div>
 
-        <div class="text-xs text-slate-400 flex items-center justify-between flex-wrap gap-2">
+        <div class="text-xs text-slate-400 flex flex-wrap items-center justify-between gap-2">
           <span id="game-log-count-label" class="mono-num font-semibold text-slate-200">Showing games...</span>
           <span>Outcome Key: <strong class="text-purple-400">SUPER ALL</strong> (Exact Score) • <strong class="text-emerald-400">ALL</strong> (Winner+Spread+Total) • <strong class="text-sky-400">TEAM AND DIFF</strong> (Winner+Spread) • <strong class="text-teal-300">TEAM</strong> (Winner) • <strong class="text-amber-400">TOTAL</strong> (Wrong Winner, Hit Total)</span>
         </div>
@@ -685,9 +671,7 @@
                 <th class="py-2.5 px-3">All 6 Models Consensus</th>
               </tr>
             </thead>
-            <tbody id="game-log-tbody" class="divide-y divide-slate-800/60 text-xs">
-              <!-- Populated by JS -->
-            </tbody>
+            <tbody id="game-log-tbody" class="divide-y divide-slate-800/60 text-xs"></tbody>
           </table>
         </div>
       </div>
@@ -705,7 +689,7 @@
           Current Climate of College Basketball: Macro Insights &amp; Live Matchup Simulator
         </h2>
         <p class="text-xs sm:text-sm text-slate-300 max-w-3xl mt-1">
-          Synthesizing power conference hierarchy, injury-adjusted rating shifts, tempo/size extremes, and workbook diagnostics across all 365 Division I teams and 488 graded simulations.
+          Synthesizing power conference hierarchy, injury-adjusted rating shifts, tempo/size extremes, and workbook diagnostics across Division I teams and graded simulations.
         </p>
       </div>
 
@@ -717,7 +701,7 @@
             <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">Top Tier Separation</span>
           </div>
           <p class="text-sm text-slate-200 leading-relaxed">
-            <strong>Florida (4-0, SEC)</strong> holds the #1 Consensus Rank (<span class="mono-num text-emerald-400">+31.59 Net Rtg</span>), ranking #1 in KenPom (+34.08), #1 in EvanMiya Regular (+33.8), #1 in Warren ELO (1717.4), and #2 in ESPN BPI (22.2). However, in <strong>Live Rankings</strong>, <strong>Duke (3-1, ACC)</strong> takes #1 (<span class="mono-num text-orange-400">+40.30 Live Net</span> vs. Florida's <span class="mono-num">+40.11</span>) because Florida carries a <span class="mono-num text-rose-400">-1.03%</span> EvanMiya injury delta on offense while Duke is at full strength (<span class="mono-num">0.0%</span> delta) with the nation's #1 Consensus Defense (<span class="mono-num">84.30 DRtg</span>).
+            <strong>Florida (4-0, SEC)</strong> holds the #1 Consensus Rank (<span class="mono-num text-emerald-400">+31.59 Net Rtg</span>), ranking #1 in KenPom (+34.08), #1 in EvanMiya Regular (+33.8), #1 in Warren ELO (1717.3), and #2 in ESPN BPI (22.2). However, in <strong>Live Rankings</strong>, <strong>Duke (3-1, ACC)</strong> takes #1 (<span class="mono-num text-orange-400">+40.30 Live Net</span> vs. Florida's <span class="mono-num">+40.11</span>) because Florida carries a <span class="mono-num text-rose-400">-1.03%</span> EvanMiya injury delta on offense while Duke is at full strength (<span class="mono-num">0.0%</span> delta) with the nation's #1 Consensus Defense (<span class="mono-num">84.30 DRtg</span>).
           </p>
           <div class="pt-2 flex flex-wrap gap-2">
             <button type="button" onclick="openTeamModalByName('Florida')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-orange-300">Inspect Florida →</button>
@@ -731,7 +715,7 @@
             <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">SEC / B12 / B10 Tri-opoly</span>
           </div>
           <p class="text-sm text-slate-200 leading-relaxed">
-            The <strong>SEC</strong> leads all conferences in average Consensus Net Rating (<span class="mono-num text-emerald-400">+18.36</span> across 16 teams) with 6 teams in the Top 25 (Florida #1, Texas #9, Vanderbilt #14, Alabama #19, Tennessee #21, Texas A&amp;M #23). The <strong>Big 12</strong> (<span class="mono-num">+16.88</span> avg) and <strong>Big Ten</strong> (<span class="mono-num">+16.09</span> avg) form a tight three-conference tier ahead of the <strong>Big East</strong> (<span class="mono-num">+15.03</span>) and <strong>ACC</strong> (<span class="mono-num">+13.74</span>).
+            The <strong>SEC</strong> leads all conferences in average Consensus Net Rating (<span class="mono-num text-emerald-400">+18.36</span>) with deep Top-25 strength (Florida, Texas, Vanderbilt, Alabama, Tennessee, Texas A&amp;M). The <strong>Big 12</strong> (Houston, Kansas, Arizona, Texas Tech, Iowa St., BYU) and <strong>Big Ten</strong> (Illinois, Michigan St., UCLA, Nebraska, Michigan, USC) form a tight three-conference tier ahead of the <strong>Big East</strong> and <strong>ACC</strong>.
           </p>
           <div class="pt-2 flex flex-wrap gap-2">
             <button type="button" onclick="filterRankingsByConf('SEC')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View SEC Teams →</button>
@@ -746,7 +730,7 @@
             <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">EvanMiya + KP Injury Blend</span>
           </div>
           <p class="text-sm text-slate-200 leading-relaxed">
-            Your <span class="mono-num">Injury Delta</span> column pinpoints where roster availability diverges from full-strength ratings: <strong>Texas Tech</strong> (<span class="mono-num text-rose-400">-2.97%</span> delta, dropping from #11 Consensus to #19 Live), <strong>Illinois</strong> (<span class="mono-num text-rose-400">-2.69%</span> delta, #3 Consensus to #5 Live despite the #1 offense at 117.28 ORtg), <strong>Boise St.</strong> (<span class="mono-num text-rose-400">-1.89%</span>), <strong>Memphis</strong> (<span class="mono-num text-rose-400">-1.63%</span>), <strong>TCU</strong> (<span class="mono-num text-rose-400">-1.52%</span>), and <strong>Clemson</strong> (<span class="mono-num text-rose-400">-1.43%</span>).
+            The <span class="mono-num">Injury Delta</span> column pinpoints where roster availability diverges from full-strength ratings: <strong>Texas Tech</strong> (<span class="mono-num text-rose-400">-2.97%</span> delta, dropping from #11 Consensus to #19 Live), <strong>Illinois</strong> (<span class="mono-num text-rose-400">-2.69%</span> delta, #3 Consensus to #5 Live despite the #1 offense at 117.28 ORtg), and <strong>Florida</strong> (<span class="mono-num text-rose-400">-1.03%</span> delta).
           </p>
           <div class="pt-2 flex flex-wrap gap-2">
             <button type="button" onclick="openTeamModalByName('Texas Tech')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-rose-300">Inspect Texas Tech →</button>
@@ -760,7 +744,7 @@
             <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">488 Graded Games</span>
           </div>
           <p class="text-sm text-slate-200 leading-relaxed">
-            Across 488 graded games (Nov 5–15), <strong>Adj. Eff.</strong> leads overall winner accuracy at <span class="mono-num text-emerald-400">67.01% (327/488)</span> and <span class="mono-num">TEAM AND DIFF (21.93%)</span>, closely followed by <strong>Live Morey Z</strong> at <span class="mono-num text-emerald-400">66.80% (326/488)</span>, which leads all models in hitting full <span class="mono-num">ALL</span> outcomes (<span class="mono-num">11.48%, 56/488</span>). Meanwhile, <strong>Base</strong> is ultra-conservative in assigning <span class="mono-num">90%+</span> confidence—picking only 90 games vs. 192–224 for Morey/Log5, but hitting <span class="mono-num text-orange-400">91.11% (82/90)</span> when it does.
+            Across 488 graded games (Nov 5–15), <strong>Adj. Eff.</strong> leads overall winner accuracy at <span class="mono-num text-emerald-400">67.01% (327/488)</span> and <span class="mono-num">TEAM AND DIFF (21.93%)</span>, closely followed by <strong>Live Morey Z</strong> at <span class="mono-num text-emerald-400">66.80% (326/488)</span>, which leads all models in hitting full <span class="mono-num">ALL</span> outcomes (<span class="mono-num">11.48%, 56/488</span>). Meanwhile, <strong>Base</strong> is ultra-conservative in assigning <span class="mono-num">90%+</span> confidence, hitting <span class="mono-num text-orange-400">91.11% (82/90)</span> when it does.
           </p>
           <div class="pt-2 flex flex-wrap gap-2">
             <button type="button" onclick="switchMainPage('models')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-300">Explore Model Matrix →</button>
@@ -795,9 +779,7 @@
                     <th class="py-2 px-2.5">EM Reg → Inj Rk</th>
                   </tr>
                 </thead>
-                <tbody id="injury-watchlist-tbody" class="divide-y divide-slate-800/60">
-                  <!-- Populated by JS -->
-                </tbody>
+                <tbody id="injury-watchlist-tbody" class="divide-y divide-slate-800/60"></tbody>
               </table>
             </div>
           </div>
@@ -809,7 +791,7 @@
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4">
           <div>
             <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Interactive Monte Carlo Simulation Engine</span>
-            <h3 class="text-lg sm:text-xl font-extrabold text-white">Head-to-Head Matchup Simulator (All 365 Teams)</h3>
+            <h3 class="text-lg sm:text-xl font-extrabold text-white">Head-to-Head Matchup Simulator</h3>
             <p class="text-xs text-slate-400">
               Choose any two D1 teams, select which simulation models to run, and set your iteration count (defaults to <strong>1,000 games</strong> if left blank).
             </p>
@@ -899,10 +881,7 @@
         </div>
 
         <div id="matchup-sim-summary" class="hidden bg-slate-950/90 rounded-xl p-4 border border-orange-500/40"></div>
-
-        <div id="matchup-sim-output" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
-          <!-- Populated by JS -->
-        </div>
+        <div id="matchup-sim-output" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1"></div>
       </div>
     </section>
 
@@ -932,7 +911,7 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 bg-slate-950/90 p-2.5 rounded-xl border border-slate-800 shrink-0">
-          <div class="flex items-center bg-slate-900 rounded-lg p-1 border border-slate-800">
+          <div class="flex flex-wrap items-center bg-slate-900 rounded-lg p-1 border border-slate-800 gap-1">
             <button id="brk-mode-net" type="button" onclick="setBracketMode('net_score')" class="px-3 py-2 rounded-md text-xs font-bold transition-all bg-emerald-500 text-white shadow">
               🏆 Net Score
             </button>
@@ -949,9 +928,7 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="brk-kpi-grid">
-        <!-- Populated by JS -->
-      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="brk-kpi-grid"></div>
 
       <!-- BUBBLE WATCH HEADQUARTERS -->
       <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
@@ -968,9 +945,7 @@
           </span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="brk-bubble-grid">
-          <!-- Populated by JS -->
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="brk-bubble-grid"></div>
       </div>
 
       <!-- 12-GAME MARCH MADNESS OPENING ROUND -->
@@ -980,14 +955,12 @@
             <span class="text-xs font-bold uppercase tracking-wider text-orange-400">New for 2027 • UD Arena (Dayton, OH) • March 16–17, 2027</span>
             <h3 class="text-base sm:text-lg font-extrabold text-white">March Madness Opening Round (12 Play-In Games • 24 Teams)</h3>
             <p class="text-xs text-slate-400">
-              Expanding from the old First Four to 12 games: <strong>6 At-Large Play-In Games</strong> (12 lowest-seeded At-Large teams, #33–#44) and <strong>6 Automatic Qualifier Play-In Games</strong> (12 lowest-seeded conference champions, #21–#32). Click any game to simulate in the Matchup Lab.
+              Expanding from the old First Four to 12 games: <strong>6 At-Large Play-In Games</strong> (12 lowest-seeded At-Large teams) and <strong>6 Automatic Qualifier Play-In Games</strong> (12 lowest-seeded conference champions). Click any game to simulate in the Matchup Lab.
             </p>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5" id="brk-opening-round-grid">
-          <!-- Populated by JS -->
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5" id="brk-opening-round-grid"></div>
       </div>
 
       <!-- 4 REGIONAL BRACKETS + INTERACTIVE VISUAL BRACKET TREE -->
@@ -1026,48 +999,30 @@
               <button type="button" onclick="resetBracketPicks()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">↺ Reset</button>
             </div>
           </div>
-          <div id="brk-visual-tree-container" class="bracket-tree-scroll">
-            <!-- Populated by JS -->
-          </div>
+          <div id="brk-visual-tree-container" class="bracket-tree-scroll"></div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 hidden" id="brk-regions-grid">
-          <!-- Populated by JS -->
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 hidden" id="brk-regions-grid"></div>
       </div>
 
-      <!-- EXTERNAL BRACKETOLOGY COMPARISON SECTION (SELECTABLE SOURCE + MOST BULLISH VS MOST BEARISH) -->
+      <!-- EXTERNAL BRACKETOLOGY COMPARISON SECTION -->
       <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-5" id="brk-comparison-section">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-800 pb-3">
           <div>
             <span class="text-xs font-bold uppercase tracking-wider text-purple-400">Consensus vs. National Bracketologists</span>
-            <h3 class="text-base sm:text-lg font-extrabold text-white">2027 Bracketology Comparison: Most Bullish vs. Most Bearish</h3>
+            <h3 class="text-base sm:text-lg font-extrabold text-white">2027 Bracketology Comparison: Your Model vs. CBS Sports, ESPN &amp; More</h3>
             <p class="text-xs text-slate-400">
-              Compare your active projection against
-              <a href="https://www.cbssports.com/college-basketball/bracketology/" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">CBS Sports</a>,
+              Side-by-side comparison of your active projection against
+              <a href="https://www.cbssports.com/college-basketball/bracketology/" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">CBS Sports (Full 76-Team Field)</a>,
               <a href="https://roundtable.io/sports/ncaa/duke/news/duke-basketball-trending-down-in-latest-bracketology" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">ESPN Joe Lunardi</a>,
               <a href="https://www.hoopshq.com/rankings/bracketology-2026-november-11-1" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">Hoops HQ</a>, and
               <a href="https://hoopshd.com/nitty-gritty-rankings/" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline hover:text-sky-300">Hoops HD JNG</a>.
             </p>
           </div>
-          <div class="flex items-center gap-2 bg-slate-950 p-2 rounded-xl border border-slate-800 shrink-0">
-            <label for="brk-comp-source" class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Compare vs:</label>
-            <select id="brk-comp-source" onchange="renderBracketComparison()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-semibold focus:outline-none focus:border-orange-500">
-              <option value="cbs">CBS Sports (Full 76-Team)</option>
-              <option value="espn">ESPN Joe Lunardi</option>
-              <option value="jngHq">Hoops HD JNG / Hoops HQ</option>
-              <option value="avg">Outside Sources Average</option>
-            </select>
-          </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="brk-comp-top4">
-          <!-- Populated by JS -->
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="brk-comp-kpis">
-          <!-- Populated by JS -->
-        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="brk-comp-top4"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="brk-comp-kpis"></div>
 
         <div class="space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1075,12 +1030,11 @@
               <input id="brk-comp-search" type="text" oninput="renderBracketComparisonTable()" placeholder="Search team or conference..." class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 w-52" />
               <select id="brk-comp-filter" onchange="renderBracketComparisonTable()" class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-orange-500">
                 <option value="ALL">All Projected &amp; Bubble Teams</option>
-                <option value="BULLISH">📈 Most Bullish (Our Model Higher)</option>
-                <option value="BEARISH">📉 Most Bearish (Our Model Lower)</option>
-                <option value="DIFF2">Biggest Disagreements (|Δ| ≥ 2)</option>
+                <option value="DIFF2">Biggest Disagreements (|Δ vs CBS| ≥ 2)</option>
                 <option value="TOP4">Top 4 Seed Lines (Seeds 1–4)</option>
-                <option value="OURS_ONLY">In Our 76-Team Field / Out in Source</option>
-                <option value="SOURCE_ONLY">In Source Field / Out in Ours</option>
+                <option value="OURS_ONLY">In Our 76-Team Field / Out on CBS</option>
+                <option value="CBS_ONLY">In CBS 76-Team Field / Out in Ours</option>
+                <option value="ESPN_VERIFIED">Teams with Verified Nov ESPN Seed</option>
               </select>
             </div>
             <span id="brk-comp-count" class="text-xs font-mono text-slate-400">Showing -- teams</span>
@@ -1093,15 +1047,13 @@
                   <th class="py-2.5 px-3">Team</th>
                   <th class="py-2.5 px-2.5">Conf</th>
                   <th class="py-2.5 px-2.5 text-orange-400" id="brk-comp-ours-hdr">Your Seed</th>
-                  <th class="py-2.5 px-2.5 text-sky-400" id="brk-comp-src-hdr">Selected Source</th>
-                  <th class="py-2.5 px-2.5 text-amber-300" id="brk-comp-delta-hdr">Bullish / Bearish Δ</th>
-                  <th class="py-2.5 px-2.5 text-emerald-400">ESPN Lunardi</th>
-                  <th class="py-2.5 px-2.5 text-purple-300">Hoops HD JNG / HQ</th>
+                  <th class="py-2.5 px-2.5 text-sky-400">CBS Sports (Nov 13)</th>
+                  <th class="py-2.5 px-2.5 text-amber-300">Δ vs CBS</th>
+                  <th class="py-2.5 px-2.5 text-emerald-400">ESPN Lunardi (Nov 17–20)</th>
+                  <th class="py-2.5 px-2.5 text-purple-300">Hoops HD JNG / Hoops HQ</th>
                 </tr>
               </thead>
-              <tbody id="brk-comp-tbody" class="divide-y divide-slate-800/60">
-                <!-- Populated by JS -->
-              </tbody>
+              <tbody id="brk-comp-tbody" class="divide-y divide-slate-800/60"></tbody>
             </table>
           </div>
         </div>
@@ -1115,16 +1067,14 @@
             <h3 class="text-base font-bold text-white">Multi-Bid Conferences (76-Team Field)</h3>
             <p class="text-xs text-slate-400">Total tournament bids (Auto-Bid + At-Large) by conference:</p>
           </div>
-          <div id="brk-multibid-list" class="space-y-2 max-h-[460px] overflow-y-auto pr-1">
-            <!-- Populated by JS -->
-          </div>
+          <div id="brk-multibid-list" class="space-y-2 max-h-[460px] overflow-y-auto pr-1"></div>
         </div>
 
         <div class="lg:col-span-2 bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span class="text-xs font-bold uppercase tracking-wider text-orange-400">32 Automatic Qualifiers (AQ)</span>
-              <h3 class="text-base font-bold text-white">Projected Conference Champions (All 32 D1 Conferences)</h3>
+              <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Automatic Qualifiers (AQ)</span>
+              <h3 class="text-base font-bold text-white">Projected Conference Champions</h3>
               <p class="text-xs text-slate-400">Highest-rated team in each conference earns the automatic bid; bottom 12 AQs play in the Dayton Opening Round.</p>
             </div>
             <input id="brk-aq-search" type="text" oninput="renderBracketAQTable()" placeholder="Search conference or team..." class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500" />
@@ -1143,9 +1093,7 @@
                   <th class="py-2.5 px-2.5">Bracket Status</th>
                 </tr>
               </thead>
-              <tbody id="brk-aq-tbody" class="divide-y divide-slate-800/60">
-                <!-- Populated by JS -->
-              </tbody>
+              <tbody id="brk-aq-tbody" class="divide-y divide-slate-800/60"></tbody>
             </table>
           </div>
         </div>
@@ -1154,14 +1102,12 @@
 
   </main>
 
-  <!-- ======================================================================= -->
-  <!-- TEAM DOSSIER MODAL                                                      -->
-  <!-- ======================================================================= -->
+  <!-- TEAM DOSSIER MODAL -->
   <div id="team-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-5 sm:p-6 space-y-5">
       <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
         <div>
-          <div class="flex items-center gap-2" id="modal-team-badges"></div>
+          <div class="flex flex-wrap items-center gap-2" id="modal-team-badges"></div>
           <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-1" id="modal-team-name">Team Name</h2>
           <p class="text-xs text-slate-400 mono-num" id="modal-team-sub">Conference • Record</p>
         </div>
@@ -1169,13 +1115,30 @@
           ✕ Close
         </button>
       </div>
-
-      <div id="modal-team-content" class="space-y-5">
-        <!-- Populated by JS -->
-      </div>
+      <div id="modal-team-content" class="space-y-5"></div>
     </div>
   </div>
 
-  <!-- EMBEDDED GROUNDED PAYLOAD FROM BOTH EXCEL SPREADSHEETS -->
-  <script>
-    const RAW_DATA = {"teams":[{"id":1,"team":"Florida","espn_name":"Florida Gators","conf":"SEC","conf_short":"SEC","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":29.56,"sos":9.81,"sor":9.81,"ppg":85.0,"opp_ppg":66.4,"pd":18.6,"fg_pct":46.5,"two_pct":54.1,"three_pct":37.3,"ft_pct":72.0,"orb_pg":14.3,"second_c_pct":46.5,"trb":44.8,"ast":16.6,"stl":6.0,"blk":4.5,"tov":13.0,"efg_pct":54.9,"tov_pct":15.3,"orb_pct":41.2,"ftr":52.8,"opp_efg_pct":44.1,"opp_tov_pct":14.4,"opp_orb_pct":22.8,"opp_ftr":29.4,"avg_ht":78.88,"eff_ht":1.88,"ff_rtg":29.93,"opp_ff_rtg":22.08,"net_ff_rtg":7.85,"adj_net_ff":21.15,"bpi_ortg":11.4,"bpi_drtg":10.8,"bpi_net":22.2,"bpi_rk":2,"em_ortg":126.72,"em_drtg":86.08,"em_net":40.64,"em_rk":1,"em_inj_ortg":125.42,"em_inj_drtg":86.08,"em_inj_net":39.34,"em_inj_rk":2,"inj_delta_pct":-1.03,"elo":1717.3,"elo_rk":1,"elo_delta":0,"kp_ortg":125.14,"kp_drtg":91.07,"kp_net":34.08,"kp_rk":1,"kp_inj_ortg":127.97,"kp_inj_drtg":87.09,"kp_inj_net":40.88,"con_tempo":71.0,"con_ortg":116.56,"con_drtg":84.98,"con_net":31.59,"live_tempo":71.0,"live_ortg":126.7,"live_drtg":86.59,"live_net":40.11,"net_score":35.85,"size_rk":22,"exp":2.42,"exp_rk":17,"bench":30.87,"continuity":70.6,"continuity_rk":4,"kill_shots_pg":1.0,"kill_shots_margin":1.0,"win_conf_pct":"72.2%","proj_conf_wl":"14.4-3.6","con_rk":1,"con_ortg_rk":2,"con_drtg_rk":2,"live_rk":2,"live_ortg_rk":2,"live_drtg_rk":4},{"id":2,"team":"Duke","espn_name":"Duke Blue Devils","conf":"ACC","conf_short":"ACC","g":5,"w":3,"l":1,"wl_pct":0.75,"srs":39.22,"sos":6.22,"sor":4.67,"ppg":90.5,"opp_ppg":60.3,"pd":30.3,"fg_pct":47.6,"two_pct":58.8,"three_pct":31.8,"ft_pct":71.9,"orb_pg":15.4,"second_c_pct":46.7,"trb":45.0,"ast":19.1,"stl":10.4,"blk":6.6,"tov":12.3,"efg_pct":54.2,"tov_pct":13.6,"orb_pct":40.9,"ftr":49.9,"opp_efg_pct":41.2,"opp_tov_pct":20.5,"opp_orb_pct":25.3,"opp_ftr":29.6,"avg_ht":79.59,"eff_ht":2.62,"ff_rtg":29.21,"opp_ff_rtg":20.89,"net_ff_rtg":8.31,"adj_net_ff":25.96,"bpi_ortg":11.0,"bpi_drtg":13.2,"bpi_net":24.2,"bpi_rk":1,"em_ortg":125.52,"em_drtg":85.28,"em_net":40.24,"em_rk":2,"em_inj_ortg":125.52,"em_inj_drtg":85.28,"em_inj_net":40.24,"em_inj_rk":1,"inj_delta_pct":0.0,"elo":1660.4,"elo_rk":4,"elo_delta":-2,"kp_ortg":123.39,"kp_drtg":89.87,"kp_net":33.52,"kp_rk":2,"kp_inj_ortg":126.41,"kp_inj_drtg":86.05,"kp_inj_net":40.36,"con_tempo":71.4,"con_ortg":115.13,"con_drtg":84.3,"con_net":30.83,"live_tempo":71.4,"live_ortg":125.97,"live_drtg":85.67,"live_net":40.3,"net_score":35.57,"size_rk":3,"exp":1.51,"exp_rk":155,"bench":41.59,"continuity":41.3,"continuity_rk":40,"kill_shots_pg":1.75,"kill_shots_margin":1.5,"win_conf_pct":"89%","proj_conf_wl":"16.2-1.8","con_rk":2,"con_ortg_rk":3,"con_drtg_rk":1,"live_rk":1,"live_ortg_rk":3,"live_drtg_rk":2},{"id":3,"team":"Illinois","espn_name":"Illinois Fighting Illini","conf":"Big Ten","conf_short":"B10","g":5,"w":3,"l":1,"wl_pct":0.75,"srs":32.58,"sos":-0.67,"sor":-0.89,"ppg":102.1,"opp_ppg":73.1,"pd":29.1,"fg_pct":53.0,"two_pct":71.0,"three_pct":35.4,"ft_pct":63.6,"orb_pg":15.3,"second_c_pct":45.2,"trb":50.0,"ast":20.9,"stl":6.5,"blk":5.1,"tov":11.9,"efg_pct":61.9,"tov_pct":12.7,"orb_pct":41.5,"ftr":28.1,"opp_efg_pct":42.6,"opp_tov_pct":12.8,"opp_orb_pct":25.8,"opp_ftr":23.7,"avg_ht":79.23,"eff_ht":1.66,"ff_rtg":29.04,"opp_ff_rtg":20.63,"net_ff_rtg":8.41,"adj_net_ff":23.07,"bpi_ortg":12.6,"bpi_drtg":8.5,"bpi_net":21.1,"bpi_rk":3,"em_ortg":130.02,"em_drtg":90.38,"em_net":39.64,"em_rk":3,"em_inj_ortg":126.52,"em_inj_drtg":91.38,"em_inj_net":35.14,"em_inj_rk":4,"inj_delta_pct":-2.69,"elo":1653.5,"elo_rk":6,"elo_delta":-3,"kp_ortg":125.77,"kp_drtg":96.02,"kp_net":29.75,"kp_rk":6,"kp_inj_ortg":128.26,"kp_inj_drtg":91.93,"kp_inj_net":36.33,"con_tempo":73.2,"con_ortg":117.28,"con_drtg":88.65,"con_net":28.64,"live_tempo":73.2,"live_ortg":127.39,"live_drtg":91.66,"live_net":35.74,"net_score":32.19,"size_rk":9,"exp":1.31,"exp_rk":192,"bench":38.48,"continuity":31.2,"continuity_rk":87,"kill_shots_pg":2.5,"kill_shots_margin":2.5,"win_conf_pct":"59.8%","proj_conf_wl":"16.1-3.9","con_rk":3,"con_ortg_rk":1,"con_drtg_rk":13,"live_rk":5,"live_ortg_rk":1,"live_drtg_rk":26},{"id":4,"team":"Michigan St.","espn_name":"Michigan State Spartans","conf":"Big Ten","conf_short":"B10","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":40.48,"sos":13.73,"sor":13.73,"ppg":90.9,"opp_ppg":67.5,"pd":23.4,"fg_pct":49.7,"two_pct":56.1,"three_pct":41.0,"ft_pct":69.2,"orb_pg":14.1,"second_c_pct":47.2,"trb":44.6,"ast":19.9,"stl":7.7,"blk":6.5,"tov":13.0,"efg_pct":58.4,"tov_pct":14.9,"orb_pct":42.6,"ftr":52.9,"opp_efg_pct":42.9,"opp_tov_pct":16.2,"opp_orb_pct":28.4,"opp_ftr":46.1,"avg_ht":78.51,"eff_ht":1.93,"ff_rtg":31.33,"opp_ff_rtg":24.08,"net_ff_rtg":7.25,"adj_net_ff":25.47,"bpi_ortg":10.1,"bpi_drtg":9.5,"bpi_net":19.6,"bpi_rk":6,"em_ortg":123.02,"em_drtg":89.18,"em_net":33.84,"em_rk":7,"em_inj_ortg":122.12,"em_inj_drtg":89.58,"em_inj_net":32.54,"em_inj_rk":10,"inj_delta_pct":-0.73,"elo":1693.5,"elo_rk":2,"elo_delta":3,"kp_ortg":121.42,"kp_drtg":90.38,"kp_net":31.05,"kp_rk":5,"kp_inj_ortg":124.33,"kp_inj_drtg":86.44,"kp_inj_net":37.89,"con_tempo":71.0,"con_ortg":114.06,"con_drtg":86.22,"con_net":27.84,"live_tempo":71.0,"live_ortg":123.23,"live_drtg":88.01,"live_net":35.22,"net_score":31.53,"size_rk":38,"exp":1.48,"exp_rk":157,"bench":41.35,"continuity":52.7,"continuity_rk":16,"kill_shots_pg":1.25,"kill_shots_margin":1.25,"win_conf_pct":"28.9%","proj_conf_wl":"14.9-5.1","con_rk":4,"con_ortg_rk":5,"con_drtg_rk":6,"live_rk":7,"live_ortg_rk":11,"live_drtg_rk":6},{"id":5,"team":"Connecticut","espn_name":"UConn Huskies","conf":"Big East","conf_short":"BE","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":31.83,"sos":5.33,"sor":5.33,"ppg":85.8,"opp_ppg":61.6,"pd":24.2,"fg_pct":48.9,"two_pct":58.9,"three_pct":35.8,"ft_pct":73.3,"orb_pg":11.9,"second_c_pct":39.4,"trb":37.0,"ast":16.8,"stl":9.2,"blk":4.9,"tov":11.6,"efg_pct":56.7,"tov_pct":14.0,"orb_pct":36.8,"ftr":43.2,"opp_efg_pct":43.4,"opp_tov_pct":21.1,"opp_orb_pct":28.6,"opp_ftr":35.0,"avg_ht":78.88,"eff_ht":0.67,"ff_rtg":29.19,"opp_ff_rtg":22.61,"net_ff_rtg":6.58,"adj_net_ff":20.91,"bpi_ortg":8.8,"bpi_drtg":11.2,"bpi_net":20.0,"bpi_rk":4,"em_ortg":123.02,"em_drtg":87.78,"em_net":35.24,"em_rk":5,"em_inj_ortg":122.92,"em_inj_drtg":87.88,"em_inj_net":35.04,"em_inj_rk":5,"inj_delta_pct":-0.08,"elo":1690.9,"elo_rk":3,"elo_delta":1,"kp_ortg":119.99,"kp_drtg":91.12,"kp_net":28.87,"kp_rk":8,"kp_inj_ortg":123.0,"kp_inj_drtg":87.29,"kp_inj_net":35.71,"con_tempo":68.5,"con_ortg":113.27,"con_drtg":85.56,"con_net":27.72,"live_tempo":68.5,"live_ortg":122.96,"live_drtg":87.59,"live_net":35.37,"net_score":31.55,"size_rk":23,"exp":1.58,"exp_rk":140,"bench":32.99,"continuity":33.6,"continuity_rk":72,"kill_shots_pg":1.0,"kill_shots_margin":0.75,"win_conf_pct":"82.6%","proj_conf_wl":"16.2-3.8","con_rk":5,"con_ortg_rk":9,"con_drtg_rk":4,"live_rk":6,"live_ortg_rk":12,"live_drtg_rk":5},{"id":6,"team":"Houston","espn_name":"Houston Cougars","conf":"Big 12","conf_short":"B12","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":31.21,"sos":-3.12,"sor":-3.12,"ppg":88.8,"opp_ppg":61.2,"pd":27.6,"fg_pct":49.3,"two_pct":56.1,"three_pct":35.4,"ft_pct":77.7,"orb_pg":13.6,"second_c_pct":42.1,"trb":42.9,"ast":17.3,"stl":10.2,"blk":4.6,"tov":10.4,"efg_pct":55.1,"tov_pct":12.2,"orb_pct":38.8,"ftr":37.4,"opp_efg_pct":41.3,"opp_tov_pct":19.5,"opp_orb_pct":28.3,"opp_ftr":33.3,"avg_ht":77.32,"eff_ht":0.37,"ff_rtg":27.71,"opp_ff_rtg":21.51,"net_ff_rtg":6.2,"adj_net_ff":20.24,"bpi_ortg":9.0,"bpi_drtg":11.0,"bpi_net":20.0,"bpi_rk":5,"em_ortg":121.42,"em_drtg":86.98,"em_net":34.44,"em_rk":6,"em_inj_ortg":121.42,"em_inj_drtg":86.98,"em_inj_net":34.44,"em_inj_rk":6,"inj_delta_pct":0.0,"elo":1631.9,"elo_rk":10,"elo_delta":-2,"kp_ortg":120.35,"kp_drtg":87.61,"kp_net":32.74,"kp_rk":3,"kp_inj_ortg":123.38,"kp_inj_drtg":83.8,"kp_inj_net":39.58,"con_tempo":68.9,"con_ortg":112.44,"con_drtg":85.13,"con_net":27.31,"live_tempo":68.9,"live_ortg":122.4,"live_drtg":85.39,"live_net":37.01,"net_score":32.16,"size_rk":208,"exp":2.21,"exp_rk":40,"bench":38.12,"continuity":22.2,"continuity_rk":167,"kill_shots_pg":1.33,"kill_shots_margin":1.33,"win_conf_pct":"43%","proj_conf_wl":"13.4-4.6","con_rk":6,"con_ortg_rk":12,"con_drtg_rk":3,"live_rk":4,"live_ortg_rk":16,"live_drtg_rk":1},{"id":7,"team":"Kansas","espn_name":"Kansas Jayhawks","conf":"Big 12","conf_short":"B12","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":36.77,"sos":5.44,"sor":5.44,"ppg":86.1,"opp_ppg":64.7,"pd":21.3,"fg_pct":51.8,"two_pct":60.7,"three_pct":36.1,"ft_pct":62.7,"orb_pg":11.2,"second_c_pct":37.7,"trb":42.0,"ast":18.2,"stl":7.6,"blk":5.0,"tov":12.5,"efg_pct":58.3,"tov_pct":14.8,"orb_pct":33.3,"ftr":36.1,"opp_efg_pct":42.4,"opp_tov_pct":16.1,"opp_orb_pct":29.3,"opp_ftr":23.7,"avg_ht":78.37,"eff_ht":0.99,"ff_rtg":28.78,"opp_ff_rtg":20.54,"net_ff_rtg":8.24,"adj_net_ff":24.79,"bpi_ortg":7.8,"bpi_drtg":10.9,"bpi_net":18.7,"bpi_rk":9,"em_ortg":122.62,"em_drtg":86.38,"em_net":36.24,"em_rk":4,"em_inj_ortg":121.82,"em_inj_drtg":86.68,"em_inj_net":35.14,"em_inj_rk":3,"inj_delta_pct":-0.65,"elo":1607.3,"elo_rk":13,"elo_delta":1,"kp_ortg":121.09,"kp_drtg":89.02,"kp_net":32.07,"kp_rk":4,"kp_inj_ortg":124.02,"kp_inj_drtg":85.09,"kp_inj_net":38.93,"con_tempo":72.5,"con_ortg":112.3,"con_drtg":85.61,"con_net":26.69,"live_tempo":72.5,"live_ortg":122.92,"live_drtg":85.89,"live_net":37.03,"net_score":31.86,"size_rk":47,"exp":2.35,"exp_rk":25,"bench":33.86,"continuity":21.1,"continuity_rk":171,"kill_shots_pg":1.67,"kill_shots_margin":1.67,"win_conf_pct":"23.9%","proj_conf_wl":"12.5-5.5","con_rk":7,"con_ortg_rk":13,"con_drtg_rk":5,"live_rk":3,"live_ortg_rk":13,"live_drtg_rk":3},{"id":8,"team":"Arizona","espn_name":"Arizona Wildcats","conf":"Big 12","conf_short":"B12","g":5,"w":3,"l":1,"wl_pct":0.75,"srs":28.3,"sos":15.05,"sor":11.29,"ppg":89.1,"opp_ppg":75.4,"pd":13.7,"fg_pct":49.2,"two_pct":58.0,"three_pct":31.3,"ft_pct":77.1,"orb_pg":12.9,"second_c_pct":39.8,"trb":43.0,"ast":17.6,"stl":9.1,"blk":3.9,"tov":11.4,"efg_pct":54.4,"tov_pct":13.0,"orb_pct":36.5,"ftr":39.9,"opp_efg_pct":48.2,"opp_tov_pct":14.9,"opp_orb_pct":28.7,"opp_ftr":29.4,"avg_ht":78.71,"eff_ht":1.81,"ff_rtg":27.77,"opp_ff_rtg":23.73,"net_ff_rtg":4.05,"adj_net_ff":16.78,"bpi_ortg":9.4,"bpi_drtg":9.1,"bpi_net":18.5,"bpi_rk":10,"em_ortg":122.62,"em_drtg":89.38,"em_net":33.24,"em_rk":8,"em_inj_ortg":122.32,"em_inj_drtg":89.88,"em_inj_net":32.44,"em_inj_rk":11,"inj_delta_pct":-0.24,"elo":1645.8,"elo_rk":7,"elo_delta":2,"kp_ortg":120.53,"kp_drtg":92.49,"kp_net":28.05,"kp_rk":9,"kp_inj_ortg":123.52,"kp_inj_drtg":88.63,"kp_inj_net":34.89,"con_tempo":72.6,"con_ortg":113.05,"con_drtg":87.4,"con_net":25.64,"live_tempo":72.6,"live_ortg":122.92,"live_drtg":89.26,"live_net":33.66,"net_score":29.65,"size_rk":31,"exp":1.14,"exp_rk":233,"bench":24.15,"continuity":27.2,"continuity_rk":113,"kill_shots_pg":1.25,"kill_shots_margin":1.0,"win_conf_pct":"19.5%","proj_conf_wl":"12.2-5.8","con_rk":8,"con_ortg_rk":11,"con_drtg_rk":7,"live_rk":8,"live_ortg_rk":14,"live_drtg_rk":9},{"id":9,"team":"Texas","espn_name":"Texas Longhorns","conf":"SEC","conf_short":"SEC","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":31.87,"sos":-11.14,"sor":-11.14,"ppg":93.5,"opp_ppg":65.0,"pd":28.5,"fg_pct":53.6,"two_pct":61.1,"three_pct":39.2,"ft_pct":71.0,"orb_pg":12.2,"second_c_pct":43.2,"trb":40.5,"ast":16.1,"stl":9.1,"blk":4.2,"tov":10.2,"efg_pct":60.3,"tov_pct":12.0,"orb_pct":38.4,"ftr":47.1,"opp_efg_pct":44.6,"opp_tov_pct":18.0,"opp_orb_pct":26.7,"opp_ftr":32.9,"avg_ht":78.74,"eff_ht":1.3,"ff_rtg":31.24,"opp_ff_rtg":22.76,"net_ff_rtg":8.49,"adj_net_ff":22.83,"bpi_ortg":11.1,"bpi_drtg":8.4,"bpi_net":19.5,"bpi_rk":7,"em_ortg":124.42,"em_drtg":92.58,"em_net":31.84,"em_rk":13,"em_inj_ortg":124.02,"em_inj_drtg":92.58,"em_inj_net":31.44,"em_inj_rk":12,"inj_delta_pct":-0.32,"elo":1638.4,"elo_rk":8,"elo_delta":-1,"kp_ortg":121.98,"kp_drtg":94.1,"kp_net":27.88,"kp_rk":10,"kp_inj_ortg":124.96,"kp_inj_drtg":90.25,"kp_inj_net":34.71,"con_tempo":70.6,"con_ortg":114.32,"con_drtg":88.9,"con_net":25.42,"live_tempo":70.6,"live_ortg":124.49,"live_drtg":91.41,"live_net":33.07,"net_score":29.24,"size_rk":27,"exp":1.14,"exp_rk":234,"bench":40.93,"continuity":11.4,"continuity_rk":254,"kill_shots_pg":2.0,"kill_shots_margin":1.67,"win_conf_pct":"28.8%","proj_conf_wl":"12.8-5.2","con_rk":9,"con_ortg_rk":4,"con_drtg_rk":15,"live_rk":9,"live_ortg_rk":6,"live_drtg_rk":21},{"id":10,"team":"Virginia","espn_name":"Virginia Cavaliers","conf":"ACC","conf_short":"ACC","g":5,"w":5,"l":0,"wl_pct":1.0,"srs":14.92,"sos":-7.28,"sor":-7.28,"ppg":91.8,"opp_ppg":69.6,"pd":22.2,"fg_pct":51.7,"two_pct":62.8,"three_pct":36.5,"ft_pct":70.9,"orb_pg":14.8,"second_c_pct":47.1,"trb":41.2,"ast":20.4,"stl":11.6,"blk":5.6,"tov":13.2,"efg_pct":59.4,"tov_pct":15.0,"orb_pct":41.8,"ftr":31.7,"opp_efg_pct":48.1,"opp_tov_pct":19.7,"opp_orb_pct":26.7,"opp_ftr":35.3,"avg_ht":78.48,"eff_ht":1.43,"ff_rtg":28.55,"opp_ff_rtg":24.53,"net_ff_rtg":4.03,"adj_net_ff":10.74,"bpi_ortg":8.3,"bpi_drtg":6.9,"bpi_net":15.2,"bpi_rk":21,"em_ortg":122.62,"em_drtg":92.68,"em_net":29.94,"em_rk":17,"em_inj_ortg":122.62,"em_inj_drtg":92.68,"em_inj_net":29.94,"em_inj_rk":15,"inj_delta_pct":0.0,"elo":1657.4,"elo_rk":5,"elo_delta":1,"kp_ortg":121.5,"kp_drtg":94.24,"kp_net":27.26,"kp_rk":11,"kp_inj_ortg":124.52,"kp_inj_drtg":90.42,"kp_inj_net":34.1,"con_tempo":71.4,"con_ortg":113.06,"con_drtg":89.24,"con_net":23.82,"live_tempo":71.4,"live_ortg":123.57,"live_drtg":91.55,"live_net":32.02,"net_score":27.92,"size_rk":40,"exp":1.7,"exp_rk":116,"bench":28.83,"continuity":50.5,"continuity_rk":20,"kill_shots_pg":1.2,"kill_shots_margin":1.2,"win_conf_pct":"2.7%","proj_conf_wl":"11.6-6.4","con_rk":10,"con_ortg_rk":10,"con_drtg_rk":17,"live_rk":12,"live_ortg_rk":9,"live_drtg_rk":23},{"id":11,"team":"Texas Tech","espn_name":"Texas Tech Red Raiders","conf":"Big 12","conf_short":"B12","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":29.37,"sos":10.03,"sor":10.03,"ppg":80.7,"opp_ppg":65.4,"pd":15.2,"fg_pct":44.0,"two_pct":54.6,"three_pct":32.1,"ft_pct":71.1,"orb_pg":13.1,"second_c_pct":38.5,"trb":39.6,"ast":14.4,"stl":9.4,"blk":2.9,"tov":11.4,"efg_pct":51.6,"tov_pct":13.6,"orb_pct":34.7,"ftr":41.6,"opp_efg_pct":47.9,"opp_tov_pct":20.0,"opp_orb_pct":26.0,"opp_ftr":37.3,"avg_ht":76.55,"eff_ht":-1.25,"ff_rtg":26.9,"opp_ff_rtg":24.78,"net_ff_rtg":2.12,"adj_net_ff":15.33,"bpi_ortg":7.8,"bpi_drtg":9.7,"bpi_net":17.5,"bpi_rk":12,"em_ortg":121.02,"em_drtg":88.88,"em_net":32.14,"em_rk":12,"em_inj_ortg":117.42,"em_inj_drtg":88.88,"em_inj_net":28.54,"em_inj_rk":20,"inj_delta_pct":-2.97,"elo":1613.0,"elo_rk":11,"elo_delta":5,"kp_ortg":119.61,"kp_drtg":94.23,"kp_net":25.38,"kp_rk":16,"kp_inj_ortg":122.23,"kp_inj_drtg":90.06,"kp_inj_net":32.17,"con_tempo":69.7,"con_ortg":111.59,"con_drtg":87.85,"con_net":23.73,"live_tempo":69.7,"live_ortg":119.83,"live_drtg":89.47,"live_net":30.36,"net_score":27.05,"size_rk":311,"exp":2.83,"exp_rk":2,"bench":34.45,"continuity":15.8,"continuity_rk":212,"kill_shots_pg":1.25,"kill_shots_margin":1.25,"win_conf_pct":"19%","proj_conf_wl":"12.1-5.9","con_rk":11,"con_ortg_rk":18,"con_drtg_rk":10,"live_rk":19,"live_ortg_rk":34,"live_drtg_rk":10},{"id":12,"team":"Gonzaga","espn_name":"Gonzaga Bulldogs","conf":"Pac-12","conf_short":"P12","g":5,"w":2,"l":0,"wl_pct":1.0,"srs":23.6,"sos":0.1,"sor":0.1,"ppg":91.5,"opp_ppg":71.5,"pd":20.0,"fg_pct":51.6,"two_pct":57.4,"three_pct":39.8,"ft_pct":73.7,"orb_pg":11.4,"second_c_pct":37.4,"trb":37.6,"ast":19.2,"stl":7.6,"blk":3.2,"tov":9.3,"efg_pct":58.2,"tov_pct":11.1,"orb_pct":33.8,"ftr":39.5,"opp_efg_pct":48.0,"opp_tov_pct":16.9,"opp_orb_pct":26.9,"opp_ftr":33.7,"avg_ht":78.99,"eff_ht":2.33,"ff_rtg":29.22,"opp_ff_rtg":24.25,"net_ff_rtg":4.98,"adj_net_ff":15.6,"bpi_ortg":8.9,"bpi_drtg":8.3,"bpi_net":17.2,"bpi_rk":13,"em_ortg":126.32,"em_drtg":93.18,"em_net":33.14,"em_rk":9,"em_inj_ortg":126.32,"em_inj_drtg":93.18,"em_inj_net":33.14,"em_inj_rk":7,"inj_delta_pct":0.0,"elo":1571.7,"elo_rk":22,"elo_delta":-10,"kp_ortg":122.39,"kp_drtg":96.37,"kp_net":26.02,"kp_rk":12,"kp_inj_ortg":125.41,"kp_inj_drtg":92.55,"kp_inj_net":32.86,"con_tempo":71.5,"con_ortg":113.54,"con_drtg":90.32,"con_net":23.22,"live_tempo":71.5,"live_ortg":125.87,"live_drtg":92.87,"live_net":33.0,"net_score":28.11,"size_rk":17,"exp":2.15,"exp_rk":50,"bench":25.78,"continuity":13.7,"continuity_rk":234,"kill_shots_pg":0.67,"kill_shots_margin":0.67,"win_conf_pct":"89.8%","proj_conf_wl":"13.8-2.2","con_rk":12,"con_ortg_rk":6,"con_drtg_rk":26,"live_rk":10,"live_ortg_rk":4,"live_drtg_rk":32},{"id":13,"team":"UCLA","espn_name":"UCLA Bruins","conf":"Big Ten","conf_short":"B10","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":32.66,"sos":-10.34,"sor":-10.34,"ppg":87.2,"opp_ppg":61.2,"pd":26.0,"fg_pct":47.4,"two_pct":51.6,"three_pct":40.3,"ft_pct":72.5,"orb_pg":12.7,"second_c_pct":37.8,"trb":39.9,"ast":18.3,"stl":9.5,"blk":4.3,"tov":9.9,"efg_pct":54.9,"tov_pct":11.7,"orb_pct":35.6,"ftr":37.0,"opp_efg_pct":42.1,"opp_tov_pct":20.0,"opp_orb_pct":26.9,"opp_ftr":35.1,"avg_ht":77.96,"eff_ht":0.18,"ff_rtg":27.54,"opp_ff_rtg":22.13,"net_ff_rtg":5.41,"adj_net_ff":20.11,"bpi_ortg":9.9,"bpi_drtg":8.9,"bpi_net":18.8,"bpi_rk":8,"em_ortg":121.32,"em_drtg":90.68,"em_net":30.64,"em_rk":15,"em_inj_ortg":120.82,"em_inj_drtg":90.68,"em_inj_net":30.14,"em_inj_rk":14,"inj_delta_pct":-0.41,"elo":1570.0,"elo_rk":23,"elo_delta":-4,"kp_ortg":119.07,"kp_drtg":93.28,"kp_net":25.79,"kp_rk":14,"kp_inj_ortg":122.04,"kp_inj_drtg":89.41,"kp_inj_net":32.63,"con_tempo":70.2,"con_ortg":111.75,"con_drtg":88.75,"con_net":23.01,"live_tempo":70.2,"live_ortg":121.43,"live_drtg":90.05,"live_net":31.38,"net_score":27.2,"size_rk":97,"exp":1.5,"exp_rk":156,"bench":30.55,"continuity":33.5,"continuity_rk":73,"kill_shots_pg":3.33,"kill_shots_margin":3.0,"win_conf_pct":"26.4%","proj_conf_wl":"14.8-5.2","con_rk":13,"con_ortg_rk":16,"con_drtg_rk":14,"live_rk":14,"live_ortg_rk":18,"live_drtg_rk":14},{"id":14,"team":"Vanderbilt","espn_name":"Vanderbilt Commodores","conf":"SEC","conf_short":"SEC","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":32.64,"sos":2.64,"sor":2.64,"ppg":85.4,"opp_ppg":62.9,"pd":22.4,"fg_pct":50.1,"two_pct":59.0,"three_pct":36.5,"ft_pct":73.0,"orb_pg":13.7,"second_c_pct":44.6,"trb":41.5,"ast":15.4,"stl":7.6,"blk":4.2,"tov":11.2,"efg_pct":57.3,"tov_pct":13.6,"orb_pct":41.5,"ftr":33.6,"opp_efg_pct":45.8,"opp_tov_pct":16.3,"opp_orb_pct":22.6,"opp_ftr":30.5,"avg_ht":78.11,"eff_ht":1.48,"ff_rtg":28.0,"opp_ff_rtg":22.9,"net_ff_rtg":5.1,"adj_net_ff":19.79,"bpi_ortg":8.4,"bpi_drtg":7.5,"bpi_net":15.9,"bpi_rk":17,"em_ortg":120.82,"em_drtg":91.98,"em_net":28.84,"em_rk":20,"em_inj_ortg":120.82,"em_inj_drtg":91.98,"em_inj_net":28.84,"em_inj_rk":19,"inj_delta_pct":0.0,"elo":1579.1,"elo_rk":18,"elo_delta":3,"kp_ortg":121.96,"kp_drtg":92.79,"kp_net":29.17,"kp_rk":7,"kp_inj_ortg":124.98,"kp_inj_drtg":88.97,"kp_inj_net":36.01,"con_tempo":70.5,"con_ortg":111.97,"con_drtg":89.3,"con_net":22.68,"live_tempo":70.5,"live_ortg":122.9,"live_drtg":90.48,"live_net":32.42,"net_score":27.55,"size_rk":75,"exp":1.68,"exp_rk":121,"bench":36.43,"continuity":23.7,"continuity_rk":152,"kill_shots_pg":1.75,"kill_shots_margin":1.75,"win_conf_pct":"5.1%","proj_conf_wl":"10.6-7.4","con_rk":14,"con_ortg_rk":14,"con_drtg_rk":19,"live_rk":11,"live_ortg_rk":15,"live_drtg_rk":17},{"id":15,"team":"St. John's","espn_name":"St. John's Red Storm","conf":"Big East","conf_short":"BE","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":22.1,"sos":-6.24,"sor":-6.24,"ppg":85.9,"opp_ppg":66.2,"pd":19.8,"fg_pct":47.3,"two_pct":53.1,"three_pct":37.8,"ft_pct":75.2,"orb_pg":13.2,"second_c_pct":39.0,"trb":38.9,"ast":17.7,"stl":9.6,"blk":4.2,"tov":10.2,"efg_pct":54.4,"tov_pct":12.0,"orb_pct":36.8,"ftr":33.5,"opp_efg_pct":48.4,"opp_tov_pct":20.2,"opp_orb_pct":26.8,"opp_ftr":27.1,"avg_ht":78.93,"eff_ht":1.19,"ff_rtg":26.84,"opp_ff_rtg":23.44,"net_ff_rtg":3.4,"adj_net_ff":13.35,"bpi_ortg":6.5,"bpi_drtg":8.1,"bpi_net":14.6,"bpi_rk":26,"em_ortg":122.22,"em_drtg":89.68,"em_net":32.54,"em_rk":11,"em_inj_ortg":122.22,"em_inj_drtg":89.68,"em_inj_net":32.54,"em_inj_rk":9,"inj_delta_pct":0.0,"elo":1606.7,"elo_rk":14,"elo_delta":-1,"kp_ortg":117.4,"kp_drtg":93.53,"kp_net":23.87,"kp_rk":20,"kp_inj_ortg":120.42,"kp_inj_drtg":89.71,"kp_inj_net":30.71,"con_tempo":72.1,"con_ortg":110.86,"con_drtg":88.44,"con_net":22.42,"live_tempo":72.1,"live_ortg":121.32,"live_drtg":89.69,"live_net":31.63,"net_score":27.02,"size_rk":20,"exp":1.93,"exp_rk":81,"bench":34.98,"continuity":17.9,"continuity_rk":196,"kill_shots_pg":1.67,"kill_shots_margin":1.67,"win_conf_pct":"9.1%","proj_conf_wl":"12.6-7.4","con_rk":15,"con_ortg_rk":20,"con_drtg_rk":11,"live_rk":13,"live_ortg_rk":20,"live_drtg_rk":12},{"id":16,"team":"Louisville","espn_name":"Louisville Cardinals","conf":"ACC","conf_short":"ACC","g":5,"w":2,"l":0,"wl_pct":1.0,"srs":24.2,"sos":-7.81,"sor":-7.81,"ppg":80.1,"opp_ppg":71.4,"pd":8.7,"fg_pct":46.0,"two_pct":56.9,"three_pct":30.3,"ft_pct":70.2,"orb_pg":13.4,"second_c_pct":40.8,"trb":40.2,"ast":14.1,"stl":7.0,"blk":3.1,"tov":10.9,"efg_pct":52.2,"tov_pct":13.1,"orb_pct":36.4,"ftr":39.1,"opp_efg_pct":51.0,"opp_tov_pct":15.1,"opp_orb_pct":25.1,"opp_ftr":29.5,"avg_ht":78.02,"eff_ht":1.73,"ff_rtg":26.79,"opp_ff_rtg":24.83,"net_ff_rtg":1.96,"adj_net_ff":12.85,"bpi_ortg":8.2,"bpi_drtg":7.6,"bpi_net":15.8,"bpi_rk":18,"em_ortg":122.12,"em_drtg":91.58,"em_net":30.54,"em_rk":16,"em_inj_ortg":122.12,"em_inj_drtg":91.78,"em_inj_net":30.34,"em_inj_rk":13,"inj_delta_pct":0.0,"elo":1611.3,"elo_rk":12,"elo_delta":-1,"kp_ortg":118.22,"kp_drtg":94.27,"kp_net":23.95,"kp_rk":19,"kp_inj_ortg":121.24,"kp_inj_drtg":90.45,"kp_inj_net":30.79,"con_tempo":72.1,"con_ortg":111.62,"con_drtg":89.21,"con_net":22.41,"live_tempo":72.1,"live_ortg":121.68,"live_drtg":91.12,"live_net":30.56,"net_score":26.49,"size_rk":86,"exp":2.6,"exp_rk":7,"bench":35.01,"continuity":11.4,"continuity_rk":255,"kill_shots_pg":2.5,"kill_shots_margin":2.5,"win_conf_pct":"7.4%","proj_conf_wl":"12.6-5.4","con_rk":16,"con_ortg_rk":17,"con_drtg_rk":16,"live_rk":17,"live_ortg_rk":17,"live_drtg_rk":19},{"id":17,"team":"Miami FL","espn_name":"Miami Hurricanes","conf":"ACC","conf_short":"ACC","g":5,"w":3,"l":1,"wl_pct":0.75,"srs":20.48,"sos":-3.52,"sor":-4.69,"ppg":80.9,"opp_ppg":62.1,"pd":18.8,"fg_pct":45.7,"two_pct":55.4,"three_pct":31.4,"ft_pct":74.2,"orb_pg":12.3,"second_c_pct":34.4,"trb":43.1,"ast":16.4,"stl":8.3,"blk":3.2,"tov":12.0,"efg_pct":52.1,"tov_pct":14.0,"orb_pct":32.3,"ftr":25.5,"opp_efg_pct":44.2,"opp_tov_pct":17.7,"opp_orb_pct":23.3,"opp_ftr":24.8,"avg_ht":78.54,"eff_ht":1.05,"ff_rtg":24.68,"opp_ff_rtg":21.38,"net_ff_rtg":3.3,"adj_net_ff":12.51,"bpi_ortg":7.0,"bpi_drtg":10.2,"bpi_net":17.2,"bpi_rk":14,"em_ortg":120.32,"em_drtg":89.18,"em_net":31.14,"em_rk":14,"em_inj_ortg":119.32,"em_inj_drtg":89.48,"em_inj_net":29.84,"em_inj_rk":16,"inj_delta_pct":-0.83,"elo":1576.7,"elo_rk":19,"elo_delta":-1,"kp_ortg":116.34,"kp_drtg":92.61,"kp_net":23.73,"kp_rk":21,"kp_inj_ortg":119.28,"kp_inj_drtg":88.68,"kp_inj_net":30.59,"con_tempo":71.9,"con_ortg":109.98,"con_drtg":87.73,"con_net":22.25,"live_tempo":71.9,"live_ortg":119.3,"live_drtg":89.08,"live_net":30.22,"net_score":26.23,"size_rk":37,"exp":2.09,"exp_rk":56,"bench":37.47,"continuity":33.1,"continuity_rk":76,"kill_shots_pg":0.75,"kill_shots_margin":0.75,"win_conf_pct":"12.2%","proj_conf_wl":"13.4-4.6","con_rk":17,"con_ortg_rk":27,"con_drtg_rk":9,"live_rk":20,"live_ortg_rk":38,"live_drtg_rk":8},{"id":18,"team":"Iowa St.","espn_name":"Iowa State Cyclones","conf":"Big 12","conf_short":"B12","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":14.9,"sos":-4.76,"sor":-7.14,"ppg":83.5,"opp_ppg":65.5,"pd":18.0,"fg_pct":47.4,"two_pct":56.6,"three_pct":30.1,"ft_pct":69.6,"orb_pg":13.0,"second_c_pct":40.5,"trb":38.7,"ast":16.5,"stl":10.8,"blk":4.5,"tov":12.8,"efg_pct":52.7,"tov_pct":14.7,"orb_pct":35.7,"ftr":44.6,"opp_efg_pct":46.4,"opp_tov_pct":22.7,"opp_orb_pct":28.8,"opp_ftr":36.9,"avg_ht":77.11,"eff_ht":0.39,"ff_rtg":27.8,"opp_ff_rtg":24.08,"net_ff_rtg":3.71,"adj_net_ff":10.42,"bpi_ortg":8.2,"bpi_drtg":10.1,"bpi_net":18.3,"bpi_rk":11,"em_ortg":119.22,"em_drtg":89.38,"em_net":29.84,"em_rk":18,"em_inj_ortg":119.12,"em_inj_drtg":89.78,"em_inj_net":29.34,"em_inj_rk":18,"inj_delta_pct":-0.08,"elo":1545.1,"elo_rk":29,"elo_delta":-2,"kp_ortg":116.68,"kp_drtg":90.92,"kp_net":25.76,"kp_rk":15,"kp_inj_ortg":119.7,"kp_inj_drtg":87.09,"kp_inj_net":32.61,"con_tempo":70.4,"con_ortg":109.85,"con_drtg":87.71,"con_net":22.14,"live_tempo":70.4,"live_ortg":119.41,"live_drtg":88.44,"live_net":30.97,"net_score":26.56,"size_rk":249,"exp":2.47,"exp_rk":15,"bench":33.96,"continuity":38.7,"continuity_rk":53,"kill_shots_pg":2.0,"kill_shots_margin":1.33,"win_conf_pct":"20.2%","proj_conf_wl":"12.2-5.8","con_rk":18,"con_ortg_rk":28,"con_drtg_rk":8,"live_rk":16,"live_ortg_rk":37,"live_drtg_rk":7},{"id":19,"team":"Alabama","espn_name":"Alabama Crimson Tide","conf":"SEC","conf_short":"SEC","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":21.09,"sos":0.09,"sor":0.09,"ppg":97.6,"opp_ppg":78.8,"pd":18.8,"fg_pct":47.2,"two_pct":58.7,"three_pct":37.5,"ft_pct":75.8,"orb_pg":14.4,"second_c_pct":40.4,"trb":43.2,"ast":19.8,"stl":10.0,"blk":7.0,"tov":13.3,"efg_pct":57.4,"tov_pct":14.3,"orb_pct":37.0,"ftr":39.9,"opp_efg_pct":46.3,"opp_tov_pct":16.9,"opp_orb_pct":36.3,"opp_ftr":28.7,"avg_ht":79.14,"eff_ht":1.11,"ff_rtg":28.98,"opp_ff_rtg":22.87,"net_ff_rtg":6.11,"adj_net_ff":15.6,"bpi_ortg":9.6,"bpi_drtg":5.7,"bpi_net":15.3,"bpi_rk":20,"em_ortg":123.42,"em_drtg":93.98,"em_net":29.44,"em_rk":19,"em_inj_ortg":123.42,"em_inj_drtg":93.98,"em_inj_net":29.44,"em_inj_rk":17,"inj_delta_pct":0.0,"elo":1602.7,"elo_rk":15,"elo_delta":0,"kp_ortg":122.31,"kp_drtg":97.67,"kp_net":24.64,"kp_rk":17,"kp_inj_ortg":125.33,"kp_inj_drtg":93.85,"kp_inj_net":31.49,"con_tempo":75.7,"con_ortg":113.32,"con_drtg":91.34,"con_net":21.98,"live_tempo":75.7,"live_ortg":124.38,"live_drtg":93.92,"live_net":30.46,"net_score":26.22,"size_rk":11,"exp":1.41,"exp_rk":171,"bench":47.9,"continuity":29.2,"continuity_rk":100,"kill_shots_pg":1.0,"kill_shots_margin":0.5,"win_conf_pct":"2.8%","proj_conf_wl":"10.1-7.9","con_rk":19,"con_ortg_rk":8,"con_drtg_rk":30,"live_rk":18,"live_ortg_rk":7,"live_drtg_rk":39},{"id":20,"team":"Nebraska","espn_name":"Nebraska Cornhuskers","conf":"Big Ten","conf_short":"B10","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":20.52,"sos":-7.81,"sor":-7.81,"ppg":85.6,"opp_ppg":67.2,"pd":18.4,"fg_pct":48.5,"two_pct":60.9,"three_pct":33.6,"ft_pct":75.0,"orb_pg":10.3,"second_c_pct":33.3,"trb":37.6,"ast":17.6,"stl":9.6,"blk":3.0,"tov":11.8,"efg_pct":56.1,"tov_pct":14.1,"orb_pct":30.6,"ftr":39.8,"opp_efg_pct":44.7,"opp_tov_pct":18.6,"opp_orb_pct":29.9,"opp_ftr":26.0,"avg_ht":79.34,"eff_ht":1.23,"ff_rtg":28.45,"opp_ff_rtg":21.79,"net_ff_rtg":6.66,"adj_net_ff":15.89,"bpi_ortg":7.2,"bpi_drtg":9.4,"bpi_net":16.6,"bpi_rk":16,"em_ortg":120.02,"em_drtg":92.48,"em_net":27.54,"em_rk":22,"em_inj_ortg":120.02,"em_inj_drtg":92.48,"em_inj_net":27.54,"em_inj_rk":22,"inj_delta_pct":0.0,"elo":1541.7,"elo_rk":30,"elo_delta":-2,"kp_ortg":118.89,"kp_drtg":92.93,"kp_net":25.96,"kp_rk":13,"kp_inj_ortg":121.91,"kp_inj_drtg":89.11,"kp_inj_net":32.8,"con_tempo":70.0,"con_ortg":110.26,"con_drtg":89.24,"con_net":21.02,"live_tempo":70.0,"live_ortg":120.97,"live_drtg":90.8,"live_net":30.17,"net_score":25.6,"size_rk":7,"exp":2.03,"exp_rk":69,"bench":36.4,"continuity":38.0,"continuity_rk":55,"kill_shots_pg":1.67,"kill_shots_margin":1.67,"win_conf_pct":"7.8%","proj_conf_wl":"13.1-6.9","con_rk":20,"con_ortg_rk":25,"con_drtg_rk":18,"live_rk":21,"live_ortg_rk":23,"live_drtg_rk":18},{"id":21,"team":"Tennessee","espn_name":"Tennessee Volunteers","conf":"SEC","conf_short":"SEC","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":3.33,"sos":-16.34,"sor":-16.34,"ppg":83.2,"opp_ppg":66.7,"pd":16.5,"fg_pct":46.5,"two_pct":55.9,"three_pct":32.2,"ft_pct":74.7,"orb_pg":12.6,"second_c_pct":38.9,"trb":43.2,"ast":17.7,"stl":8.3,"blk":5.2,"tov":13.5,"efg_pct":52.9,"tov_pct":15.6,"orb_pct":36.6,"ftr":41.7,"opp_efg_pct":39.1,"opp_tov_pct":15.1,"opp_orb_pct":32.6,"opp_ftr":32.4,"avg_ht":77.9,"eff_ht":-0.04,"ff_rtg":27.43,"opp_ff_rtg":20.52,"net_ff_rtg":6.92,"adj_net_ff":8.42,"bpi_ortg":6.7,"bpi_drtg":10.0,"bpi_net":16.7,"bpi_rk":15,"em_ortg":117.12,"em_drtg":91.08,"em_net":26.04,"em_rk":29,"em_inj_ortg":117.02,"em_inj_drtg":91.78,"em_inj_net":25.24,"em_inj_rk":29,"inj_delta_pct":-0.09,"elo":1632.3,"elo_rk":9,"elo_delta":1,"kp_ortg":115.85,"kp_drtg":95.91,"kp_net":19.95,"kp_rk":36,"kp_inj_ortg":118.87,"kp_inj_drtg":92.08,"kp_inj_net":26.79,"con_tempo":69.7,"con_ortg":109.52,"con_drtg":88.54,"con_net":20.99,"live_tempo":69.7,"live_ortg":117.94,"live_drtg":91.93,"live_net":26.01,"net_score":23.5,"size_rk":109,"exp":2.3,"exp_rk":32,"bench":39.08,"continuity":9.5,"continuity_rk":270,"kill_shots_pg":0.67,"kill_shots_margin":0.67,"win_conf_pct":"7%","proj_conf_wl":"10.9-7.1","con_rk":21,"con_ortg_rk":35,"con_drtg_rk":12,"live_rk":33,"live_ortg_rk":49,"live_drtg_rk":28},{"id":22,"team":"Michigan","espn_name":"Michigan Wolverines","conf":"Big Ten","conf_short":"B10","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":24.09,"sos":16.76,"sor":11.18,"ppg":77.3,"opp_ppg":75.2,"pd":2.1,"fg_pct":45.0,"two_pct":55.4,"three_pct":30.9,"ft_pct":71.6,"orb_pg":11.7,"second_c_pct":34.5,"trb":38.1,"ast":15.0,"stl":5.4,"blk":4.2,"tov":12.6,"efg_pct":51.6,"tov_pct":15.1,"orb_pct":33.6,"ftr":30.5,"opp_efg_pct":46.8,"opp_tov_pct":13.7,"opp_orb_pct":31.9,"opp_ftr":36.1,"avg_ht":78.34,"eff_ht":2.01,"ff_rtg":25.22,"opp_ff_rtg":24.14,"net_ff_rtg":1.08,"adj_net_ff":11.92,"bpi_ortg":7.0,"bpi_drtg":7.1,"bpi_net":14.1,"bpi_rk":30,"em_ortg":120.32,"em_drtg":92.08,"em_net":28.24,"em_rk":21,"em_inj_ortg":120.32,"em_inj_drtg":92.08,"em_inj_net":28.24,"em_inj_rk":21,"inj_delta_pct":0.0,"elo":1579.5,"elo_rk":17,"elo_delta":5,"kp_ortg":117.55,"kp_drtg":95.02,"kp_net":22.53,"kp_rk":24,"kp_inj_ortg":120.57,"kp_inj_drtg":91.2,"kp_inj_net":29.37,"con_tempo":72.3,"con_ortg":110.31,"con_drtg":90.0,"con_net":20.31,"live_tempo":72.3,"live_ortg":120.45,"live_drtg":91.64,"live_net":28.81,"net_score":24.56,"size_rk":49,"exp":2.21,"exp_rk":43,"bench":27.88,"continuity":35.8,"continuity_rk":62,"kill_shots_pg":0.33,"kill_shots_margin":0.0,"win_conf_pct":"1.2%","proj_conf_wl":"11.1-8.9","con_rk":22,"con_ortg_rk":24,"con_drtg_rk":23,"live_rk":23,"live_ortg_rk":29,"live_drtg_rk":25},{"id":23,"team":"Texas A&M","espn_name":"Texas A&M Aggies","conf":"SEC","conf_short":"SEC","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":35.32,"sos":3.32,"sor":3.32,"ppg":96.0,"opp_ppg":69.2,"pd":26.8,"fg_pct":49.9,"two_pct":59.0,"three_pct":36.8,"ft_pct":67.9,"orb_pg":13.0,"second_c_pct":39.6,"trb":41.7,"ast":17.5,"stl":11.8,"blk":5.7,"tov":12.5,"efg_pct":57.4,"tov_pct":13.5,"orb_pct":34.7,"ftr":47.0,"opp_efg_pct":40.9,"opp_tov_pct":20.9,"opp_orb_pct":34.1,"opp_ftr":36.5,"avg_ht":77.85,"eff_ht":1.37,"ff_rtg":30.07,"opp_ff_rtg":21.84,"net_ff_rtg":8.22,"adj_net_ff":24.12,"bpi_ortg":6.3,"bpi_drtg":7.8,"bpi_net":14.1,"bpi_rk":28,"em_ortg":119.02,"em_drtg":91.98,"em_net":27.04,"em_rk":24,"em_inj_ortg":119.02,"em_inj_drtg":91.98,"em_inj_net":27.04,"em_inj_rk":24,"inj_delta_pct":0.0,"elo":1547.1,"elo_rk":27,"elo_delta":4,"kp_ortg":120.12,"kp_drtg":95.74,"kp_net":24.38,"kp_rk":18,"kp_inj_ortg":123.14,"kp_inj_drtg":91.92,"kp_inj_net":31.22,"con_tempo":75.1,"con_ortg":110.09,"con_drtg":90.26,"con_net":19.83,"live_tempo":75.1,"live_ortg":121.08,"live_drtg":91.95,"live_net":29.13,"net_score":24.48,"size_rk":112,"exp":2.77,"exp_rk":3,"bench":46.84,"continuity":21.1,"continuity_rk":172,"kill_shots_pg":2.0,"kill_shots_margin":2.0,"win_conf_pct":"0.9%","proj_conf_wl":"9.1-8.9","con_rk":23,"con_ortg_rk":26,"con_drtg_rk":25,"live_rk":22,"live_ortg_rk":21,"live_drtg_rk":29},{"id":24,"team":"BYU","espn_name":"BYU Cougars","conf":"Big 12","conf_short":"B12","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":17.63,"sos":-3.12,"sor":-3.12,"ppg":94.6,"opp_ppg":76.0,"pd":18.6,"fg_pct":53.4,"two_pct":63.5,"three_pct":42.4,"ft_pct":69.5,"orb_pg":10.7,"second_c_pct":36.5,"trb":38.7,"ast":17.3,"stl":7.2,"blk":3.9,"tov":10.4,"efg_pct":63.5,"tov_pct":12.5,"orb_pct":32.2,"ftr":33.6,"opp_efg_pct":51.2,"opp_tov_pct":14.6,"opp_orb_pct":26.4,"opp_ftr":24.7,"avg_ht":78.69,"eff_ht":1.17,"ff_rtg":30.49,"opp_ff_rtg":24.2,"net_ff_rtg":6.28,"adj_net_ff":14.22,"bpi_ortg":9.8,"bpi_drtg":4.8,"bpi_net":14.6,"bpi_rk":24,"em_ortg":123.92,"em_drtg":97.28,"em_net":26.64,"em_rk":26,"em_inj_ortg":123.92,"em_inj_drtg":97.28,"em_inj_net":26.64,"em_inj_rk":25,"inj_delta_pct":0.0,"elo":1576.1,"elo_rk":20,"elo_delta":3,"kp_ortg":123.07,"kp_drtg":101.25,"kp_net":21.82,"kp_rk":25,"kp_inj_ortg":126.09,"kp_inj_drtg":97.43,"kp_inj_net":28.66,"con_tempo":71.7,"con_ortg":113.43,"con_drtg":93.61,"con_net":19.82,"live_tempo":71.7,"live_ortg":125.01,"live_drtg":97.36,"live_net":27.65,"net_score":23.74,"size_rk":32,"exp":1.98,"exp_rk":76,"bench":31.11,"continuity":23.5,"continuity_rk":156,"kill_shots_pg":1.0,"kill_shots_margin":0.75,"win_conf_pct":"3.7%","proj_conf_wl":"10.3-7.7","con_rk":24,"con_ortg_rk":7,"con_drtg_rk":55,"live_rk":25,"live_ortg_rk":5,"live_drtg_rk":76},{"id":25,"team":"USC","espn_name":"USC Trojans","conf":"Big Ten","conf_short":"B10","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":26.37,"sos":9.37,"sor":9.37,"ppg":83.9,"opp_ppg":73.3,"pd":10.6,"fg_pct":46.8,"two_pct":52.5,"three_pct":34.9,"ft_pct":77.6,"orb_pg":11.4,"second_c_pct":35.7,"trb":38.5,"ast":17.2,"stl":7.3,"blk":6.3,"tov":12.2,"efg_pct":52.4,"tov_pct":14.4,"orb_pct":33.4,"ftr":45.0,"opp_efg_pct":47.1,"opp_tov_pct":16.3,"opp_orb_pct":30.7,"opp_ftr":37.0,"avg_ht":79.07,"eff_ht":1.64,"ff_rtg":27.76,"opp_ff_rtg":24.42,"net_ff_rtg":3.35,"adj_net_ff":15.21,"bpi_ortg":6.1,"bpi_drtg":6.6,"bpi_net":12.7,"bpi_rk":38,"em_ortg":118.22,"em_drtg":93.48,"em_net":24.74,"em_rk":34,"em_inj_ortg":117.82,"em_inj_drtg":94.48,"em_inj_net":23.34,"em_inj_rk":40,"inj_delta_pct":-0.34,"elo":1576.1,"elo_rk":21,"elo_delta":-1,"kp_ortg":117.32,"kp_drtg":95.91,"kp_net":21.41,"kp_rk":30,"kp_inj_ortg":120.31,"kp_inj_drtg":92.06,"kp_inj_net":28.25,"con_tempo":72.7,"con_ortg":109.42,"con_drtg":90.76,"con_net":18.65,"live_tempo":72.7,"live_ortg":119.06,"live_drtg":93.27,"live_net":25.8,"net_score":22.22,"size_rk":13,"exp":2.04,"exp_rk":66,"bench":30.88,"continuity":20.2,"continuity_rk":182,"kill_shots_pg":0.67,"kill_shots_margin":0.67,"win_conf_pct":"0.5%","proj_conf_wl":"10.4-9.6","con_rk":25,"con_ortg_rk":36,"con_drtg_rk":29,"live_rk":34,"live_ortg_rk":41,"live_drtg_rk":34},{"id":26,"team":"Arkansas","espn_name":"Arkansas Razorbacks","conf":"SEC","conf_short":"SEC","g":5,"w":3,"l":1,"wl_pct":0.75,"srs":3.52,"sos":-11.98,"sor":-15.97,"ppg":82.2,"opp_ppg":70.2,"pd":12.0,"fg_pct":49.6,"two_pct":56.2,"three_pct":35.1,"ft_pct":68.7,"orb_pg":11.9,"second_c_pct":39.5,"trb":38.3,"ast":16.9,"stl":7.8,"blk":6.8,"tov":11.8,"efg_pct":55.1,"tov_pct":14.3,"orb_pct":36.3,"ftr":39.9,"opp_efg_pct":49.4,"opp_tov_pct":16.6,"opp_orb_pct":27.5,"opp_ftr":30.3,"avg_ht":78.21,"eff_ht":2.03,"ff_rtg":28.06,"opp_ff_rtg":24.32,"net_ff_rtg":3.74,"adj_net_ff":5.33,"bpi_ortg":7.8,"bpi_drtg":5.5,"bpi_net":13.3,"bpi_rk":33,"em_ortg":118.92,"em_drtg":96.08,"em_net":22.84,"em_rk":42,"em_inj_ortg":118.92,"em_inj_drtg":96.08,"em_inj_net":22.84,"em_inj_rk":41,"inj_delta_pct":0.0,"elo":1592.8,"elo_rk":16,"elo_delta":1,"kp_ortg":118.82,"kp_drtg":98.31,"kp_net":20.51,"kp_rk":35,"kp_inj_ortg":121.84,"kp_inj_drtg":94.49,"kp_inj_net":27.35,"con_tempo":71.1,"con_ortg":110.66,"con_drtg":92.19,"con_net":18.47,"live_tempo":71.1,"live_ortg":120.38,"live_drtg":95.29,"live_net":25.1,"net_score":21.79,"size_rk":64,"exp":1.24,"exp_rk":209,"bench":34.8,"continuity":13.9,"continuity_rk":233,"kill_shots_pg":1.25,"kill_shots_margin":1.25,"win_conf_pct":"1%","proj_conf_wl":"8.9-9.1","con_rk":26,"con_ortg_rk":21,"con_drtg_rk":40,"live_rk":36,"live_ortg_rk":30,"live_drtg_rk":47},{"id":27,"team":"Missouri","espn_name":"Missouri Tigers","conf":"SEC","conf_short":"SEC","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":32.73,"sos":1.73,"sor":1.15,"ppg":86.2,"opp_ppg":69.2,"pd":17.0,"fg_pct":49.6,"two_pct":56.4,"three_pct":39.4,"ft_pct":76.2,"orb_pg":11.2,"second_c_pct":36.4,"trb":36.2,"ast":17.1,"stl":8.4,"blk":6.3,"tov":8.9,"efg_pct":57.5,"tov_pct":11.1,"orb_pct":33.4,"ftr":34.9,"opp_efg_pct":48.9,"opp_tov_pct":15.9,"opp_orb_pct":29.9,"opp_ftr":31.8,"avg_ht":80.07,"eff_ht":2.56,"ff_rtg":28.27,"opp_ff_rtg":24.37,"net_ff_rtg":3.9,"adj_net_ff":18.63,"bpi_ortg":8.3,"bpi_drtg":5.8,"bpi_net":14.1,"bpi_rk":29,"em_ortg":121.72,"em_drtg":96.58,"em_net":25.14,"em_rk":32,"em_inj_ortg":121.42,"em_inj_drtg":96.58,"em_inj_net":24.84,"em_inj_rk":30,"inj_delta_pct":-0.25,"elo":1510.5,"elo_rk":40,"elo_delta":6,"kp_ortg":122.3,"kp_drtg":99.5,"kp_net":22.8,"kp_rk":23,"kp_inj_ortg":125.29,"kp_inj_drtg":95.67,"kp_inj_net":29.62,"con_tempo":69.5,"con_ortg":111.57,"con_drtg":93.34,"con_net":18.22,"live_tempo":69.5,"live_ortg":123.35,"live_drtg":96.12,"live_net":27.23,"net_score":22.73,"size_rk":2,"exp":2.01,"exp_rk":74,"bench":30.76,"continuity":22.6,"continuity_rk":165,"kill_shots_pg":1.33,"kill_shots_margin":1.33,"win_conf_pct":"1.4%","proj_conf_wl":"9.4-8.6","con_rk":27,"con_ortg_rk":19,"con_drtg_rk":51,"live_rk":26,"live_ortg_rk":10,"live_drtg_rk":55},{"id":28,"team":"Marquette","espn_name":"Marquette Golden Eagles","conf":"Big East","conf_short":"BE","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":24.26,"sos":-3.08,"sor":-4.62,"ppg":77.4,"opp_ppg":61.2,"pd":16.2,"fg_pct":43.8,"two_pct":54.0,"three_pct":30.7,"ft_pct":68.3,"orb_pg":13.9,"second_c_pct":37.9,"trb":39.3,"ast":17.6,"stl":9.2,"blk":4.8,"tov":9.6,"efg_pct":50.5,"tov_pct":11.6,"orb_pct":36.1,"ftr":25.7,"opp_efg_pct":44.3,"opp_tov_pct":19.4,"opp_orb_pct":31.7,"opp_ftr":20.8,"avg_ht":78.22,"eff_ht":1.43,"ff_rtg":24.09,"opp_ff_rtg":20.85,"net_ff_rtg":3.24,"adj_net_ff":14.15,"bpi_ortg":6.4,"bpi_drtg":9.1,"bpi_net":15.5,"bpi_rk":19,"em_ortg":117.02,"em_drtg":90.68,"em_net":26.34,"em_rk":28,"em_inj_ortg":117.02,"em_inj_drtg":90.68,"em_inj_net":26.34,"em_inj_rk":27,"inj_delta_pct":0.0,"elo":1500.7,"elo_rk":49,"elo_delta":-17,"kp_ortg":114.43,"kp_drtg":93.86,"kp_net":20.57,"kp_rk":34,"kp_inj_ortg":117.46,"kp_inj_drtg":90.05,"kp_inj_net":27.41,"con_tempo":70.7,"con_ortg":107.73,"con_drtg":89.52,"con_net":18.21,"live_tempo":70.7,"live_ortg":117.24,"live_drtg":90.36,"live_net":26.88,"net_score":22.54,"size_rk":62,"exp":1.7,"exp_rk":115,"bench":43.62,"continuity":46.9,"continuity_rk":26,"kill_shots_pg":1.67,"kill_shots_margin":1.33,"win_conf_pct":"16.1%","proj_conf_wl":"13.3-6.7","con_rk":28,"con_ortg_rk":52,"con_drtg_rk":20,"live_rk":28,"live_ortg_rk":58,"live_drtg_rk":16},{"id":29,"team":"Utah St.","espn_name":"Utah State Aggies","conf":"Pac-12","conf_short":"P12","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":21.08,"sos":-13.92,"sor":-13.92,"ppg":101.5,"opp_ppg":71.4,"pd":30.1,"fg_pct":54.9,"two_pct":63.0,"three_pct":42.4,"ft_pct":75.1,"orb_pg":11.5,"second_c_pct":37.6,"trb":41.2,"ast":22.6,"stl":8.5,"blk":2.7,"tov":9.3,"efg_pct":63.2,"tov_pct":10.6,"orb_pct":34.1,"ftr":31.8,"opp_efg_pct":46.7,"opp_tov_pct":16.2,"opp_orb_pct":26.2,"opp_ftr":25.7,"avg_ht":77.67,"eff_ht":0.14,"ff_rtg":30.1,"opp_ff_rtg":22.55,"net_ff_rtg":7.55,"adj_net_ff":17.03,"bpi_ortg":7.6,"bpi_drtg":3.7,"bpi_net":11.3,"bpi_rk":50,"em_ortg":124.32,"em_drtg":97.48,"em_net":26.84,"em_rk":25,"em_inj_ortg":124.32,"em_inj_drtg":98.58,"em_inj_net":25.74,"em_inj_rk":28,"inj_delta_pct":0.0,"elo":1545.6,"elo_rk":28,"elo_delta":10,"kp_ortg":120.68,"kp_drtg":99.55,"kp_net":21.12,"kp_rk":31,"kp_inj_ortg":123.7,"kp_inj_drtg":95.73,"kp_inj_net":27.97,"con_tempo":72.2,"con_ortg":111.94,"con_drtg":93.88,"con_net":18.06,"live_tempo":72.2,"live_ortg":124.01,"live_drtg":97.16,"live_net":26.85,"net_score":22.46,"size_rk":143,"exp":2.5,"exp_rk":13,"bench":27.66,"continuity":24.1,"continuity_rk":143,"kill_shots_pg":0.75,"kill_shots_margin":0.75,"win_conf_pct":"14.4%","proj_conf_wl":"11.0-5.0","con_rk":29,"con_ortg_rk":15,"con_drtg_rk":57,"live_rk":29,"live_ortg_rk":8,"live_drtg_rk":73},{"id":30,"team":"Auburn","espn_name":"Auburn Tigers","conf":"SEC","conf_short":"SEC","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":22.88,"sos":8.21,"sor":5.48,"ppg":85.4,"opp_ppg":74.7,"pd":10.8,"fg_pct":43.8,"two_pct":48.8,"three_pct":36.7,"ft_pct":69.0,"orb_pg":15.4,"second_c_pct":41.8,"trb":42.1,"ast":13.9,"stl":9.4,"blk":8.1,"tov":10.7,"efg_pct":51.4,"tov_pct":12.0,"orb_pct":37.9,"ftr":39.5,"opp_efg_pct":46.4,"opp_tov_pct":14.9,"opp_orb_pct":34.3,"opp_ftr":32.2,"avg_ht":78.37,"eff_ht":1.86,"ff_rtg":26.55,"opp_ff_rtg":23.44,"net_ff_rtg":3.11,"adj_net_ff":13.4,"bpi_ortg":8.2,"bpi_drtg":6.4,"bpi_net":14.6,"bpi_rk":25,"em_ortg":119.22,"em_drtg":94.58,"em_net":24.64,"em_rk":35,"em_inj_ortg":119.22,"em_inj_drtg":94.58,"em_inj_net":24.64,"em_inj_rk":33,"inj_delta_pct":0.0,"elo":1504.6,"elo_rk":45,"elo_delta":0,"kp_ortg":118.28,"kp_drtg":96.87,"kp_net":21.42,"kp_rk":29,"kp_inj_ortg":121.31,"kp_inj_drtg":93.05,"kp_inj_net":28.26,"con_tempo":70.1,"con_ortg":109.85,"con_drtg":92.05,"con_net":17.79,"live_tempo":70.1,"live_ortg":120.26,"live_drtg":93.82,"live_net":26.45,"net_score":22.12,"size_rk":48,"exp":2.32,"exp_rk":30,"bench":40.88,"continuity":24.6,"continuity_rk":138,"kill_shots_pg":1.0,"kill_shots_margin":0.67,"win_conf_pct":"2.3%","proj_conf_wl":"9.7-8.3","con_rk":30,"con_ortg_rk":29,"con_drtg_rk":38,"live_rk":31,"live_ortg_rk":32,"live_drtg_rk":37},{"id":31,"team":"Cincinnati","espn_name":"Cincinnati Bearcats","conf":"Big 12","conf_short":"B12","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":11.28,"sos":-2.38,"sor":-3.57,"ppg":75.2,"opp_ppg":64.6,"pd":10.6,"fg_pct":43.9,"two_pct":54.5,"three_pct":30.4,"ft_pct":68.7,"orb_pg":12.5,"second_c_pct":35.5,"trb":37.0,"ast":16.8,"stl":9.3,"blk":4.8,"tov":11.6,"efg_pct":50.6,"tov_pct":14.1,"orb_pct":34.3,"ftr":27.7,"opp_efg_pct":47.0,"opp_tov_pct":20.5,"opp_orb_pct":28.6,"opp_ftr":29.3,"avg_ht":78.19,"eff_ht":0.82,"ff_rtg":24.42,"opp_ff_rtg":23.19,"net_ff_rtg":1.22,"adj_net_ff":6.3,"bpi_ortg":4.5,"bpi_drtg":8.8,"bpi_net":13.3,"bpi_rk":35,"em_ortg":117.92,"em_drtg":92.28,"em_net":25.64,"em_rk":30,"em_inj_ortg":117.92,"em_inj_drtg":93.08,"em_inj_net":24.84,"em_inj_rk":32,"inj_delta_pct":0.0,"elo":1508.1,"elo_rk":44,"elo_delta":-11,"kp_ortg":115.33,"kp_drtg":93.83,"kp_net":21.5,"kp_rk":26,"kp_inj_ortg":118.35,"kp_inj_drtg":90.01,"kp_inj_net":28.34,"con_tempo":70.5,"con_ortg":107.66,"con_drtg":89.93,"con_net":17.73,"live_tempo":70.5,"live_ortg":118.13,"live_drtg":91.55,"live_net":26.59,"net_score":22.16,"size_rk":67,"exp":2.55,"exp_rk":9,"bench":41.96,"continuity":0.0,"continuity_rk":337,"kill_shots_pg":1.0,"kill_shots_margin":1.0,"win_conf_pct":"1.5%","proj_conf_wl":"9.3-8.7","con_rk":31,"con_ortg_rk":53,"con_drtg_rk":22,"live_rk":30,"live_ortg_rk":47,"live_drtg_rk":24},{"id":32,"team":"LSU","espn_name":"LSU Tigers","conf":"SEC","conf_short":"SEC","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":37.64,"sos":-3.69,"sor":-3.69,"ppg":86.7,"opp_ppg":61.3,"pd":25.4,"fg_pct":51.3,"two_pct":65.0,"three_pct":29.2,"ft_pct":69.8,"orb_pg":11.6,"second_c_pct":38.5,"trb":41.7,"ast":18.7,"stl":10.2,"blk":5.4,"tov":12.9,"efg_pct":56.9,"tov_pct":15.0,"orb_pct":35.2,"ftr":37.8,"opp_efg_pct":38.1,"opp_tov_pct":17.6,"opp_orb_pct":29.8,"opp_ftr":40.5,"avg_ht":77.97,"eff_ht":1.46,"ff_rtg":28.46,"opp_ff_rtg":21.34,"net_ff_rtg":7.13,"adj_net_ff":24.07,"bpi_ortg":3.6,"bpi_drtg":6.2,"bpi_net":9.8,"bpi_rk":59,"em_ortg":120.62,"em_drtg":87.78,"em_net":32.84,"em_rk":10,"em_inj_ortg":120.62,"em_inj_drtg":87.78,"em_inj_net":32.84,"em_inj_rk":8,"inj_delta_pct":0.0,"elo":1443.1,"elo_rk":80,"elo_delta":41,"kp_ortg":118.41,"kp_drtg":95.52,"kp_net":22.89,"kp_rk":22,"kp_inj_ortg":121.44,"kp_inj_drtg":91.7,"kp_inj_net":29.73,"con_tempo":71.8,"con_ortg":108.18,"con_drtg":90.69,"con_net":17.48,"live_tempo":71.8,"live_ortg":121.03,"live_drtg":89.74,"live_net":31.29,"net_score":24.38,"size_rk":95,"exp":2.45,"exp_rk":16,"bench":31.36,"continuity":0.0,"continuity_rk":337,"kill_shots_pg":2.25,"kill_shots_margin":2.0,"win_conf_pct":"<0.1%","proj_conf_wl":"6.1-11.9","con_rk":32,"con_ortg_rk":44,"con_drtg_rk":28,"live_rk":15,"live_ortg_rk":22,"live_drtg_rk":13},{"id":33,"team":"Saint Louis","espn_name":"Saint Louis Billikens","conf":"Atlantic 10","conf_short":"A10","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":36.42,"sos":5.42,"sor":5.42,"ppg":91.7,"opp_ppg":73.4,"pd":18.3,"fg_pct":52.9,"two_pct":59.3,"three_pct":44.2,"ft_pct":72.9,"orb_pg":8.1,"second_c_pct":27.9,"trb":37.4,"ast":19.3,"stl":9.1,"blk":3.8,"tov":10.4,"efg_pct":62.3,"tov_pct":12.7,"orb_pct":25.1,"ftr":33.4,"opp_efg_pct":44.9,"opp_tov_pct":14.7,"opp_orb_pct":32.6,"opp_ftr":32.8,"avg_ht":77.74,"eff_ht":-0.09,"ff_rtg":29.93,"opp_ff_rtg":22.9,"net_ff_rtg":7.03,"adj_net_ff":23.42,"bpi_ortg":7.8,"bpi_drtg":5.5,"bpi_net":13.3,"bpi_rk":36,"em_ortg":119.22,"em_drtg":96.48,"em_net":22.74,"em_rk":44,"em_inj_ortg":119.22,"em_inj_drtg":96.48,"em_inj_net":22.74,"em_inj_rk":42,"inj_delta_pct":0.0,"elo":1551.3,"elo_rk":26,"elo_delta":0,"kp_ortg":119.45,"kp_drtg":99.86,"kp_net":19.59,"kp_rk":38,"kp_inj_ortg":122.47,"kp_inj_drtg":96.04,"kp_inj_net":26.43,"con_tempo":73.9,"con_ortg":110.48,"con_drtg":93.09,"con_net":17.39,"live_tempo":73.9,"live_ortg":120.85,"live_drtg":96.26,"live_net":24.59,"net_score":20.99,"size_rk":134,"exp":1.91,"exp_rk":84,"bench":34.95,"continuity":58.4,"continuity_rk":10,"kill_shots_pg":2.33,"kill_shots_margin":2.33,"win_conf_pct":"68.5%","proj_conf_wl":"14.8-3.2","con_rk":33,"con_ortg_rk":22,"con_drtg_rk":46,"live_rk":39,"live_ortg_rk":24,"live_drtg_rk":57},{"id":34,"team":"Baylor","espn_name":"Baylor Bears","conf":"Big 12","conf_short":"B12","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":15.49,"sos":-20.17,"sor":-20.17,"ppg":90.9,"opp_ppg":67.3,"pd":23.6,"fg_pct":48.9,"two_pct":61.7,"three_pct":29.7,"ft_pct":69.2,"orb_pg":15.4,"second_c_pct":46.3,"trb":41.2,"ast":17.3,"stl":11.1,"blk":4.7,"tov":11.5,"efg_pct":54.9,"tov_pct":12.8,"orb_pct":41.2,"ftr":43.5,"opp_efg_pct":47.4,"opp_tov_pct":21.3,"opp_orb_pct":28.0,"opp_ftr":31.6,"avg_ht":77.38,"eff_ht":-0.36,"ff_rtg":28.51,"opp_ff_rtg":23.68,"net_ff_rtg":4.83,"adj_net_ff":11.8,"bpi_ortg":7.5,"bpi_drtg":7.2,"bpi_net":14.7,"bpi_rk":23,"em_ortg":120.42,"em_drtg":93.98,"em_net":26.44,"em_rk":27,"em_inj_ortg":120.42,"em_inj_drtg":93.98,"em_inj_net":26.44,"em_inj_rk":26,"inj_delta_pct":0.0,"elo":1455.7,"elo_rk":71,"elo_delta":6,"kp_ortg":117.78,"kp_drtg":96.85,"kp_net":20.93,"kp_rk":32,"kp_inj_ortg":120.8,"kp_inj_drtg":93.04,"kp_inj_net":27.77,"con_tempo":72.8,"con_ortg":109.31,"con_drtg":92.14,"con_net":17.17,"live_tempo":72.8,"live_ortg":120.61,"live_drtg":93.51,"live_net":27.1,"net_score":22.14,"size_rk":192,"exp":1.77,"exp_rk":105,"bench":38.54,"continuity":20.9,"continuity_rk":177,"kill_shots_pg":2.0,"kill_shots_margin":2.0,"win_conf_pct":"4.5%","proj_conf_wl":"10.4-7.6","con_rk":34,"con_ortg_rk":37,"con_drtg_rk":39,"live_rk":27,"live_ortg_rk":28,"live_drtg_rk":35},{"id":35,"team":"West Virginia","espn_name":"West Virginia Mountaineers","conf":"Big 12","conf_short":"B12","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":12.94,"sos":-19.39,"sor":-19.39,"ppg":79.2,"opp_ppg":59.6,"pd":19.6,"fg_pct":45.9,"two_pct":54.4,"three_pct":36.1,"ft_pct":69.6,"orb_pg":11.2,"second_c_pct":35.3,"trb":38.2,"ast":14.5,"stl":7.4,"blk":2.4,"tov":10.0,"efg_pct":54.3,"tov_pct":12.6,"orb_pct":32.9,"ftr":38.1,"opp_efg_pct":46.3,"opp_tov_pct":19.4,"opp_orb_pct":25.4,"opp_ftr":25.6,"avg_ht":77.92,"eff_ht":1.11,"ff_rtg":27.45,"opp_ff_rtg":22.37,"net_ff_rtg":5.08,"adj_net_ff":10.9,"bpi_ortg":4.6,"bpi_drtg":8.7,"bpi_net":13.3,"bpi_rk":34,"em_ortg":116.02,"em_drtg":92.28,"em_net":23.74,"em_rk":40,"em_inj_ortg":116.02,"em_inj_drtg":92.28,"em_inj_net":23.74,"em_inj_rk":37,"inj_delta_pct":0.0,"elo":1525.7,"elo_rk":37,"elo_delta":4,"kp_ortg":114.38,"kp_drtg":94.91,"kp_net":19.47,"kp_rk":40,"kp_inj_ortg":117.4,"kp_inj_drtg":91.09,"kp_inj_net":26.31,"con_tempo":67.5,"con_ortg":107.16,"con_drtg":90.06,"con_net":17.1,"live_tempo":67.5,"live_ortg":116.71,"live_drtg":91.69,"live_net":25.03,"net_score":21.06,"size_rk":105,"exp":2.15,"exp_rk":49,"bench":37.89,"continuity":11.7,"continuity_rk":251,"kill_shots_pg":2.0,"kill_shots_margin":2.0,"win_conf_pct":"1.4%","proj_conf_wl":"9.4-8.6","con_rk":35,"con_ortg_rk":59,"con_drtg_rk":24,"live_rk":37,"live_ortg_rk":63,"live_drtg_rk":27},{"id":36,"team":"Xavier","espn_name":"Xavier Musketeers","conf":"Big East","conf_short":"BE","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":29.83,"sos":-2.93,"sor":-2.93,"ppg":86.5,"opp_ppg":60.4,"pd":26.1,"fg_pct":48.1,"two_pct":58.3,"three_pct":31.9,"ft_pct":65.1,"orb_pg":12.0,"second_c_pct":35.6,"trb":44.4,"ast":20.2,"stl":12.8,"blk":4.1,"tov":12.6,"efg_pct":54.3,"tov_pct":14.1,"orb_pct":32.0,"ftr":37.9,"opp_efg_pct":37.2,"opp_tov_pct":19.4,"opp_orb_pct":27.6,"opp_ftr":29.7,"avg_ht":79.32,"eff_ht":0.96,"ff_rtg":27.42,"opp_ff_rtg":19.32,"net_ff_rtg":8.1,"adj_net_ff":21.52,"bpi_ortg":4.7,"bpi_drtg":9.0,"bpi_net":13.7,"bpi_rk":31,"em_ortg":117.02,"em_drtg":89.88,"em_net":27.14,"em_rk":23,"em_inj_ortg":117.02,"em_inj_drtg":89.88,"em_inj_net":27.14,"em_inj_rk":23,"inj_delta_pct":0.0,"elo":1448.6,"elo_rk":75,"elo_delta":22,"kp_ortg":114.4,"kp_drtg":92.93,"kp_net":21.47,"kp_rk":27,"kp_inj_ortg":117.42,"kp_inj_drtg":89.11,"kp_inj_net":28.31,"con_tempo":75.1,"con_ortg":106.67,"con_drtg":89.64,"con_net":17.03,"live_tempo":75.1,"live_ortg":117.22,"live_drtg":89.49,"live_net":27.73,"net_score":22.38,"size_rk":8,"exp":2.2,"exp_rk":45,"bench":43.16,"continuity":22.8,"continuity_rk":163,"kill_shots_pg":2.0,"kill_shots_margin":2.0,"win_conf_pct":"5.2%","proj_conf_wl":"11.9-8.1","con_rk":36,"con_ortg_rk":66,"con_drtg_rk":21,"live_rk":24,"live_ortg_rk":59,"live_drtg_rk":11},{"id":37,"team":"Mississippi","espn_name":"Ole Miss Rebels","conf":"SEC","conf_short":"SEC","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":29.32,"sos":-8.35,"sor":-8.35,"ppg":87.0,"opp_ppg":64.3,"pd":22.8,"fg_pct":50.0,"two_pct":56.4,"three_pct":37.0,"ft_pct":69.9,"orb_pg":11.7,"second_c_pct":36.9,"trb":36.6,"ast":19.8,"stl":11.0,"blk":5.0,"tov":9.6,"efg_pct":56.1,"tov_pct":11.4,"orb_pct":33.6,"ftr":35.3,"opp_efg_pct":46.7,"opp_tov_pct":22.1,"opp_orb_pct":31.2,"opp_ftr":37.4,"avg_ht":77.2,"eff_ht":-0.63,"ff_rtg":27.78,"opp_ff_rtg":24.31,"net_ff_rtg":3.47,"adj_net_ff":16.66,"bpi_ortg":6.7,"bpi_drtg":8.2,"bpi_net":14.9,"bpi_rk":22,"em_ortg":117.72,"em_drtg":92.18,"em_net":25.54,"em_rk":31,"em_inj_ortg":117.22,"em_inj_drtg":92.78,"em_inj_net":24.44,"em_inj_rk":35,"inj_delta_pct":-0.42,"elo":1446.9,"elo_rk":77,"elo_delta":-3,"kp_ortg":115.06,"kp_drtg":93.6,"kp_net":21.46,"kp_rk":28,"kp_inj_ortg":118.04,"kp_inj_drtg":89.73,"kp_inj_net":28.32,"con_tempo":70.6,"con_ortg":107.62,"con_drtg":90.65,"con_net":16.97,"live_tempo":70.6,"live_ortg":117.63,"live_drtg":91.25,"live_net":26.38,"net_score":21.67,"size_rk":233,"exp":2.08,"exp_rk":62,"bench":38.9,"continuity":26.9,"continuity_rk":116,"kill_shots_pg":1.33,"kill_shots_margin":1.33,"win_conf_pct":"3%","proj_conf_wl":"10.1-7.9","con_rk":37,"con_ortg_rk":55,"con_drtg_rk":27,"live_rk":32,"live_ortg_rk":53,"live_drtg_rk":20},{"id":38,"team":"Wisconsin","espn_name":"Wisconsin Badgers","conf":"Big Ten","conf_short":"B10","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":27.2,"sos":6.2,"sor":6.2,"ppg":82.0,"opp_ppg":66.3,"pd":15.6,"fg_pct":45.6,"two_pct":55.0,"three_pct":33.9,"ft_pct":69.8,"orb_pg":11.9,"second_c_pct":34.7,"trb":41.4,"ast":16.9,"stl":6.5,"blk":3.2,"tov":11.0,"efg_pct":53.2,"tov_pct":13.0,"orb_pct":32.7,"ftr":33.6,"opp_efg_pct":42.1,"opp_tov_pct":14.6,"opp_orb_pct":27.5,"opp_ftr":29.8,"avg_ht":78.74,"eff_ht":2.02,"ff_rtg":26.34,"opp_ff_rtg":21.35,"net_ff_rtg":5.0,"adj_net_ff":17.24,"bpi_ortg":5.6,"bpi_drtg":6.5,"bpi_net":12.1,"bpi_rk":41,"em_ortg":118.12,"em_drtg":93.58,"em_net":24.54,"em_rk":36,"em_inj_ortg":118.12,"em_inj_drtg":93.58,"em_inj_net":24.54,"em_inj_rk":34,"inj_delta_pct":0.0,"elo":1532.2,"elo_rk":34,"elo_delta":1,"kp_ortg":114.38,"kp_drtg":96.63,"kp_net":17.75,"kp_rk":47,"kp_inj_ortg":117.41,"kp_inj_drtg":92.81,"kp_inj_net":24.59,"con_tempo":70.7,"con_ortg":108.06,"con_drtg":91.44,"con_net":16.62,"live_tempo":70.7,"live_ortg":117.76,"live_drtg":93.2,"live_net":24.57,"net_score":20.59,"size_rk":28,"exp":2.07,"exp_rk":63,"bench":35.82,"continuity":42.6,"continuity_rk":36,"kill_shots_pg":1.67,"kill_shots_margin":1.67,"win_conf_pct":"0.3%","proj_conf_wl":"9.7-10.3","con_rk":38,"con_ortg_rk":47,"con_drtg_rk":32,"live_rk":40,"live_ortg_rk":52,"live_drtg_rk":33},{"id":39,"team":"Purdue","espn_name":"Purdue Boilermakers","conf":"Big Ten","conf_short":"B10","g":5,"w":2,"l":2,"wl_pct":0.5,"srs":16.61,"sos":10.11,"sor":5.05,"ppg":80.1,"opp_ppg":72.5,"pd":7.6,"fg_pct":46.2,"two_pct":57.9,"three_pct":30.4,"ft_pct":81.4,"orb_pg":10.8,"second_c_pct":34.2,"trb":37.2,"ast":17.4,"stl":6.9,"blk":2.0,"tov":10.8,"efg_pct":52.7,"tov_pct":13.4,"orb_pct":34.0,"ftr":39.1,"opp_efg_pct":49.6,"opp_tov_pct":14.0,"opp_orb_pct":25.3,"opp_ftr":35.0,"avg_ht":78.06,"eff_ht":1.78,"ff_rtg":26.97,"opp_ff_rtg":25.1,"net_ff_rtg":1.88,"adj_net_ff":9.35,"bpi_ortg":7.6,"bpi_drtg":4.8,"bpi_net":12.4,"bpi_rk":40,"em_ortg":120.52,"em_drtg":95.68,"em_net":24.84,"em_rk":33,"em_inj_ortg":120.52,"em_inj_drtg":95.68,"em_inj_net":24.84,"em_inj_rk":31,"inj_delta_pct":0.0,"elo":1493.9,"elo_rk":52,"elo_delta":12,"kp_ortg":117.74,"kp_drtg":97.94,"kp_net":19.8,"kp_rk":37,"kp_inj_ortg":120.76,"kp_inj_drtg":94.13,"kp_inj_net":26.64,"con_tempo":66.0,"con_ortg":109.74,"con_drtg":93.21,"con_net":16.54,"live_tempo":66.0,"live_ortg":120.64,"live_drtg":94.9,"live_net":25.74,"net_score":21.14,"size_rk":81,"exp":1.65,"exp_rk":127,"bench":31.06,"continuity":40.8,"continuity_rk":44,"kill_shots_pg":0.75,"kill_shots_margin":0.75,"win_conf_pct":"0.4%","proj_conf_wl":"10.1-9.9","con_rk":39,"con_ortg_rk":33,"con_drtg_rk":48,"live_rk":35,"live_ortg_rk":27,"live_drtg_rk":43},{"id":40,"team":"Indiana","espn_name":"Indiana Hoosiers","conf":"Big Ten","conf_short":"B10","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":24.26,"sos":3.26,"sor":3.26,"ppg":85.9,"opp_ppg":68.7,"pd":17.2,"fg_pct":48.4,"two_pct":58.5,"three_pct":34.7,"ft_pct":75.1,"orb_pg":12.8,"second_c_pct":42.5,"trb":37.6,"ast":14.9,"stl":6.2,"blk":3.3,"tov":11.8,"efg_pct":55.7,"tov_pct":14.2,"orb_pct":38.6,"ftr":47.5,"opp_efg_pct":50.4,"opp_tov_pct":18.1,"opp_orb_pct":27.1,"opp_ftr":28.8,"avg_ht":78.97,"eff_ht":2.55,"ff_rtg":29.46,"opp_ff_rtg":24.47,"net_ff_rtg":4.99,"adj_net_ff":15.91,"bpi_ortg":7.0,"bpi_drtg":5.6,"bpi_net":12.6,"bpi_rk":39,"em_ortg":119.12,"em_drtg":96.58,"em_net":22.54,"em_rk":47,"em_inj_ortg":119.12,"em_inj_drtg":96.58,"em_inj_net":22.54,"em_inj_rk":45,"inj_delta_pct":0.0,"elo":1541.4,"elo_rk":31,"elo_delta":9,"kp_ortg":117.25,"kp_drtg":99.23,"kp_net":18.02,"kp_rk":46,"kp_inj_ortg":120.27,"kp_inj_drtg":95.41,"kp_inj_net":24.86,"con_tempo":70.0,"con_ortg":109.56,"con_drtg":93.03,"con_net":16.53,"live_tempo":70.0,"live_ortg":119.7,"live_drtg":96.0,"live_net":23.7,"net_score":20.11,"size_rk":18,"exp":2.1,"exp_rk":54,"bench":33.64,"continuity":15.1,"continuity_rk":218,"kill_shots_pg":0.75,"kill_shots_margin":0.75,"win_conf_pct":"0.7%","proj_conf_wl":"10.6-9.4","con_rk":40,"con_ortg_rk":34,"con_drtg_rk":45,"live_rk":45,"live_ortg_rk":35,"live_drtg_rk":52},{"id":41,"team":"Virginia Tech","espn_name":"Virginia Tech Hokies","conf":"ACC","conf_short":"ACC","g":5,"w":5,"l":0,"wl_pct":1.0,"srs":23.01,"sos":4.41,"sor":4.41,"ppg":90.4,"opp_ppg":71.8,"pd":18.6,"fg_pct":48.9,"two_pct":54.6,"three_pct":38.9,"ft_pct":73.5,"orb_pg":13.6,"second_c_pct":43.3,"trb":34.0,"ast":13.8,"stl":8.4,"blk":3.0,"tov":10.4,"efg_pct":56.0,"tov_pct":12.1,"orb_pct":38.6,"ftr":47.9,"opp_efg_pct":49.0,"opp_tov_pct":21.8,"opp_orb_pct":39.6,"opp_ftr":64.0,"avg_ht":76.96,"eff_ht":0.14,"ff_rtg":29.64,"opp_ff_rtg":29.23,"net_ff_rtg":0.41,"adj_net_ff":10.76,"bpi_ortg":6.4,"bpi_drtg":4.6,"bpi_net":11.0,"bpi_rk":51,"em_ortg":119.22,"em_drtg":96.58,"em_net":22.64,"em_rk":46,"em_inj_ortg":119.22,"em_inj_drtg":96.58,"em_inj_net":22.64,"em_inj_rk":43,"inj_delta_pct":0.0,"elo":1554.0,"elo_rk":25,"elo_delta":12,"kp_ortg":118.42,"kp_drtg":99.61,"kp_net":18.81,"kp_rk":43,"kp_inj_ortg":121.44,"kp_inj_drtg":95.79,"kp_inj_net":25.65,"con_tempo":70.5,"con_ortg":109.81,"con_drtg":93.31,"con_net":16.5,"live_tempo":70.5,"live_ortg":120.33,"live_drtg":96.19,"live_net":24.15,"net_score":20.33,"size_rk":273,"exp":2.34,"exp_rk":26,"bench":29.98,"continuity":37.1,"continuity_rk":58,"kill_shots_pg":0.5,"kill_shots_margin":0.5,"win_conf_pct":"0.5%","proj_conf_wl":"10.2-7.8","con_rk":41,"con_ortg_rk":32,"con_drtg_rk":50,"live_rk":42,"live_ortg_rk":31,"live_drtg_rk":56},{"id":42,"team":"Grand Canyon","espn_name":"Grand Canyon Lopes","conf":"Mountain West","conf_short":"MWC","g":5,"w":3,"l":0,"wl_pct":1.0,"srs":25.75,"sos":2.42,"sor":2.42,"ppg":89.5,"opp_ppg":72.8,"pd":16.7,"fg_pct":49.1,"two_pct":61.1,"three_pct":31.5,"ft_pct":68.9,"orb_pg":12.2,"second_c_pct":37.9,"trb":37.8,"ast":18.0,"stl":8.2,"blk":3.4,"tov":11.5,"efg_pct":55.5,"tov_pct":13.1,"orb_pct":34.9,"ftr":44.4,"opp_efg_pct":48.0,"opp_tov_pct":17.7,"opp_orb_pct":25.1,"opp_ftr":48.1,"avg_ht":77.81,"eff_ht":0.55,"ff_rtg":28.89,"opp_ff_rtg":26.4,"net_ff_rtg":2.49,"adj_net_ff":14.08,"bpi_ortg":5.6,"bpi_drtg":6.4,"bpi_net":12.0,"bpi_rk":44,"em_ortg":117.32,"em_drtg":94.58,"em_net":22.74,"em_rk":45,"em_inj_ortg":116.82,"em_inj_drtg":94.78,"em_inj_net":22.04,"em_inj_rk":47,"inj_delta_pct":-0.43,"elo":1532.8,"elo_rk":33,"elo_delta":6,"kp_ortg":115.29,"kp_drtg":96.31,"kp_net":18.97,"kp_rk":42,"kp_inj_ortg":118.27,"kp_inj_drtg":92.45,"kp_inj_net":25.82,"con_tempo":72.9,"con_ortg":108.09,"con_drtg":91.63,"con_net":16.46,"live_tempo":72.9,"live_ortg":117.55,"live_drtg":93.62,"live_net":23.93,"net_score":20.19,"size_rk":118,"exp":2.69,"exp_rk":5,"bench":46.18,"continuity":32.9,"continuity_rk":77,"kill_shots_pg":0.75,"kill_shots_margin":0.75,"win_conf_pct":"55.7%","proj_conf_wl":"14.5-3.5","con_rk":42,"con_ortg_rk":46,"con_drtg_rk":34,"live_rk":44,"live_ortg_rk":54,"live_drtg_rk":36},{"id":43,"team":"Villanova","espn_name":"Villanova Wildcats","conf":"Big East","conf_short":"BE","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":15.26,"sos":-0.74,"sor":-1.11,"ppg":80.0,"opp_ppg":68.2,"pd":11.8,"fg_pct":47.9,"two_pct":57.4,"three_pct":35.8,"ft_pct":71.7,"orb_pg":10.8,"second_c_pct":34.1,"trb":39.8,"ast":17.0,"stl":6.4,"blk":3.8,"tov":11.1,"efg_pct":55.8,"tov_pct":13.9,"orb_pct":31.4,"ftr":27.4,"opp_efg_pct":43.7,"opp_tov_pct":13.8,"opp_orb_pct":31.3,"opp_ftr":32.5,"avg_ht":77.95,"eff_ht":1.45,"ff_rtg":26.45,"opp_ff_rtg":22.4,"net_ff_rtg":4.05,"adj_net_ff":10.92,"bpi_ortg":6.0,"bpi_drtg":5.7,"bpi_net":11.7,"bpi_rk":47,"em_ortg":118.52,"em_drtg":94.38,"em_net":24.14,"em_rk":39,"em_inj_ortg":118.12,"em_inj_drtg":94.78,"em_inj_net":23.34,"em_inj_rk":39,"inj_delta_pct":-0.34,"elo":1490.2,"elo_rk":53,"elo_delta":4,"kp_ortg":117.39,"kp_drtg":97.89,"kp_net":19.5,"kp_rk":39,"kp_inj_ortg":120.38,"kp_inj_drtg":94.04,"kp_inj_net":26.33,"con_tempo":70.5,"con_ortg":108.62,"con_drtg":92.62,"con_net":15.99,"live_tempo":70.5,"live_ortg":119.25,"live_drtg":94.41,"live_net":24.84,"net_score":20.42,"size_rk":100,"exp":2.4,"exp_rk":20,"bench":30.7,"continuity":14.8,"continuity_rk":219,"kill_shots_pg":0.25,"kill_shots_margin":0.25,"win_conf_pct":"1.7%","proj_conf_wl":"10.5-9.5","con_rk":43,"con_ortg_rk":41,"con_drtg_rk":42,"live_rk":38,"live_ortg_rk":39,"live_drtg_rk":42},{"id":44,"team":"Iowa","espn_name":"Iowa Hawkeyes","conf":"Big Ten","conf_short":"B10","g":5,"w":2,"l":2,"wl_pct":0.5,"srs":22.18,"sos":8.18,"sor":4.09,"ppg":85.4,"opp_ppg":73.6,"pd":11.9,"fg_pct":51.6,"two_pct":63.4,"three_pct":34.0,"ft_pct":64.0,"orb_pg":13.7,"second_c_pct":50.6,"trb":38.9,"ast":14.9,"stl":8.2,"blk":2.0,"tov":12.4,"efg_pct":58.4,"tov_pct":14.9,"orb_pct":40.5,"ftr":56.6,"opp_efg_pct":49.7,"opp_tov_pct":16.6,"opp_orb_pct":26.9,"opp_ftr":46.1,"avg_ht":78.18,"eff_ht":0.28,"ff_rtg":31.91,"opp_ff_rtg":26.8,"net_ff_rtg":5.1,"adj_net_ff":15.09,"bpi_ortg":8.2,"bpi_drtg":6.0,"bpi_net":14.2,"bpi_rk":27,"em_ortg":117.32,"em_drtg":95.68,"em_net":21.64,"em_rk":52,"em_inj_ortg":117.32,"em_inj_drtg":95.68,"em_inj_net":21.64,"em_inj_rk":50,"inj_delta_pct":0.0,"elo":1494.2,"elo_rk":51,"elo_delta":-15,"kp_ortg":117.8,"kp_drtg":99.35,"kp_net":18.45,"kp_rk":44,"kp_inj_ortg":120.82,"kp_inj_drtg":95.53,"kp_inj_net":25.29,"con_tempo":66.2,"con_ortg":109.15,"con_drtg":93.18,"con_net":15.97,"live_tempo":66.2,"live_ortg":119.07,"live_drtg":95.6,"live_net":23.47,"net_score":19.72,"size_rk":69,"exp":1.33,"exp_rk":184,"bench":37.25,"continuity":49.1,"continuity_rk":23,"kill_shots_pg":0.33,"kill_shots_margin":0.0,"win_conf_pct":"1.4%","proj_conf_wl":"11.3-8.7","con_rk":44,"con_ortg_rk":38,"con_drtg_rk":47,"live_rk":46,"live_ortg_rk":40,"live_drtg_rk":51},{"id":45,"team":"TCU","espn_name":"TCU Horned Frogs","conf":"Big 12","conf_short":"B12","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":18.17,"sos":-9.58,"sor":-9.58,"ppg":89.1,"opp_ppg":67.1,"pd":22.0,"fg_pct":42.2,"two_pct":45.5,"three_pct":36.4,"ft_pct":73.5,"orb_pg":16.1,"second_c_pct":42.9,"trb":41.2,"ast":17.8,"stl":11.7,"blk":4.1,"tov":11.5,"efg_pct":48.8,"tov_pct":12.3,"orb_pct":38.5,"ftr":53.1,"opp_efg_pct":47.5,"opp_tov_pct":21.7,"opp_orb_pct":32.5,"opp_ftr":27.5,"avg_ht":77.51,"eff_ht":0.06,"ff_rtg":27.54,"opp_ff_rtg":23.13,"net_ff_rtg":4.41,"adj_net_ff":12.59,"bpi_ortg":4.8,"bpi_drtg":7.1,"bpi_net":11.9,"bpi_rk":45,"em_ortg":118.42,"em_drtg":94.28,"em_net":24.14,"em_rk":38,"em_inj_ortg":116.62,"em_inj_drtg":96.28,"em_inj_net":20.34,"em_inj_rk":59,"inj_delta_pct":-1.52,"elo":1533.4,"elo_rk":32,"elo_delta":2,"kp_ortg":112.92,"kp_drtg":98.04,"kp_net":14.89,"kp_rk":62,"kp_inj_ortg":115.84,"kp_inj_drtg":94.1,"kp_inj_net":21.75,"con_tempo":70.9,"con_ortg":107.53,"con_drtg":91.77,"con_net":15.77,"live_tempo":70.9,"live_ortg":116.23,"live_drtg":95.19,"live_net":21.04,"net_score":18.4,"size_rk":163,"exp":1.92,"exp_rk":83,"bench":29.04,"continuity":50.0,"continuity_rk":22,"kill_shots_pg":1.75,"kill_shots_margin":1.75,"win_conf_pct":"0.4%","proj_conf_wl":"8.3-9.7","con_rk":45,"con_ortg_rk":57,"con_drtg_rk":37,"live_rk":59,"live_ortg_rk":70,"live_drtg_rk":45},{"id":46,"team":"Ohio St.","espn_name":"Ohio State Buckeyes","conf":"Big Ten","conf_short":"B10","g":5,"w":2,"l":2,"wl_pct":0.5,"srs":16.85,"sos":15.1,"sor":7.55,"ppg":80.7,"opp_ppg":78.2,"pd":2.5,"fg_pct":46.5,"two_pct":56.7,"three_pct":29.5,"ft_pct":81.2,"orb_pg":10.3,"second_c_pct":33.5,"trb":34.1,"ast":13.4,"stl":6.8,"blk":3.5,"tov":12.4,"efg_pct":52.0,"tov_pct":15.1,"orb_pct":32.2,"ftr":44.5,"opp_efg_pct":54.9,"opp_tov_pct":15.2,"opp_orb_pct":26.9,"opp_ftr":35.4,"avg_ht":78.23,"eff_ht":1.25,"ff_rtg":27.51,"opp_ff_rtg":27.27,"net_ff_rtg":0.24,"adj_net_ff":7.82,"bpi_ortg":7.6,"bpi_drtg":4.5,"bpi_net":12.1,"bpi_rk":43,"em_ortg":119.52,"em_drtg":97.68,"em_net":21.84,"em_rk":51,"em_inj_ortg":119.52,"em_inj_drtg":97.68,"em_inj_net":21.84,"em_inj_rk":49,"inj_delta_pct":0.0,"elo":1494.6,"elo_rk":50,"elo_delta":-1,"kp_ortg":119.13,"kp_drtg":99.78,"kp_net":19.35,"kp_rk":41,"kp_inj_ortg":122.16,"kp_inj_drtg":95.97,"kp_inj_net":26.19,"con_tempo":69.9,"con_ortg":109.85,"con_drtg":94.25,"con_net":15.59,"live_tempo":69.9,"live_ortg":120.84,"live_drtg":96.82,"live_net":24.02,"net_score":19.8,"size_rk":61,"exp":1.68,"exp_rk":120,"bench":31.69,"continuity":31.0,"continuity_rk":89,"kill_shots_pg":0.75,"kill_shots_margin":0.25,"win_conf_pct":"0.2%","proj_conf_wl":"10.0-10.0","con_rk":46,"con_ortg_rk":30,"con_drtg_rk":60,"live_rk":43,"live_ortg_rk":25,"live_drtg_rk":66},{"id":47,"team":"N.C. State","espn_name":"NC State Wolfpack","conf":"ACC","conf_short":"ACC","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":15.11,"sos":-6.39,"sor":-6.39,"ppg":80.1,"opp_ppg":63.0,"pd":17.0,"fg_pct":46.8,"two_pct":54.9,"three_pct":37.3,"ft_pct":77.7,"orb_pg":12.9,"second_c_pct":40.6,"trb":39.4,"ast":17.6,"stl":6.2,"blk":4.1,"tov":10.0,"efg_pct":55.4,"tov_pct":12.7,"orb_pct":38.3,"ftr":29.6,"opp_efg_pct":46.1,"opp_tov_pct":14.7,"opp_orb_pct":28.1,"opp_ftr":28.8,"avg_ht":77.97,"eff_ht":0.33,"ff_rtg":26.63,"opp_ff_rtg":22.78,"net_ff_rtg":3.85,"adj_net_ff":10.65,"bpi_ortg":7.9,"bpi_drtg":5.1,"bpi_net":13.0,"bpi_rk":37,"em_ortg":121.62,"em_drtg":97.28,"em_net":24.34,"em_rk":37,"em_inj_ortg":121.62,"em_inj_drtg":97.28,"em_inj_net":24.34,"em_inj_rk":36,"inj_delta_pct":0.0,"elo":1486.6,"elo_rk":54,"elo_delta":9,"kp_ortg":117.01,"kp_drtg":101.65,"kp_net":15.36,"kp_rk":59,"kp_inj_ortg":120.03,"kp_inj_drtg":97.83,"kp_inj_net":22.2,"con_tempo":69.7,"con_ortg":109.85,"con_drtg":94.51,"con_net":15.34,"live_tempo":69.7,"live_ortg":120.83,"live_drtg":97.56,"live_net":23.27,"net_score":19.31,"size_rk":92,"exp":2.1,"exp_rk":55,"bench":28.5,"continuity":27.3,"continuity_rk":111,"kill_shots_pg":1.5,"kill_shots_margin":1.25,"win_conf_pct":"1.2%","proj_conf_wl":"12.1-6.9","con_rk":47,"con_ortg_rk":31,"con_drtg_rk":65,"live_rk":47,"live_ortg_rk":26,"live_drtg_rk":77},{"id":48,"team":"Kentucky","espn_name":"Kentucky Wildcats","conf":"SEC","conf_short":"SEC","g":5,"w":3,"l":1,"wl_pct":0.75,"srs":13.02,"sos":8.52,"sor":6.39,"ppg":82.1,"opp_ppg":76.9,"pd":5.2,"fg_pct":50.7,"two_pct":62.6,"three_pct":35.4,"ft_pct":73.1,"orb_pg":9.0,"second_c_pct":30.3,"trb":35.0,"ast":17.2,"stl":6.1,"blk":4.8,"tov":10.3,"efg_pct":58.5,"tov_pct":13.1,"orb_pct":28.4,"ftr":25.6,"opp_efg_pct":51.9,"opp_tov_pct":12.7,"opp_orb_pct":30.8,"opp_ftr":30.8,"avg_ht":80.15,"eff_ht":2.45,"ff_rtg":27.25,"opp_ff_rtg":25.39,"net_ff_rtg":1.87,"adj_net_ff":7.72,"bpi_ortg":7.3,"bpi_drtg":4.1,"bpi_net":11.4,"bpi_rk":48,"em_ortg":119.92,"em_drtg":97.78,"em_net":22.14,"em_rk":49,"em_inj_ortg":119.82,"em_inj_drtg":97.78,"em_inj_net":22.04,"em_inj_rk":48,"inj_delta_pct":-0.08,"elo":1529.9,"elo_rk":35,"elo_delta":-11,"kp_ortg":119.97,"kp_drtg":103.92,"kp_net":16.05,"kp_rk":54,"kp_inj_ortg":122.98,"kp_inj_drtg":100.1,"kp_inj_net":22.88,"con_tempo":70.1,"con_ortg":110.41,"con_drtg":95.08,"con_net":15.33,"live_tempo":70.1,"live_ortg":121.4,"live_drtg":98.94,"live_net":22.46,"net_score":18.9,"size_rk":1,"exp":1.95,"exp_rk":79,"bench":30.79,"continuity":12.9,"continuity_rk":244,"kill_shots_pg":0.5,"kill_shots_margin":0.0,"win_conf_pct":"<0.1%","proj_conf_wl":"7.3-10.7","con_rk":48,"con_ortg_rk":23,"con_drtg_rk":72,"live_rk":51,"live_ortg_rk":19,"live_drtg_rk":94},{"id":49,"team":"Georgia","espn_name":"Georgia Bulldogs","conf":"SEC","conf_short":"SEC","g":5,"w":4,"l":0,"wl_pct":1.0,"srs":3.84,"sos":-7.66,"sor":-7.66,"ppg":82.2,"opp_ppg":73.0,"pd":9.2,"fg_pct":43.8,"two_pct":51.4,"three_pct":33.7,"ft_pct":68.0,"orb_pg":14.0,"second_c_pct":38.5,"trb":40.2,"ast":12.0,"stl":7.8,"blk":3.9,"tov":9.2,"efg_pct":51.1,"tov_pct":10.8,"orb_pct":35.9,"ftr":36.6,"opp_efg_pct":48.1,"opp_tov_pct":16.3,"opp_orb_pct":31.3,"opp_ftr":29.4,"avg_ht":78.27,"eff_ht":1.17,"ff_rtg":25.95,"opp_ff_rtg":23.69,"net_ff_rtg":2.26,"adj_net_ff":3.99,"bpi_ortg":6.1,"bpi_drtg":3.9,"bpi_net":10.0,"bpi_rk":57,"em_ortg":119.82,"em_drtg":96.08,"em_net":23.74,"em_rk":41,"em_inj_ortg":119.82,"em_inj_drtg":96.08,"em_inj_net":23.74,"em_inj_rk":38,"inj_delta_pct":0.0,"elo":1510.2,"elo_rk":41,"elo_delta":18,"kp_ortg":116.52,"kp_drtg":100.63,"kp_net":15.88,"kp_rk":55,"kp_inj_ortg":119.54,"kp_inj_drtg":96.82,"kp_inj_net":22.72,"con_tempo":71.9,"con_ortg":108.95,"con_drtg":94.1,"con_net":14.86,"live_tempo":71.9,"live_ortg":119.68,"live_drtg":96.45,"live_net":23.23,"net_score":19.04,"size_rk":55,"exp":2.47,"exp_rk":14,"bench":31.0,"continuity":44.0,"continuity_rk":32,"kill_shots_pg":0.75,"kill_shots_margin":0.5,"win_conf_pct":"<0.1%","proj_conf_wl":"6.7-11.3","con_rk":49,"con_ortg_rk":39,"con_drtg_rk":58,"live_rk":48,"live_ortg_rk":36,"live_drtg_rk":61},{"id":50,"team":"North Carolina","espn_name":"North Carolina Tar Heels","conf":"ACC","conf_short":"ACC","g":5,"w":3,"l":1,"wl_pct":0.75,"srs":5.91,"sos":-7.09,"sor":-9.45,"ppg":84.5,"opp_ppg":72.2,"pd":12.3,"fg_pct":44.5,"two_pct":52.9,"three_pct":33.2,"ft_pct":70.0,"orb_pg":11.8,"second_c_pct":32.6,"trb":40.6,"ast":14.7,"stl":6.8,"blk":5.8,"tov":9.4,"efg_pct":51.6,"tov_pct":10.9,"orb_pct":30.0,"ftr":38.4,"opp_efg_pct":43.9,"opp_tov_pct":13.1,"opp_orb_pct":35.0,"opp_ftr":25.5,"avg_ht":79.05,"eff_ht":2.14,"ff_rtg":26.43,"opp_ff_rtg":21.43,"net_ff_rtg":5.0,"adj_net_ff":7.66,"bpi_ortg":5.2,"bpi_drtg":6.1,"bpi_net":11.3,"bpi_rk":49,"em_ortg":115.82,"em_drtg":94.38,"em_net":21.44,"em_rk":55,"em_inj_ortg":115.82,"em_inj_drtg":94.38,"em_inj_net":21.44,"em_inj_rk":54,"inj_delta_pct":0.0,"elo":1511.6,"elo_rk":39,"elo_delta":-9,"kp_ortg":114.13,"kp_drtg":97.79,"kp_net":16.33,"kp_rk":52,"kp_inj_ortg":117.15,"kp_inj_drtg":93.98,"kp_inj_net":23.17,"con_tempo":71.1,"con_ortg":107.09,"con_drtg":92.26,"con_net":14.83,"live_tempo":71.1,"live_ortg":116.49,"live_drtg":94.18,"live_net":22.31,"net_score":18.57,"size_rk":14,"exp":1.78,"exp_rk":102,"bench":37.16,"continuity":16.3,"continuity_rk":210,"kill_shots_pg":0.5,"kill_shots_margin":0.25,"win_conf_pct":"<0.1%","proj_conf_wl":"9.5-9.5","con_rk":50,"con_ortg_rk":60,"con_drtg_rk":41,"live_rk":52,"live_ortg_rk":65,"live_drtg_rk":41},{"id":51,"team":"Oklahoma St.","espn_name":"Oklahoma State Cowboys","conf":"Big 12","conf_short":"B12","g":5,"w":2,"l":1,"wl_pct":0.667,"srs":18.81,"sos":-1.86,"sor":-2.79,"ppg":87.0,"opp_ppg":75.2,"pd":11.8,"fg_pct":45.4,"two_pct":51.7,"three_pct":36.4,"ft_pct":75.0,"orb_pg":14.0,"second_c_pct":39.6,"trb":38.1,"ast":16.8,"stl":9.3,"blk":4.2,"tov":13.1,"efg_pct":52.9,"tov_pct":14.6,"orb_pct":37.4,"ftr":38.2,"opp_efg_pct":51.1,"opp_tov_pct":19.6,"opp_orb_pct":29.6,"opp_ftr":35.9,"avg_ht":78.16,"eff_ht":1.45,"ff_rtg":26.91,"opp_ff_rtg":25.82,"net_ff_rtg":1.09,"adj_net_ff":9.56,"bpi_ortg":7.4,"bpi_drtg":6.0,"bpi_net":13.4,"bpi_rk":32,"em_ortg":117.92,"em_drtg":96.48,"em_net":21.44,"em_rk":56,"em_inj_ortg":116.92,"em_inj_drtg":96.68,"em_inj_net":20.24,"em_inj_rk":60,"inj_delta_pct":-0.85,"elo":1431.1,"elo_rk":85,"elo_delta":-19,"kp
+  <!-- LOCAL EXCEL (.XLSX) LIVE SYNC MODAL -->
+  <div id="upload-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full shadow-2xl p-5 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white">📂 Sync Local Excel Workbooks (.xlsx)</h3>
+        <button type="button" onclick="toggleUploadModal(false)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">✕</button>
+      </div>
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Drop your updated <span class="mono-num text-orange-300">2026-27 Men's College Basketball Stats_code.xlsx</span> or <span class="mono-num text-orange-300">Batch_Simulation_Results.xlsx</span> below to hot-reload all 365 D1 teams and graded simulations in-memory. Running <span class="mono-num text-slate-200">python3 build_pages_site.py</span> also embeds the full workbooks into <span class="mono-num text-slate-200">docs/index.html</span>.
+      </p>
+      <div class="space-y-3">
+        <label class="block p-4 rounded-xl border-2 border-dashed border-slate-700 hover:border-orange-500 bg-slate-950/60 cursor-pointer transition text-center">
+          <span class="block text-xs font-bold text-orange-400 mb-1">Upload Updated Stats or Simulation Workbook (.xlsx)</span>
+          <span class="block text-[11px] text-slate-400">Supports both 2026-27 Men's College Basketball Stats_code.xlsx &amp; Batch_Simulation_Results.xlsx</span>
+          <input id="xlsx-file-input" type="file" accept=".xlsx,.xlsm" onchange="handleWorkbookUpload(this)" class="hidden" />
+        </label>
+        <div id="upload-status-msg" class="text-xs font-mono text-emerald-400 hidden"></div>
+      </div>
+      <div class="flex justify-end pt-2 border-t border-slate-800">
+        <button type="button" onclick="toggleUploadModal(false)" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white">Done</button>
+      </div>
+    </div>
+  </div>

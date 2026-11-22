@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Climate &amp; Matchup Lab • The Consensus CBB</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: { 850: '#151e2e', 925: '#0b1120' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background-color: #0b1120; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+    .mono-num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* Light Mode Overrides */
+    html:not(.dark) body { background-color: #f8fafc; color: #0f172a; }
+    html:not(.dark) header { background-color: rgba(255, 255, 255, 0.94) !important; border-bottom-color: #e2e8f0 !important; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06) !important; }
+    html:not(.dark) .bg-slate-900, html:not(.dark) .bg-slate-900\/95, html:not(.dark) .bg-slate-850,
+    html:not(.dark) .from-slate-900, html:not(.dark) .via-slate-850, html:not(.dark) .to-slate-900 { background-color: #ffffff !important; background-image: none !important; }
+    html:not(.dark) .bg-slate-950, html:not(.dark) .bg-slate-950\/90, html:not(.dark) .bg-slate-950\/80 { background-color: #f1f5f9 !important; }
+    html:not(.dark) .bg-slate-800, html:not(.dark) .bg-slate-800\/90, html:not(.dark) .bg-slate-800\/80 { background-color: #e2e8f0 !important; }
+    html:not(.dark) .hover\:bg-slate-800\/70:hover, html:not(.dark) .hover\:bg-slate-700:hover { background-color: #e2e8f0 !important; }
+    html:not(.dark) .border-slate-800, html:not(.dark) .border-slate-800\/80, html:not(.dark) .border-slate-700, html:not(.dark) .border-slate-700\/80 { border-color: #cbd5e1 !important; }
+    html:not(.dark) .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]) { border-color: #e2e8f0 !important; }
+    html:not(.dark) .text-white { color: #0f172a !important; }
+    html:not(.dark) .bg-orange-500, html:not(.dark) .bg-orange-500 *,
+    html:not(.dark) .bg-gradient-to-br.from-orange-500, html:not(.dark) .bg-gradient-to-r.from-orange-500 { color: #ffffff !important; }
+    html:not(.dark) .bg-gradient-to-r.from-orange-500 { background-image: linear-gradient(to right, #f97316, #d97706) !important; }
+    html:not(.dark) .text-slate-100, html:not(.dark) .text-slate-200 { color: #1e293b !important; }
+    html:not(.dark) .text-slate-300 { color: #334155 !important; }
+    html:not(.dark) .text-slate-400 { color: #475569 !important; }
+    html:not(.dark) .text-slate-500 { color: #64748b !important; }
+    html:not(.dark) .text-orange-300, html:not(.dark) .text-orange-400 { color: #c2410c !important; }
+    html:not(.dark) .text-emerald-300, html:not(.dark) .text-emerald-400 { color: #047857 !important; }
+    html:not(.dark) .text-sky-300, html:not(.dark) .text-sky-400 { color: #0369a1 !important; }
+    html:not(.dark) .text-amber-300, html:not(.dark) .text-amber-400 { color: #b45309 !important; }
+    html:not(.dark) .text-rose-300, html:not(.dark) .text-rose-400 { color: #be123c !important; }
+    html:not(.dark) input, html:not(.dark) select { background-color: #ffffff !important; color: #0f172a !important; border-color: #cbd5e1 !important; }
+    html:not(.dark) ::-webkit-scrollbar-track { background: #f1f5f9; }
+    html:not(.dark) ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+    html:not(.dark) #team-modal { background-color: rgba(15, 23, 42, 0.45) !important; }
+    html:not(.dark) .shadow-xl, html:not(.dark) .shadow-lg { box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06) !important; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-orange-500 selection:text-white">
+
+  <!-- TOP HEADER & MULTI-PAGE NAVIGATION -->
+  <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md shadow-orange-500/20 font-extrabold text-white text-lg">
+          🏀
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white">CBB 2026-27 Analytics &amp; Simulation Hub</h1>
+            <span id="header-counts-badge" class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 mono-num">
+              365 D1 Teams
+            </span>
+          </div>
+          <p id="site-last-updated" class="text-xs text-slate-400 mono-num">
+            theconsensuscbb.com • Loading update date...
+          </p>
+        </div>
+      </div>
+
+      <nav class="flex flex-wrap items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 gap-1" aria-label="Main Navigation">
+        <a href="index.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          1. Power Rankings
+        </a>
+        <a href="models.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          2. Model Performance
+        </a>
+        <a href="climate.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-orange-500 text-white shadow">
+          3. Climate &amp; Matchup Lab
+        </a>
+        <a href="bracket.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          4. 2027 Bracketology
+        </a>
+      </nav>
+
+      <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
+      <div class="flex items-center gap-2 ml-auto">
+        <button id="theme-sun-pill" type="button" onclick="requestGeoForSun()" class="hidden xl:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-mono bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition" title="Click to refine sunrise/sunset with your local GPS">
+          <span id="theme-sun-label">☀ -- • 🌙 --</span>
+        </button>
+        <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto switches to Light at sunrise and Dark at sunset">
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
+          <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">☀️ Light</button>
+          <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">🌙</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT: PAGE 3 CBB CLIMATE & MATCHUP LAB -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div id="data-load-banner" class="hidden rounded-xl px-4 py-3 border border-amber-500/40 bg-amber-500/10 text-xs text-amber-200 mono-num">
+      Loading 2026-27 CBB dataset (data.json)...
+    </div>
+
+    <!-- Banner -->
+    <div class="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-xl">
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+        2026-27 National Landscape &amp; Matchup Lab
+      </span>
+      <h2 class="text-xl sm:text-2xl font-extrabold text-white mt-2">
+        Current Climate of College Basketball: Macro Insights &amp; Live Matchup Simulator
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 max-w-3xl mt-1">
+        Live synthesis of national title contenders, power conference strength, roster injury deltas, and an interactive multi-model Monte Carlo matchup simulator across all 365 Division I teams.
+      </p>
+    </div>
+
+    <!-- 4 Dynamic Climate Insight Cards -->
+    <div id="climate-insights-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+    <!-- Conference Power Chart & Injury Watchlist -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-lg flex flex-col justify-between">
+        <div class="mb-3">
+          <h3 class="text-sm sm:text-base font-bold text-white">Conference Power Rankings (Top 12 Conferences)</h3>
+          <p class="text-xs text-slate-400">Average Consensus Net Rating vs. Average Live Net Rating across conference members</p>
+        </div>
+        <div class="relative h-72 w-full">
+          <canvas id="conferencePowerChart"></canvas>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-lg flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm sm:text-base font-bold text-white mb-1">Roster Availability &amp; Injury Impact Watchlist</h3>
+          <p class="text-xs text-slate-400 mb-3">Programs with the largest negative EvanMiya/KenPom injury adjustments (click any row for dossier):</p>
+          <div class="overflow-x-auto max-h-64">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-slate-950 sticky top-0 text-[10px] font-bold uppercase text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-2 px-2.5">Team</th>
+                  <th class="py-2 px-2.5">Conf</th>
+                  <th class="py-2 px-2.5">Inj Delta</th>
+                  <th class="py-2 px-2.5">Con Rk → Live Rk</th>
+                  <th class="py-2 px-2.5">EM Reg → Inj Rk</th>
+                </tr>
+              </thead>
+              <tbody id="injury-watchlist-tbody" class="divide-y divide-slate-800/60"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTERACTIVE HEAD-TO-HEAD MATCHUP SIMULATOR LAB -->
+    <div id="matchup-simulator-card" class="bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-800 shadow-xl space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Interactive Monte Carlo Simulation Engine</span>
+          <h3 class="text-lg sm:text-xl font-extrabold text-white">Head-to-Head Matchup Simulator (All 365 Teams)</h3>
+          <p class="text-xs text-slate-400">
+            Choose any two D1 teams, select which simulation models to run, and enter an iteration count (defaults to <strong>1,000 games</strong> if left blank).
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="setQuickMatchup('Florida', 'Duke')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700">Florida vs Duke</button>
+          <button type="button" onclick="setQuickMatchup('Illinois', 'Michigan St.')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700">Illinois vs Mich St.</button>
+          <button type="button" onclick="setQuickMatchup('Houston', 'Kansas')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700">Houston vs Kansas</button>
+        </div>
+      </div>
+
+      <!-- Team Selectors -->
+      <div class="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
+        <div class="md:col-span-3">
+          <label for="sim-team-a" class="block text-xs font-bold uppercase text-slate-400 mb-1">Team A (Away / Neutral)</label>
+          <select id="sim-team-a" onchange="updateSimTimeEstimate()" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white font-semibold focus:outline-none focus:border-orange-500"></select>
+        </div>
+        <div class="md:col-span-1 flex justify-center">
+          <button type="button" onclick="swapMatchupTeams()" class="w-full py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-orange-400 font-bold text-sm border border-slate-700 transition">
+            ⇄ Swap
+          </button>
+        </div>
+        <div class="md:col-span-3">
+          <label for="sim-team-b" class="block text-xs font-bold uppercase text-slate-400 mb-1">Team B (Home / Neutral)</label>
+          <select id="sim-team-b" onchange="updateSimTimeEstimate()" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white font-semibold focus:outline-none focus:border-orange-500"></select>
+        </div>
+      </div>
+
+      <!-- Model Selection + Iterations + Runtime Estimator -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-slate-950/80 rounded-2xl p-4 border border-slate-800">
+        <div class="lg:col-span-7 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Models to Run</span>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="toggleAllSimModels(true)" class="text-[11px] font-semibold text-orange-400 hover:text-orange-300">Select All (6)</button>
+              <span class="text-slate-600">|</span>
+              <button type="button" onclick="toggleAllSimModels(false)" class="text-[11px] font-semibold text-slate-400 hover:text-slate-200">Clear</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-orange-500/50 cursor-pointer text-xs text-slate-200 font-medium">
+              <input type="checkbox" value="Live Morey Z" checked onchange="updateSimTimeEstimate()" class="sim-model-cb accent-orange-500 w-3.5 h-3.5" />
+              <span>Live Morey Z</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-sky-500/50 cursor-pointer text-xs text-slate-200 font-medium">
+              <input type="checkbox" value="Consensus Morey Z" checked onchange="updateSimTimeEstimate()" class="sim-model-cb accent-sky-400 w-3.5 h-3.5" />
+              <span>Consensus Morey Z</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-purple-500/50 cursor-pointer text-xs text-slate-200 font-medium">
+              <input type="checkbox" value="Live Log5" checked onchange="updateSimTimeEstimate()" class="sim-model-cb accent-purple-500 w-3.5 h-3.5" />
+              <span>Live Log5</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-teal-500/50 cursor-pointer text-xs text-slate-200 font-medium">
+              <input type="checkbox" value="Consensus Log5" checked onchange="updateSimTimeEstimate()" class="sim-model-cb accent-teal-400 w-3.5 h-3.5" />
+              <span>Consensus Log5</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-500/50 cursor-pointer text-xs text-slate-200 font-medium">
+              <input type="checkbox" value="Adj. Eff." checked onchange="updateSimTimeEstimate()" class="sim-model-cb accent-emerald-500 w-3.5 h-3.5" />
+              <span>Adj. Eff.</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-yellow-500/50 cursor-pointer text-xs text-slate-200 font-medium">
+              <input type="checkbox" value="Base" checked onchange="updateSimTimeEstimate()" class="sim-model-cb accent-yellow-400 w-3.5 h-3.5" />
+              <span>Base</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col justify-between space-y-2.5 lg:border-l lg:border-slate-800 lg:pl-4">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="sim-iterations-input" class="text-xs font-bold uppercase tracking-wider text-slate-300">Iterations per Model</label>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="setSimIterations(1000)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300">1k</button>
+                <button type="button" onclick="setSimIterations(5000)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300">5k</button>
+                <button type="button" onclick="setSimIterations(10000)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300">10k</button>
+                <button type="button" onclick="setSimIterations(25000)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300">25k</button>
+              </div>
+            </div>
+            <input id="sim-iterations-input" type="number" min="10" max="250000" step="100" placeholder="1000 (default if blank)" oninput="updateSimTimeEstimate()" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white font-mono placeholder-slate-500 focus:outline-none focus:border-orange-500" />
+            <div id="sim-time-estimate" class="text-[11px] font-mono text-amber-300 mt-1.5">
+              Est. runtime: ~21 ms (1,000 (default) games × 6 models = 6,000 total sims)
+            </div>
+          </div>
+
+          <button id="btn-run-mc-sim" type="button" onclick="runMatchupSimulation()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-extrabold text-sm shadow-lg shadow-orange-500/20 transition">
+            ▶ Run Simulation
+          </button>
+        </div>
+      </div>
+
+      <!-- Composite Summary & Per-Model Cards -->
+      <div id="matchup-sim-summary" class="hidden bg-slate-950/90 rounded-xl p-4 border border-orange-500/40"></div>
+      <div id="matchup-sim-output" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-1"></div>
+    </div>
+  </main>
+
+  <!-- TEAM DOSSIER MODAL -->
+  <div id="team-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4" onclick="if (event.target === this) closeTeamModal()">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-5 sm:p-6 space-y-5">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
+        <div>
+          <div id="modal-team-badges" class="flex flex-wrap items-center gap-2"></div>
+          <h2 id="modal-team-name" class="text-xl sm:text-2xl font-extrabold text-white mt-1">Team Name</h2>
+          <p id="modal-team-sub" class="text-xs text-slate-400 mono-num">Conference • Record</p>
+        </div>
+        <button type="button" onclick="closeTeamModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">
+          ✕ Close
+        </button>
+      </div>
+      <div id="modal-team-content" class="space-y-5"></div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------------------------------------------------
+    // STATE, CONSTANTS & DATA LOADER
+    // -----------------------------------------------------------------------
+    let RAW_DATA = { teams: [], games: [] };
+    let confPowerChartInstance = null;
+    let SIM_RATE_PER_MS = 280;
+
+    const STATE = {
+      themeMode: localStorage.getItem('cbb_theme_mode') || 'auto',
+      userCoords: null
+    };
+
+    const MODEL_NAMES = ['Live Morey Z', 'Consensus Morey Z', 'Live Log5', 'Consensus Log5', 'Adj. Eff.', 'Base'];
+    const MODEL_COLORS = {
+      'Live Morey Z': '#f97316',
+      'Consensus Morey Z': '#38bdf8',
+      'Live Log5': '#a855f7',
+      'Consensus Log5': '#2dd4bf',
+      'Adj. Eff.': '#10b981',
+      'Base': '#facc15'
+    };
+
+    const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const escJs = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+    async function loadDashboardData() {
+      const banner = document.getElementById('data-load-banner');
+      banner.textContent = 'Loading 2026-27 CBB dataset (data.json)...';
+      banner.classList.remove('hidden');
+
+      try {
+        const resp = await fetch(`data.json?v=${Date.now()}`, { cache: 'no-store' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const payload = await resp.json();
+        if (!payload || !Array.isArray(payload.teams) || payload.teams.length === 0) {
+          throw new Error('data.json contains no teams');
+        }
+        RAW_DATA = {
+          teams: payload.teams,
+          games: Array.isArray(payload.games) ? payload.games : []
+        };
+        banner.classList.add('hidden');
+        const badge = document.getElementById('header-counts-badge');
+        if (badge) badge.textContent = `${RAW_DATA.teams.length} D1 Teams • ${RAW_DATA.games.length} Graded Sims`;
+        return true;
+      } catch (err) {
+        banner.textContent = `Could not load data.json (${err.message}). Run python3 build_pages_site.py to generate docs/data.json.`;
+        return false;
+      }
+    }
+
+    async function fetchLastMainCommitDate() {
+      const el = document.getElementById('site-last-updated');
+      if (!el) return;
+      try {
+        const resp = await fetch('https://api.github.com/repos/atg575/cbb-stats-sim/commits/main', {
+          headers: { 'Accept': 'application/vnd.github+json' }
+        });
+        if (!resp.ok) throw new Error();
+        const data = await resp.json();
+        const isoDate = data?.commit?.committer?.date || data?.commit?.author?.date;
+        if (!isoDate) throw new Error();
+        const formatted = new Date(isoDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        el.textContent = `theconsensuscbb.com • Updated ${formatted}`;
+      } catch {
+        el.textContent = 'theconsensuscbb.com • 2026-27 Season';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // SUNRISE / SUNSET AUTOMATIC LIGHT & DARK THEME
+    // -----------------------------------------------------------------------
+    function computeSunTimes(date, lat, lng) {
+      const rad = Math.PI / 180;
+      const start = new Date(date.getFullYear(), 0, 0);
+      const dayOfYear = Math.floor((date - start) / 86400000);
+      const decl = -23.44 * Math.cos(rad * (360 / 365) * (dayOfYear + 10));
+      const cosH = Math.max(-1, Math.min(1, -Math.tan(lat * rad) * Math.tan(decl * rad)));
+      const H = Math.acos(cosH) / rad / 15;
+      const tzOffset = -date.getTimezoneOffset() / 60;
+      const solarNoon = 12 - (lng / 15) + tzOffset;
+      return { sunrise: solarNoon - H, sunset: solarNoon + H };
+    }
+
+    function fmtHour(h) {
+      const norm = ((h % 24) + 24) % 24;
+      const hr = Math.floor(norm);
+      const min = Math.floor((norm - hr) * 60);
+      return `${hr % 12 || 12}:${String(min).padStart(2, '0')}${hr >= 12 ? 'p' : 'a'}`;
+    }
+
+    function applyTheme() {
+      const now = new Date();
+      const lat = STATE.userCoords ? STATE.userCoords.lat : 40.0;
+      const lng = STATE.userCoords ? STATE.userCoords.lng : -(now.getTimezoneOffset() / 60) * 15;
+      const { sunrise, sunset } = computeSunTimes(now, lat, lng);
+
+      const sunLabel = document.getElementById('theme-sun-label');
+      if (sunLabel) sunLabel.textContent = `☀ ${fmtHour(sunrise)} • 🌙 ${fmtHour(sunset)}`;
+
+      let isDark = true;
+      if (STATE.themeMode === 'light') isDark = false;
+      else if (STATE.themeMode === 'dark') isDark = true;
+      else {
+        const curHr = now.getHours() + now.getMinutes() / 60;
+        isDark = curHr < sunrise || curHr >= sunset;
+      }
+      document.documentElement.classList.toggle('dark', isDark);
+
+      ['auto', 'light', 'dark'].forEach(m => {
+        const btn = document.getElementById('theme-btn-' + m);
+        if (!btn) return;
+        btn.className = m === STATE.themeMode
+          ? 'px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white'
+          : 'px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white';
+      });
+    }
+
+    function setThemeMode(mode) {
+      STATE.themeMode = mode;
+      localStorage.setItem('cbb_theme_mode', mode);
+      applyTheme();
+      if (RAW_DATA.teams.length > 0) renderConferencePowerChart();
+    }
+
+    function requestGeoForSun() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(pos => {
+        STATE.userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        applyTheme();
+      });
+    }
+
+    function initThemeSystem() {
+      applyTheme();
+      setInterval(() => { if (STATE.themeMode === 'auto') applyTheme(); }, 60000);
+    }
+
+    // -----------------------------------------------------------------------
+    // DYNAMIC CLIMATE INSIGHT CARDS, CONFERENCE CHART & INJURY WATCHLIST
+    // -----------------------------------------------------------------------
+    function renderClimateInsights() {
+      const teams = RAW_DATA.teams;
+      const games = RAW_DATA.games;
+      const con1 = [...teams].sort((a, b) => a.con_rk - b.con_rk)[0];
+      const live1 = [...teams].sort((a, b) => a.live_rk - b.live_rk)[0];
+      const top2Con = [...teams].sort((a, b) => a.con_rk - b.con_rk)[1] || con1;
+      const rival = con1.team === live1.team ? top2Con : live1;
+
+      // Conference averages
+      const confMap = {};
+      teams.forEach(t => {
+        if (!confMap[t.conf]) confMap[t.conf] = [];
+        confMap[t.conf].push(t);
+      });
+      const confRanked = Object.keys(confMap).map(c => {
+        const arr = confMap[c];
+        return {
+          conf: c,
+          count: arr.length,
+          avgCon: arr.reduce((s, x) => s + x.con_net, 0) / arr.length,
+          top25: arr.filter(x => x.con_rk <= 25).length
+        };
+      }).sort((a, b) => b.avgCon - a.avgCon);
+      const c1 = confRanked[0], c2 = confRanked[1], c3 = confRanked[2];
+
+      // Top injured teams
+      const topInj = [...teams].filter(t => t.inj_delta_pct < 0).sort((a, b) => a.inj_delta_pct - b.inj_delta_pct).slice(0, 4);
+
+      // Best overall winner accuracy model
+      let bestModel = 'Adj. Eff.', bestPct = 0, bestRight = 0;
+      const totalG = games.length;
+      if (totalG > 0) {
+        MODEL_NAMES.forEach(mName => {
+          const right = games.filter(g => g.m && g.m[mName] && ['TEAM', 'TEAM AND DIFF', 'ALL', 'SUPER ALL'].includes(g.m[mName][4])).length;
+          const pct = (right / totalG) * 100;
+          if (pct > bestPct) { bestPct = pct; bestModel = mName; bestRight = right; }
+        });
+      }
+
+      document.getElementById('climate-insights-grid').innerHTML = `
+        <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-orange-400">1. The #1 Battle: ${esc(con1.team)} vs. ${esc(rival.team)}</span>
+            <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">Top Tier</span>
+          </div>
+          <p class="text-sm text-slate-200 leading-relaxed">
+            <strong>${esc(con1.team)} (${con1.w}-${con1.l}, ${esc(con1.conf_short)})</strong> holds the #1 Consensus Rank (<span class="mono-num text-emerald-400">+${con1.con_net.toFixed(2)} Net Rtg</span>), while <strong>${esc(live1.team)} (${live1.w}-${live1.l}, ${esc(live1.conf_short)})</strong> leads the injury-adjusted Live Ratings at <span class="mono-num text-orange-400">+${live1.live_net.toFixed(2)} Live Net</span>.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-2">
+            <button type="button" onclick="openTeamModalByName('${escJs(con1.team)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-orange-300">Inspect ${esc(con1.team)} →</button>
+            <button type="button" onclick="openTeamModalByName('${escJs(rival.team)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-orange-300">Inspect ${esc(rival.team)} →</button>
+            <button type="button" onclick="setQuickMatchup('${escJs(con1.team)}', '${escJs(rival.team)}')" class="px-2.5 py-1 rounded bg-orange-500/20 hover:bg-orange-500/30 text-xs font-semibold text-orange-300 border border-orange-500/30">Sim Matchup ↓</button>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-400">2. Power Conference Hierarchy</span>
+            <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">${confRanked.length} Conferences</span>
+          </div>
+          <p class="text-sm text-slate-200 leading-relaxed">
+            The <strong>${esc(c1.conf)}</strong> leads all leagues in average Consensus Net Rating (<span class="mono-num text-emerald-400">${c1.avgCon >= 0 ? '+' : ''}${c1.avgCon.toFixed(2)}</span> across ${c1.count} teams, ${c1.top25} in Top 25), followed by the <strong>${esc(c2.conf)}</strong> (<span class="mono-num">${c2.avgCon >= 0 ? '+' : ''}${c2.avgCon.toFixed(2)}</span>) and <strong>${esc(c3.conf)}</strong> (<span class="mono-num">${c3.avgCon >= 0 ? '+' : ''}${c3.avgCon.toFixed(2)}</span>).
+          </p>
+          <div class="pt-2 flex flex-wrap gap-2">
+            <a href="index.html?conf=${encodeURIComponent(c1.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c1.conf)} →</a>
+            <a href="index.html?conf=${encodeURIComponent(c2.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c2.conf)} →</a>
+            <a href="index.html?conf=${encodeURIComponent(c3.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c3.conf)} →</a>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-400">3. Critical Injury Deltas Reshaping Lines</span>
+            <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">EvanMiya + KP Blend</span>
+          </div>
+          <p class="text-sm text-slate-200 leading-relaxed">
+            Largest negative roster availability adjustments right now: ${topInj.map(t => `<strong>${esc(t.team)}</strong> (<span class="mono-num text-rose-400">${t.inj_delta_pct.toFixed(2)}%</span>, #${t.con_rk} → #${t.live_rk})`).join(', ')}.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-2">
+            ${topInj.slice(0, 2).map(t => `<button type="button" onclick="openTeamModalByName('${escJs(t.team)}')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-rose-300">Inspect ${esc(t.team)} →</button>`).join('')}
+          </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-lg space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">4. Simulation Engine Climate</span>
+            <span class="text-xs font-mono bg-slate-800 px-2 py-0.5 rounded text-slate-300">${totalG} Graded Games</span>
+          </div>
+          <p class="text-sm text-slate-200 leading-relaxed">
+            Across ${totalG} graded simulations, <strong>${esc(bestModel)}</strong> currently leads all 6 engines in straight-up winner accuracy at <span class="mono-num text-emerald-400">${bestPct.toFixed(2)}% (${bestRight}/${totalG})</span>. Run any custom head-to-head matchup below across all 6 models.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-2">
+            <a href="models.html" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-emerald-300">Explore Model Matrix →</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderConferencePowerChart() {
+      if (typeof Chart === 'undefined' || !RAW_DATA.teams.length) return;
+      const isDark = document.documentElement.classList.contains('dark');
+      const gridColor = isDark ? '#1e293b' : '#e2e8f0';
+      const tickColor = isDark ? '#94a3b8' : '#475569';
+      const labelColor = isDark ? '#cbd5e1' : '#334155';
+
+      const confMap = {};
+      RAW_DATA.teams.forEach(t => {
+        if (!confMap[t.conf]) confMap[t.conf] = [];
+        confMap[t.conf].push(t);
+      });
+      const confStats = Object.keys(confMap).map(c => {
+        const arr = confMap[c];
+        return {
+          conf: c,
+          avgCon: arr.reduce((s, x) => s + x.con_net, 0) / arr.length,
+          avgLive: arr.reduce((s, x) => s + x.live_net, 0) / arr.length
+        };
+      }).sort((a, b) => b.avgCon - a.avgCon).slice(0, 12);
+
+      const ctx = document.getElementById('conferencePowerChart').getContext('2d');
+      if (confPowerChartInstance) confPowerChartInstance.destroy();
+
+      confPowerChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: confStats.map(c => c.conf),
+          datasets: [
+            { label: 'Avg Consensus Net Rtg', data: confStats.map(c => Number(c.avgCon.toFixed(2))), backgroundColor: '#f97316', borderRadius: 5 },
+            { label: 'Avg Live Net Rtg', data: confStats.map(c => Number(c.avgLive.toFixed(2))), backgroundColor: '#38bdf8', borderRadius: 5 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: labelColor, font: { size: 11 } } } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: labelColor, font: { size: 10 } } },
+            y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'JetBrains Mono', size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderInjuryWatchlist() {
+      const injured = [...RAW_DATA.teams]
+        .filter(t => t.inj_delta_pct < 0)
+        .sort((a, b) => a.inj_delta_pct - b.inj_delta_pct)
+        .slice(0, 15);
+
+      document.getElementById('injury-watchlist-tbody').innerHTML = injured.map(t => `
+        <tr onclick="openTeamModalByName('${escJs(t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
+          <td class="py-2 px-2.5 font-bold text-white">${esc(t.team)}</td>
+          <td class="py-2 px-2.5 text-slate-400 mono-num">${esc(t.conf_short)}</td>
+          <td class="py-2 px-2.5 text-rose-400 font-bold mono-num">${t.inj_delta_pct.toFixed(2)}%</td>
+          <td class="py-2 px-2.5 text-slate-200 mono-num">#${t.con_rk} → #${t.live_rk}</td>
+          <td class="py-2 px-2.5 text-slate-300 mono-num">#${t.em_rk || '-'} → #${t.em_inj_rk || '-'}</td>
+        </tr>
+      `).join('');
+    }
+
+    // -----------------------------------------------------------------------
+    // INTERACTIVE MULTI-MODEL MONTE CARLO MATCHUP SIMULATOR
+    // -----------------------------------------------------------------------
+    function populateMatchupDropdowns() {
+      const sorted = [...RAW_DATA.teams].sort((a, b) => a.con_rk - b.con_rk);
+      const optionsHtml = sorted.map(t => `<option value="${esc(t.team)}">#${t.con_rk} ${esc(t.team)} (${esc(t.conf_short)} • ${t.w}-${t.l})</option>`).join('');
+      const selA = document.getElementById('sim-team-a');
+      const selB = document.getElementById('sim-team-b');
+      selA.innerHTML = optionsHtml;
+      selB.innerHTML = optionsHtml;
+
+      const params = new URLSearchParams(window.location.search);
+      const qA = params.get('a');
+      const qB = params.get('b');
+      selA.value = (qA && sorted.some(t => t.team === qA)) ? qA : (sorted.some(t => t.team === 'Florida') ? 'Florida' : sorted[0].team);
+      selB.value = (qB && sorted.some(t => t.team === qB)) ? qB : (sorted.some(t => t.team === 'Duke') ? 'Duke' : (sorted[1]?.team || sorted[0].team));
+    }
+
+    function setQuickMatchup(teamA, teamB) {
+      const selA = document.getElementById('sim-team-a');
+      const selB = document.getElementById('sim-team-b');
+      if ([...selA.options].some(o => o.value === teamA)) selA.value = teamA;
+      if ([...selB.options].some(o => o.value === teamB)) selB.value = teamB;
+      runMatchupSimulation();
+      document.getElementById('matchup-simulator-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function swapMatchupTeams() {
+      const selA = document.getElementById('sim-team-a');
+      const selB = document.getElementById('sim-team-b');
+      const tmp = selA.value;
+      selA.value = selB.value;
+      selB.value = tmp;
+      runMatchupSimulation();
+    }
+
+    function getSelectedSimModels() {
+      return Array.from(document.querySelectorAll('.sim-model-cb:checked')).map(cb => cb.value);
+    }
+
+    function getRequestedIterations() {
+      const raw = (document.getElementById('sim-iterations-input')?.value || '').trim();
+      if (!raw) return 1000;
+      const parsed = parseInt(raw, 10);
+      return (isNaN(parsed) || parsed < 1) ? 1000 : Math.min(250000, parsed);
+    }
+
+    function setSimIterations(n) {
+      document.getElementById('sim-iterations-input').value = n;
+      updateSimTimeEstimate();
+    }
+
+    function toggleAllSimModels(checkAll) {
+      document.querySelectorAll('.sim-model-cb').forEach(cb => { cb.checked = checkAll; });
+      updateSimTimeEstimate();
+    }
+
+    function updateSimTimeEstimate() {
+      const estEl = document.getElementById('sim-time-estimate');
+      const models = getSelectedSimModels();
+      const iters = getRequestedIterations();
+      const rawInput = (document.getElementById('sim-iterations-input')?.value || '').trim();
+      const defaultTag = rawInput === '' ? ' (default)' : '';
+
+      if (models.length === 0) {
+        estEl.textContent = 'Select at least 1 model above to run a simulation.';
+        estEl.className = 'text-[11px] font-mono text-rose-400 mt-1.5';
+        return;
+      }
+
+      const totalSims = iters * models.length;
+      const estMs = Math.max(5, totalSims / SIM_RATE_PER_MS);
+      const timeStr = estMs < 1000 ? `~${Math.round(estMs)} ms` : `~${(estMs / 1000).toFixed(2)}s`;
+      estEl.textContent = `Est. runtime: ${timeStr} (${iters.toLocaleString()}${defaultTag} games × ${models.length} model${models.length > 1 ? 's' : ''} = ${totalSims.toLocaleString()} total sims)`;
+      estEl.className = 'text-[11px] font-mono text-amber-300 mt-1.5';
+    }
+
+    function randnBoxMuller() {
+      let u = 0, v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+    }
+
+    function getModelExpectedParams(modelName, tA, tB) {
+      const avgConTempo = (tA.con_tempo + tB.con_tempo) / 2;
+      const avgLiveTempo = (tA.live_tempo + tB.live_tempo) / 2;
+      const log5Adj = (oA, dB, oB, dA) => {
+        const pA = Math.max(0.05, Math.min(0.95, 1 / (1 + Math.pow(10, -((oA - dB) - (oB - dA)) / 24))));
+        return (pA - 0.5) * 4.0;
+      };
+
+      if (modelName === 'Live Morey Z') {
+        return { poss: avgLiveTempo, meanA: ((tA.live_ortg + tB.live_drtg) / 200) * avgLiveTempo, meanB: ((tB.live_ortg + tA.live_drtg) / 200) * avgLiveTempo, sd: 10.6 };
+      }
+      if (modelName === 'Consensus Morey Z') {
+        return { poss: avgConTempo, meanA: ((tA.con_ortg + tB.con_drtg) / 200) * avgConTempo, meanB: ((tB.con_ortg + tA.con_drtg) / 200) * avgConTempo, sd: 10.4 };
+      }
+      if (modelName === 'Live Log5') {
+        const shift = log5Adj(tA.live_ortg, tB.live_drtg, tB.live_ortg, tA.live_drtg);
+        return { poss: avgLiveTempo, meanA: ((tA.live_ortg + tB.live_drtg) / 200) * avgLiveTempo + shift, meanB: ((tB.live_ortg + tA.live_drtg) / 200) * avgLiveTempo - shift, sd: 10.8 };
+      }
+      if (modelName === 'Consensus Log5') {
+        const shift = log5Adj(tA.con_ortg, tB.con_drtg, tB.con_ortg, tA.con_drtg);
+        return { poss: avgConTempo, meanA: ((tA.con_ortg + tB.con_drtg) / 200) * avgConTempo + shift, meanB: ((tB.con_ortg + tA.con_drtg) / 200) * avgConTempo - shift, sd: 10.5 };
+      }
+      if (modelName === 'Adj. Eff.') {
+        return { poss: avgConTempo, meanA: ((tA.kp_ortg + tB.kp_drtg) / 200) * avgConTempo, meanB: ((tB.kp_ortg + tA.kp_drtg) / 200) * avgConTempo, sd: 10.9 };
+      }
+      const ffA = (tA.efg_pct - tB.opp_efg_pct) * 0.25;
+      const ffB = (tB.efg_pct - tA.opp_efg_pct) * 0.25;
+      return { poss: avgConTempo, meanA: ((tA.ppg + tB.opp_ppg) / 2) + ffA, meanB: ((tB.ppg + tA.opp_ppg) / 2) + ffB, sd: 11.4 };
+    }
+
+    function simulateSingleModelMC(modelName, tA, tB, iterations) {
+      const { poss, meanA, meanB, sd } = getModelExpectedParams(modelName, tA, tB);
+      const teamSd = sd / Math.SQRT2;
+      let winsA = 0, winsB = 0, sumA = 0, sumB = 0, otCount = 0;
+
+      for (let i = 0; i < iterations; i++) {
+        let sA = Math.max(25, Math.round(meanA + randnBoxMuller() * teamSd));
+        let sB = Math.max(25, Math.round(meanB + randnBoxMuller() * teamSd));
+        if (sA === sB) {
+          otCount++;
+          let guard = 0;
+          while (sA === sB && guard < 4) {
+            sA += Math.max(0, Math.round((meanA / 8) + randnBoxMuller() * (teamSd / 2.8)));
+            sB += Math.max(0, Math.round((meanB / 8) + randnBoxMuller() * (teamSd / 2.8)));
+            guard++;
+          }
+          if (sA === sB) { if (Math.random() < 0.5) sA++; else sB++; }
+        }
+        if (sA > sB) winsA++; else winsB++;
+        sumA += sA;
+        sumB += sB;
+      }
+
+      const wpA = (winsA / iterations) * 100;
+      const wpB = (winsB / iterations) * 100;
+      const avgA = sumA / iterations;
+      const avgB = sumB / iterations;
+      const maxWp = Math.max(wpA, wpB);
+      const cert = maxWp >= 90 ? '90%+' : (maxWp >= 75 ? '75%+' : (maxWp >= 60 ? '60%+' : '50%+'));
+      return { modelName, poss, winsA, winsB, wpA, wpB, avgA, avgB, spread: avgA - avgB, total: avgA + avgB, otPct: (otCount / iterations) * 100, cert };
+    }
+
+    function runMatchupSimulation() {
+      if (RAW_DATA.teams.length < 2) return;
+      const models = getSelectedSimModels();
+      const iterations = getRequestedIterations();
+      const out = document.getElementById('matchup-sim-output');
+      const summaryEl = document.getElementById('matchup-sim-summary');
+
+      if (models.length === 0) {
+        summaryEl.classList.add('hidden');
+        out.innerHTML = '<div class="col-span-full p-4 rounded-xl bg-slate-950 border border-rose-500/40 text-xs text-rose-300 font-mono">Select at least one model checkbox above and click ▶ Run Simulation.</div>';
+        return;
+      }
+
+      const nameA = document.getElementById('sim-team-a').value;
+      const nameB = document.getElementById('sim-team-b').value;
+      const tA = RAW_DATA.teams.find(t => t.team === nameA) || RAW_DATA.teams[0];
+      const tB = RAW_DATA.teams.find(t => t.team === nameB) || RAW_DATA.teams[1];
+
+      const t0 = performance.now();
+      const results = models.map(m => simulateSingleModelMC(m, tA, tB, iterations));
+      const elapsedMs = Math.max(1, performance.now() - t0);
+
+      const totalSims = iterations * models.length;
+      SIM_RATE_PER_MS = Math.max(40, Math.min(2000, totalSims / elapsedMs));
+      updateSimTimeEstimate();
+
+      const meanWpA = results.reduce((acc, r) => acc + r.wpA, 0) / results.length;
+      const meanScoreA = results.reduce((acc, r) => acc + r.avgA, 0) / results.length;
+      const meanScoreB = results.reduce((acc, r) => acc + r.avgB, 0) / results.length;
+      const meanDiff = meanScoreA - meanScoreB;
+      const favTeam = meanDiff >= 0 ? tA.team : tB.team;
+      const favWp = Math.max(meanWpA, 100 - meanWpA);
+      const elapsedStr = elapsedMs < 1000 ? `${Math.round(elapsedMs)} ms` : `${(elapsedMs / 1000).toFixed(2)}s`;
+
+      summaryEl.classList.remove('hidden');
+      summaryEl.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="text-[11px] font-bold uppercase tracking-wider text-orange-400">
+              Composite Blend Across ${models.length} Selected Model${models.length > 1 ? 's' : ''} (${iterations.toLocaleString()} Games Each)
+            </div>
+            <div class="text-base sm:text-lg font-extrabold text-white mono-num mt-0.5">
+              ${esc(tA.team)} ${meanScoreA.toFixed(1)} (${meanWpA.toFixed(1)}%) <span class="text-slate-500">vs</span> ${esc(tB.team)} ${meanScoreB.toFixed(1)} (${(100 - meanWpA).toFixed(1)}%)
+            </div>
+            <div class="text-xs text-slate-400 mono-num mt-0.5">
+              Avg Spread: <strong class="text-slate-200">${esc(favTeam)} -${Math.abs(meanDiff).toFixed(1)}</strong> • Avg Total: <strong class="text-slate-200">${(meanScoreA + meanScoreB).toFixed(1)}</strong> • Favorite Win Prob: <strong class="text-emerald-400">${favWp.toFixed(1)}%</strong>
+            </div>
+          </div>
+          <div class="text-right mono-num text-xs">
+            <div class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
+              Completed ${totalSims.toLocaleString()} sims in ${elapsedStr}
+            </div>
+          </div>
+        </div>
+      `;
+
+      out.innerHTML = results.map(r => {
+        const col = MODEL_COLORS[r.modelName] || '#f97316';
+        const fav = r.spread >= 0 ? `${tA.team} -${Math.abs(r.spread).toFixed(1)}` : `${tB.team} -${Math.abs(r.spread).toFixed(1)}`;
+        return `
+          <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${col}"></span>
+                <span class="text-xs font-bold uppercase text-white">${esc(r.modelName)}</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-orange-300">${r.cert} Conf</span>
+            </div>
+            <div class="flex items-center justify-between text-sm font-extrabold text-white mono-num">
+              <span>${esc(tA.team)}: ${r.avgA.toFixed(1)} <span class="text-emerald-400">(${r.wpA.toFixed(1)}%)</span></span>
+              <span class="text-slate-500 text-xs">vs</span>
+              <span>${esc(tB.team)}: ${r.avgB.toFixed(1)} <span class="text-sky-400">(${r.wpB.toFixed(1)}%)</span></span>
+            </div>
+            <div class="w-full h-2 bg-sky-500/60 rounded-full overflow-hidden flex">
+              <div class="h-full bg-emerald-500 transition-all duration-300" style="width: ${r.wpA.toFixed(1)}%"></div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between text-[11px] text-slate-400 mono-num pt-1 border-t border-slate-800/80">
+              <span>Rec: <strong class="text-slate-200">${r.winsA.toLocaleString()}-${r.winsB.toLocaleString()}</strong></span>
+              <span>Spread: <strong class="text-slate-200">${esc(fav)}</strong></span>
+              <span>Tot: <strong class="text-slate-200">${r.total.toFixed(1)}</strong> • OT: ${r.otPct.toFixed(1)}%</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // -----------------------------------------------------------------------
+    // TEAM DOSSIER MODAL
+    // -----------------------------------------------------------------------
+    function openTeamModalByName(teamName) {
+      const t = RAW_DATA.teams.find(x => x.team.toLowerCase() === teamName.toLowerCase());
+      if (!t) return;
+
+      document.getElementById('modal-team-name').textContent = `${t.team}${t.espn_name ? ' (' + t.espn_name + ')' : ''}`;
+      document.getElementById('modal-team-sub').textContent = `${t.conf} • Record: ${t.w}-${t.l} (${(t.wl_pct * 100).toFixed(1)}%) • Proj Conf: ${t.proj_conf_wl || 'N/A'} (Win Conf: ${t.win_conf_pct || 'N/A'})`;
+      document.getElementById('modal-team-badges').innerHTML = `
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30 mono-num">Consensus #${t.con_rk}</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-500/20 text-sky-400 border border-sky-500/30 mono-num">Live #${t.live_rk}</span>
+        ${t.inj_delta_pct < 0 ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 mono-num">Injury Δ ${t.inj_delta_pct.toFixed(2)}%</span>` : ''}
+      `;
+
+      document.getElementById('modal-team-content').innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 space-y-2">
+            <div class="text-xs font-bold uppercase text-orange-400">Consensus Profile (4-System Blend)</div>
+            <div class="grid grid-cols-3 gap-2 pt-1 mono-num">
+              <div><div class="text-[11px] text-slate-400">Net Rtg</div><div class="text-lg font-extrabold text-white">${t.con_net >= 0 ? '+' : ''}${t.con_net.toFixed(2)} (#${t.con_rk})</div></div>
+              <div><div class="text-[11px] text-slate-400">ORtg</div><div class="text-lg font-bold text-emerald-400">${t.con_ortg.toFixed(1)} (#${t.con_ortg_rk})</div></div>
+              <div><div class="text-[11px] text-slate-400">DRtg</div><div class="text-lg font-bold text-sky-400">${t.con_drtg.toFixed(1)} (#${t.con_drtg_rk})</div></div>
+            </div>
+            <div class="text-xs text-slate-400 mono-num pt-2 border-t border-slate-800">
+              KenPom <strong>#${t.kp_rk || '-'}</strong> • EvanMiya <strong>#${t.em_rk || '-'}</strong> • ESPN BPI <strong>#${t.bpi_rk || '-'}</strong> • ELO <strong>#${t.elo_rk || '-'}</strong>
+            </div>
+          </div>
+          <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 space-y-2">
+            <div class="text-xs font-bold uppercase text-sky-400">Live Profile (Injury-Adjusted)</div>
+            <div class="grid grid-cols-3 gap-2 pt-1 mono-num">
+              <div><div class="text-[11px] text-slate-400">Live Net</div><div class="text-lg font-extrabold text-white">${t.live_net >= 0 ? '+' : ''}${t.live_net.toFixed(2)} (#${t.live_rk})</div></div>
+              <div><div class="text-[11px] text-slate-400">Live ORtg</div><div class="text-lg font-bold text-emerald-400">${t.live_ortg.toFixed(1)} (#${t.live_ortg_rk})</div></div>
+              <div><div class="text-[11px] text-slate-400">Live DRtg</div><div class="text-lg font-bold text-sky-400">${t.live_drtg.toFixed(1)} (#${t.live_drtg_rk})</div></div>
+            </div>
+            <div class="text-xs text-slate-400 mono-num pt-2 border-t border-slate-800">
+              KP Inj Net: <strong>+${t.kp_inj_net.toFixed(1)}</strong> • EM Inj Net: <strong>+${t.em_inj_net.toFixed(1)}</strong> • Injury Δ: <strong>${t.inj_delta_pct.toFixed(2)}%</strong>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const modal = document.getElementById('team-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeTeamModal() {
+      const modal = document.getElementById('team-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // -----------------------------------------------------------------------
+    // BOOTSTRAP
+    // -----------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', async () => {
+      initThemeSystem();
+      fetchLastMainCommitDate();
+      const ok = await loadDashboardData();
+      if (!ok) return;
+
+      renderClimateInsights();
+      renderConferencePowerChart();
+      renderInjuryWatchlist();
+      populateMatchupDropdowns();
+      updateSimTimeEstimate();
+      runMatchupSimulation();
+    });
+  </script>
+</body>
+</html>
