@@ -109,11 +109,8 @@
 
       <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
       <div class="flex items-center gap-2 ml-auto">
-        <button id="theme-sun-pill" type="button" onclick="requestGeoForSun()" class="hidden xl:inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-mono bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/80 transition" title="Click to refine sunrise/sunset with your local GPS">
-          <span id="theme-sun-label">☀ -- • 🌙 --</span>
-        </button>
         <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto switches to Light at sunrise and Dark at sunset">
-          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" onclick="requestGeoForSun()" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
           <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">☀️ Light</button>
           <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">🌙</button>
         </div>
@@ -136,14 +133,14 @@
             Consensus Ratings Active
           </span>
           <span id="rk-formula-pill" class="text-xs text-slate-400 mono-num">
-            Blend: KenPom + EvanMiya Reg + ESPN BPI + Warren ELO
+            Blend: KenPom + EvanMiya + ESPN BPI + Warren ELO
           </span>
         </div>
         <h2 id="rk-hero-title" class="text-xl sm:text-2xl font-extrabold text-white">
           2026-27 Division I Consensus Power Ratings
         </h2>
         <p id="rk-hero-desc" class="text-xs sm:text-sm text-slate-300 max-w-2xl">
-          Combining 4 major national rating systems across all D1 programs. Switch between Consensus Ratings, Live Ratings (Injury-Adjusted), and the AV Poll (Net Score) anytime.
+          Combining 4 major national rating systems across all D1 programs. Switch between The Consensus Ratings, Injury-Adjusted Live Ratings, and the AV Poll anytime.
         </p>
       </div>
 
@@ -151,13 +148,13 @@
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 bg-slate-950/80 p-2 rounded-xl border border-slate-700/80">
         <div class="flex flex-wrap items-center bg-slate-900 rounded-lg p-1 border border-slate-800 gap-1">
           <button id="toggle-consensus-btn" type="button" onclick="setRankingMode('consensus')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-md text-xs sm:text-sm font-bold transition-all bg-orange-500 text-white shadow-md">
-            📊 Consensus Ratings
+            Consensus
           </button>
           <button id="toggle-live-btn" type="button" onclick="setRankingMode('live')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-md text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white">
-            ⚡ Live Ratings (Injury-Adj)
+            Live
           </button>
           <button id="toggle-av-btn" type="button" onclick="setRankingMode('av_poll')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-md text-xs sm:text-sm font-bold transition-all text-slate-400 hover:text-white">
-            🏆 AV Poll
+            AV Poll
           </button>
         </div>
         <button type="button" onclick="flipRankingMode()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-orange-300 border border-orange-500/30 transition whitespace-nowrap">
@@ -170,13 +167,13 @@
     <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-lg">
       <div class="flex flex-wrap items-center gap-1.5">
         <button id="subtab-btn-ratings" type="button" onclick="setSubTab('ratings')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-orange-500 text-white shadow">
-          📊 Power Ratings &amp; Efficiency
+          Power Ratings &amp; Efficiency
         </button>
         <button id="subtab-btn-net" type="button" onclick="setSubTab('net')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          🏀 vs. NCAA NET (RPI)
+          vs. NCAA NET (RPI)
         </button>
         <button id="subtab-btn-polls" type="button" onclick="setSubTab('polls')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          🗳️ vs. AP &amp; Coaches Polls
+          vs. AP &amp; Coaches Polls
         </button>
       </div>
       <span id="subtab-sync-badge" class="text-[11px] font-mono text-slate-400 px-2">
@@ -197,10 +194,10 @@
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div>
               <h3 id="scatter-chart-title" class="text-sm sm:text-base font-bold text-white">
-                Efficiency Landscape: Consensus ORtg vs. Consensus DRtg (Top 60 Teams)
+                Consensus Efficiency Landscape (Top 60 Teams)
               </h3>
               <p id="scatter-chart-desc" class="text-xs text-slate-400">
-                Upper-right quadrant = Elite Consensus Offense (high ORtg) &amp; Elite Consensus Defense (low DRtg, inverted Y-axis). Click any point to inspect team.
+                Upper-right quadrant = Elite Offense &amp; Elite Defense. Click any point to inspect team.
               </p>
             </div>
             <span id="scatter-mode-tag" class="text-xs font-mono px-2 py-1 rounded bg-slate-800 text-orange-300 border border-slate-700">
@@ -221,7 +218,7 @@
               </span>
             </div>
             <p class="text-xs text-slate-400 mb-3">
-              Biggest rank shifts between 4-Source Consensus Ratings and Injury-Adjusted Live Ratings:
+              Biggest rank shifts between Consensus Ratings and Injury-Adjusted Live Ratings:
             </p>
             <div id="rk-divergence-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
           </div>
@@ -261,7 +258,7 @@
           <div>
             <label for="rk-col-preset" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Table Columns View</label>
             <select id="rk-col-preset" onchange="handleRankingFilterChange()" class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-orange-500">
-              <option value="ratings">Ratings &amp; 4-Source Breakdown</option>
+              <option value="ratings">Ratings Breakdown</option>
               <option value="fourfactors">Four Factors, Tempo &amp; SOS</option>
               <option value="boxscore">Per-Game Box Score &amp; Roster Size</option>
             </select>
@@ -306,7 +303,7 @@
             <span id="net-source-badge" class="text-xs font-bold uppercase tracking-wider text-sky-400">NCAA Official NET / RPI Comparison</span>
             <h3 id="net-comp-title" class="text-base sm:text-lg font-extrabold text-white">Consensus Ratings vs. NCAA NET Ranking (RPI)</h3>
             <p class="text-xs text-slate-400">
-              Positive Δ (<span class="text-emerald-400 font-semibold">📈 Model Higher</span>) means our ratings view the team stronger than NCAA NET/RPI; negative Δ (<span class="text-rose-400 font-semibold">📉 NET Higher</span>) means NCAA NET/RPI ranks them higher.
+              Positive Δ (<span class="text-emerald-400 font-semibold">Model Higher</span>) means our ratings view the team stronger than NCAA NET/RPI; negative Δ (<span class="text-rose-400 font-semibold">NET Higher</span>) means NCAA NET/RPI ranks them higher.
             </p>
           </div>
           <span id="net-updated-pill" class="text-xs font-mono px-2.5 py-1 rounded bg-slate-950 text-sky-300 border border-slate-800">
@@ -324,8 +321,8 @@
               <option value="ALL">All D1 Teams</option>
               <option value="TOP25">Top 25 (Either Model or NET)</option>
               <option value="TOP68">Top 76 Tournament Contenders</option>
-              <option value="BULLISH">📈 Most Bullish (Our Model Higher)</option>
-              <option value="BEARISH">📉 Most Bearish (NET Higher)</option>
+              <option value="BULLISH">Most Bullish (Our Model Higher)</option>
+              <option value="BEARISH">Most Bearish (NET Higher)</option>
               <option value="BIG_DIFF">Biggest Disagreements (|Δ| ≥ 15)</option>
             </select>
           </div>
@@ -382,8 +379,8 @@
               <option value="AP_ALL">AP Top 25 + Receiving Votes</option>
               <option value="COACHES25">Coaches Top 25 Only</option>
               <option value="COACHES_ALL">Coaches Top 25 + Receiving Votes</option>
-              <option value="UNDERRATED">📈 Model Top 25 / Outside Poll Top 25</option>
-              <option value="OVERRATED">📉 Poll Top 25 / Outside Model Top 25</option>
+              <option value="UNDERRATED">Model Top 25 / Outside Poll Top 25</option>
+              <option value="OVERRATED">Poll Top 25 / Outside Model Top 25</option>
               <option value="BIG_DIFF">Biggest Disagreements (|Δ vs AP| ≥ 5)</option>
             </select>
           </div>
