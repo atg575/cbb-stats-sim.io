@@ -142,25 +142,61 @@ def extract_teams(stats_path):
     if "Worksheet" not in wb.sheetnames:
         raise ValueError(f"'Worksheet' tab not found in {stats_path}")
 
-    # Optional EvanMiya lookup maps for rank & conference
+    # 1. EvanMiya Regular Ratings (Rank=0, Team=1, Conf=2)
     em_reg_map = {}
     if "EvanMiya Regular Ratings" in wb.sheetnames:
-        ws_em = wb["EvanMiya Regular Ratings"]
-        for r in ws_em.iter_rows(min_row=2, values_only=True):
+        for r in wb["EvanMiya Regular Ratings"].iter_rows(min_row=2, values_only=True):
             if r and len(r) >= 3 and r[1]:
                 em_reg_map[clean_str(r[1])] = {
                     "em_rk": opt_int(r[0]),
                     "conf_short": clean_str(r[2], "D1"),
                 }
 
+    # 2. EvanMiya Injured Ratings (Rank=0, Rank With Injuries=1, Team=2)
     em_inj_map = {}
-    for sname in ("EvanMiya Injury Ratings", "EvanMiya Injured Ratings"):
+    for sname in ("EvanMiya Injured Ratings", "EvanMiya Injury Ratings"):
         if sname in wb.sheetnames:
-            ws_emi = wb[sname]
-            for r in ws_emi.iter_rows(min_row=2, values_only=True):
-                if r and len(r) >= 2 and r[1]:
-                    em_inj_map[clean_str(r[1])] = opt_int(r[0])
+            for r in wb[sname].iter_rows(min_row=2, values_only=True):
+                if r and len(r) >= 3 and r[2]:
+                    em_inj_map[clean_str(r[2])] = opt_int(r[1])
             break
+
+    # 3. Kenpom Ratings (TeamName=1, RankAdjEM=15)
+    kp_rk_map = {}
+    if "Kenpom Ratings" in wb.sheetnames:
+        for r in wb["Kenpom Ratings"].iter_rows(min_row=2, values_only=True):
+            if r and len(r) >= 16 and r[1]:
+                kp_rk_map[clean_str(r[1])] = opt_int(r[15])
+
+    # 4. Warren ELO (Team=0, Rank=3)
+    elo_rk_map = {}
+    if "Warren ELO" in wb.sheetnames:
+        for r in wb["Warren ELO"].iter_rows(min_row=2, values_only=True):
+            if r and len(r) >= 4 and r[0]:
+                elo_rk_map[clean_str(r[0]).lower()] = opt_int(r[3])
+
+    # 5. ESPN BPI (Team=0, CONF=1, BPI RK=4, CONF W-L=9, WIN CONF%=10)
+    bpi_map = {}
+    if "ESPN BPI" in wb.sheetnames:
+        for r in wb["ESPN BPI"].iter_rows(min_row=2, values_only=True):
+            if r and len(r) >= 11 and r[0]:
+                bpi_map[clean_str(r[0]).lower()] = {
+                    "conf": clean_str(r[1]),
+                    "bpi_rk": opt_int(r[4]),
+                    "proj_conf_wl": clean_str(r[9]),
+                    "win_conf_pct": clean_str(r[10]),
+                }
+
+    # 6. Sheet4 (TeamName=1, SizeRank=3, Exp=16, Continuity=50)
+    s4_map = {}
+    if "Sheet4" in wb.sheetnames:
+        for r in wb["Sheet4"].iter_rows(min_row=2, values_only=True):
+            if r and len(r) >= 51 and r[1]:
+                s4_map[clean_str(r[1])] = {
+                    "size_rk": opt_int(r[3]),
+                    "exp": num(r[16], 2, None),
+                    "continuity": num(r[50], 1, None),
+                }
 
     ws = wb["Worksheet"]
     hmap = build_header_map(ws, header_row=2)
@@ -171,50 +207,40 @@ def extract_teams(stats_path):
             continue
 
         kp_name = clean_str(r[1])
+        warren_name = clean_str(get_col(r, hmap, ["warren name"], 3), kp_name)
         espn_name = clean_str(get_col(r, hmap, ["espn name", "espn"], 4), kp_name)
-        em_lookup_name = clean_str(get_col(r, hmap, ["evanmiya name", "em name"], 5), kp_name)
-        em_info = em_reg_map.get(em_lookup_name) or em_reg_map.get(kp_name) or {}
+        em_name = clean_str(get_col(r, hmap, ["evanmiya name", "em name"], 5), kp_name)
 
-        conf_short = clean_str(
-            get_col(r, hmap, ["conf", "conference"], None),
-            em_info.get("conf_short", "D1"),
-        )
-        conf_full = CONF_FULL_NAMES.get(conf_short, conf_short)
+        em_info = em_reg_map.get(em_name) or em_reg_map.get(kp_name) or {}
+        bpi_info = bpi_map.get(espn_name.lower()) or {}
+        s4_info = s4_map.get(kp_name) or {}
 
-        con_tempo = num(get_col(r, hmap, ["consensus tempo", "con tempo", "adjt"], 172), 1)
-        con_ortg = num(get_col(r, hmap, ["consensus ortg", "con ortg", "consensus off"], 173), 2)
-        con_drtg = num(get_col(r, hmap, ["consensus drtg", "con drtg", "consensus def"], 174), 2)
-        con_net = num(get_col(r, hmap, ["consensus net rtg", "consensus net", "con net"], 175), 2)
+        conf_short = em_info.get("conf_short", "D1")
+        conf_full = CONF_FULL_NAMES.get(conf_short) or bpi_info.get("conf") or conf_short
+
+        con_tempo = num(get_col(r, hmap, ["consensus tempo"], 172), 1)
+        con_ortg = num(get_col(r, hmap, ["consensus ortg"], 173), 2)
+        con_drtg = num(get_col(r, hmap, ["consensus drtg"], 174), 2)
+        con_net = num(get_col(r, hmap, ["consensus net rtg"], 175), 2)
         if con_net == 0.0 and (con_ortg or con_drtg):
             con_net = round(con_ortg - con_drtg, 2)
 
         live_tempo = num(get_col(r, hmap, ["live tempo"], 177), 1) or con_tempo
-        live_ortg = num(get_col(r, hmap, ["live ortg", "live off"], 178), 2)
-        live_drtg = num(get_col(r, hmap, ["live drtg", "live def"], 179), 2)
-        live_net = num(get_col(r, hmap, ["live net rtg", "live net"], 180), 2)
+        live_ortg = num(get_col(r, hmap, ["live ortg"], 178), 2)
+        live_drtg = num(get_col(r, hmap, ["live drtg"], 179), 2)
+        live_net = num(get_col(r, hmap, ["live net rtg"], 180), 2)
         if live_net == 0.0 and (live_ortg or live_drtg):
             live_net = round(live_ortg - live_drtg, 2)
 
-        net_score = num(get_col(r, hmap, ["net score", "av score"], None), 2)
+        net_score = num(get_col(r, hmap, ["net score"], 182), 2)
         if net_score == 0.0 and (con_net or live_net):
             net_score = round((con_net + live_net) / 2.0, 2)
 
-        em_ortg = num(get_col(r, hmap, ["em ortg", "evanmiya ortg"], 144), 2)
-        em_drtg = num(get_col(r, hmap, ["em drtg", "evanmiya drtg"], 145), 2)
-        em_net = num(get_col(r, hmap, ["em net", "evanmiya net", "bpr"], 146), 2)
-        em_inj_ortg = num(get_col(r, hmap, ["em inj ortg", "evanmiya inj ortg"], 148), 2)
-        em_inj_drtg = num(get_col(r, hmap, ["em inj drtg", "evanmiya inj drtg"], 149), 2)
-        em_inj_net = num(get_col(r, hmap, ["em inj net", "evanmiya inj net"], 150), 2)
-        inj_delta = num(get_col(r, hmap, ["inj delta", "injury delta", "inj delta %"], 152), 2)
-        if abs(inj_delta) > 0 and abs(inj_delta) < 0.25:
+        inj_delta = num(get_col(r, hmap, ["injury delta"], 154), 4)
+        if 0 < abs(inj_delta) < 0.25:
             inj_delta = round(inj_delta * 100.0, 2)
-
-        kp_ortg = num(get_col(r, hmap, ["adj. ortg", "kp ortg", "kenpom ortg", "adjoe"], 161), 2)
-        kp_drtg = num(get_col(r, hmap, ["adj. drtg", "kp drtg", "kenpom drtg", "adjde"], 162), 2)
-        kp_net = num(get_col(r, hmap, ["adj. net rtg", "kp net", "kenpom net", "netrtg"], 163), 2)
-        kp_inj_ortg = num(get_col(r, hmap, ["kp inj ortg"], 168), 2)
-        kp_inj_drtg = num(get_col(r, hmap, ["kp inj drtg"], 169), 2)
-        kp_inj_net = num(get_col(r, hmap, ["kp inj net rtg", "kp inj net"], 170), 2)
+        else:
+            inj_delta = round(inj_delta, 2)
 
         teams.append({
             "id": int(round(r[0])),
@@ -222,60 +248,60 @@ def extract_teams(stats_path):
             "espn_name": espn_name,
             "conf": conf_full,
             "conf_short": conf_short,
-            "g": int(num(get_col(r, hmap, ["g", "games"], 7), 0)),
-            "w": int(num(get_col(r, hmap, ["w", "wins"], 8), 0)),
-            "l": int(num(get_col(r, hmap, ["l", "losses"], 9), 0)),
-            "wl_pct": num(get_col(r, hmap, ["w-l%", "wl%"], 10), 3),
+            "g": int(num(get_col(r, hmap, ["g"], 7), 0)),
+            "w": int(num(get_col(r, hmap, ["w"], 8), 0)),
+            "l": int(num(get_col(r, hmap, ["l"], 9), 0)),
+            "wl_pct": num(get_col(r, hmap, ["w-l%"], 10), 3),
             "srs": num(get_col(r, hmap, ["srs"], 11), 2),
             "sos": num(get_col(r, hmap, ["sos"], 12), 2),
-            "sor": num(get_col(r, hmap, ["sor"], 13), 2),
-            "ppg": num(get_col(r, hmap, ["tm.", "ppg", "pts/g"], 23), 1),
-            "opp_ppg": num(get_col(r, hmap, ["opp.", "opp ppg", "opp pts/g"], 24), 1),
-            "pd": num(get_col(r, hmap, ["pd", "margin"], 25), 1),
-            "fg_pct": pct_val(get_col(r, hmap, ["fg%"], 38), 1),
-            "two_pct": pct_val(get_col(r, hmap, ["2p%"], 41), 1),
-            "three_pct": pct_val(get_col(r, hmap, ["3p%"], 44), 1),
-            "ft_pct": pct_val(get_col(r, hmap, ["ft%"], 47), 1),
-            "orb_pg": num(get_col(r, hmap, ["orb/g", "orb"], 48), 1),
-            "second_c_pct": pct_val(get_col(r, hmap, ["2c%", "second chance %"], 49), 1),
-            "trb": num(get_col(r, hmap, ["trb", "reb"], 50), 1),
-            "ast": num(get_col(r, hmap, ["ast"], 51), 1),
-            "stl": num(get_col(r, hmap, ["stl"], 52), 1),
-            "blk": num(get_col(r, hmap, ["blk"], 53), 1),
-            "tov": num(get_col(r, hmap, ["tov"], 54), 1),
+            "sor": num(get_col(r, hmap, ["sor calc", "sor"], 13), 2),
+            "ppg": num(get_col(r, hmap, ["tm."], 23), 1),
+            "opp_ppg": num(get_col(r, hmap, ["opp."], 24), 1),
+            "pd": num(get_col(r, hmap, ["pd"], 25), 1),
+            "fg_pct": pct_val(get_col(r, hmap, ["fg%"], 37), 1),
+            "two_pct": pct_val(get_col(r, hmap, ["2p%"], 40), 1),
+            "three_pct": pct_val(get_col(r, hmap, ["3p%"], 43), 1),
+            "ft_pct": pct_val(get_col(r, hmap, ["ft%"], 46), 1),
+            "orb_pg": num(get_col(r, hmap, ["orb"], 47), 1),
+            "second_c_pct": pct_val(get_col(r, hmap, ["2c%"], 48), 1),
+            "trb": num(get_col(r, hmap, ["trb"], 49), 1),
+            "ast": num(get_col(r, hmap, ["ast"], 50), 1),
+            "stl": num(get_col(r, hmap, ["stl"], 51), 1),
+            "blk": num(get_col(r, hmap, ["blk"], 52), 1),
+            "tov": num(get_col(r, hmap, ["tov"], 53), 1),
             "efg_pct": pct_val(get_col(r, hmap, ["efg%"], 87), 1),
             "tov_pct": pct_val(get_col(r, hmap, ["tov%"], 88), 1),
             "orb_pct": pct_val(get_col(r, hmap, ["orb%"], 89), 1),
-            "ftr": pct_val(get_col(r, hmap, ["ftr", "ft rate"], 80), 1),
+            "ftr": pct_val(get_col(r, hmap, ["ftr"], 80), 1),
             "opp_efg_pct": pct_val(get_col(r, hmap, ["opp efg%"], 108), 1),
             "opp_tov_pct": pct_val(get_col(r, hmap, ["opp tov%"], 109), 1),
             "opp_orb_pct": pct_val(get_col(r, hmap, ["opp orb%"], 110), 1),
             "opp_ftr": pct_val(get_col(r, hmap, ["opp ftr"], 101), 1),
-            "avg_ht": num(get_col(r, hmap, ["avg ht", "avg height"], 131), 2),
-            "eff_ht": num(get_col(r, hmap, ["eff ht", "eff height"], 132), 2),
-            "adj_net_ff": num(get_col(r, hmap, ["adj net ff"], 137), 2),
-            "bpi_ortg": num(get_col(r, hmap, ["bpi ortg", "bpi off"], 140), 1),
-            "bpi_drtg": num(get_col(r, hmap, ["bpi drtg", "bpi def"], 141), 1),
-            "bpi_net": num(get_col(r, hmap, ["bpi", "bpi net"], 142), 1),
-            "bpi_rk": opt_int(get_col(r, hmap, ["bpi rk", "bpi rank"], 143)),
-            "em_ortg": em_ortg,
-            "em_drtg": em_drtg,
-            "em_net": em_net,
-            "em_rk": opt_int(get_col(r, hmap, ["em rk"], 147)) or em_info.get("em_rk"),
-            "em_inj_ortg": em_inj_ortg,
-            "em_inj_drtg": em_inj_drtg,
-            "em_inj_net": em_inj_net,
-            "em_inj_rk": opt_int(get_col(r, hmap, ["em inj rk"], 151)) or em_inj_map.get(em_lookup_name) or em_inj_map.get(kp_name),
+            "avg_ht": num(get_col(r, hmap, ["avg. ht"], 130), 2),
+            "eff_ht": num(get_col(r, hmap, ["eff. ht"], 131), 2),
+            "adj_net_ff": num(get_col(r, hmap, ["adj. net ff"], 136), 2),
+            "bpi_ortg": num(get_col(r, hmap, ["bpi ortg"], 138), 1),
+            "bpi_drtg": num(get_col(r, hmap, ["bpi drtg"], 139), 1),
+            "bpi_net": num(get_col(r, hmap, ["bpi net rtg"], 140), 1),
+            "bpi_rk": bpi_info.get("bpi_rk"),
+            "em_ortg": num(get_col(r, hmap, ["em adj. ortg"], 147), 2),
+            "em_drtg": num(get_col(r, hmap, ["em adj. drtg"], 148), 2),
+            "em_net": num(get_col(r, hmap, ["em adj. net rtg"], 149), 2),
+            "em_rk": em_info.get("em_rk"),
+            "em_inj_ortg": num(get_col(r, hmap, ["em adj. inj ortg"], 150), 2),
+            "em_inj_drtg": num(get_col(r, hmap, ["em adj. inj drtg"], 151), 2),
+            "em_inj_net": num(get_col(r, hmap, ["em adj. net inj rtg"], 152), 2),
+            "em_inj_rk": em_inj_map.get(em_name) or em_inj_map.get(kp_name),
             "inj_delta_pct": inj_delta,
-            "elo": num(get_col(r, hmap, ["elo", "warren elo"], 158), 1),
-            "elo_rk": opt_int(get_col(r, hmap, ["elo rk", "elo rank"], None)),
-            "kp_ortg": kp_ortg,
-            "kp_drtg": kp_drtg,
-            "kp_net": kp_net,
-            "kp_rk": opt_int(get_col(r, hmap, ["kp rk", "kenpom rk"], None)),
-            "kp_inj_ortg": kp_inj_ortg,
-            "kp_inj_drtg": kp_inj_drtg,
-            "kp_inj_net": kp_inj_net,
+            "elo": num(get_col(r, hmap, ["elo"], 158), 1),
+            "elo_rk": elo_rk_map.get(warren_name.lower()) or elo_rk_map.get(kp_name.lower()),
+            "kp_ortg": num(get_col(r, hmap, ["adj. ortg"], 161), 2),
+            "kp_drtg": num(get_col(r, hmap, ["adj. drtg"], 162), 2),
+            "kp_net": num(get_col(r, hmap, ["adj. net rtg"], 163), 2),
+            "kp_rk": kp_rk_map.get(kp_name),
+            "kp_inj_ortg": num(get_col(r, hmap, ["kp inj ortg"], 168), 2),
+            "kp_inj_drtg": num(get_col(r, hmap, ["kp inj drtg"], 169), 2),
+            "kp_inj_net": num(get_col(r, hmap, ["kp inj net rtg"], 170), 2),
             "con_tempo": con_tempo,
             "con_ortg": con_ortg,
             "con_drtg": con_drtg,
@@ -285,11 +311,11 @@ def extract_teams(stats_path):
             "live_drtg": live_drtg,
             "live_net": live_net,
             "net_score": net_score,
-            "size_rk": opt_int(get_col(r, hmap, ["size rk", "height rk"], None)),
-            "exp": num(get_col(r, hmap, ["exp", "experience"], None), 2) or None,
-            "continuity": num(get_col(r, hmap, ["continuity", "cont%"], None), 1) or None,
-            "win_conf_pct": clean_str(get_col(r, hmap, ["win conf%", "win conf"], None)),
-            "proj_conf_wl": clean_str(get_col(r, hmap, ["proj conf w-l", "proj conf"], None)),
+            "size_rk": s4_info.get("size_rk"),
+            "exp": s4_info.get("exp"),
+            "continuity": s4_info.get("continuity"),
+            "win_conf_pct": bpi_info.get("win_conf_pct", ""),
+            "proj_conf_wl": bpi_info.get("proj_conf_wl", ""),
         })
 
     wb.close()
