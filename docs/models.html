@@ -224,6 +224,23 @@
     <!-- 6 Model Performance Cards -->
     <div id="model-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5"></div>
 
+    <!-- Model Agreement Performance Cards (4 Cohorts) -->
+    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Cross-Model Consensus • Unanimous Picks</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">Model Agreement Performance</h3>
+          <p class="text-xs text-slate-400">
+            Straight-up winner accuracy when every model in the group picks the same winner across the active date window.
+          </p>
+        </div>
+        <span id="agreement-window-badge" class="text-xs font-mono px-2.5 py-1 rounded bg-slate-950 text-orange-300 border border-slate-800">
+          Loading agreement stats...
+        </span>
+      </div>
+      <div id="model-agreement-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </section>
+
     <!-- Charts Row -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-lg flex flex-col justify-between">
@@ -710,11 +727,157 @@
         `;
       }).join('');
 
+      renderModelAgreementCards();
       renderModelCategoryBarChart(cat, perf, rankedModels[0]);
       renderModelDailyTrendChart(cat);
       renderPerformanceMatrix(perf);
       renderGameLogTable();
       renderTodayPredictions();
+    }
+
+    const AGREEMENT_GROUPS = [
+      {
+        id: 'live',
+        title: 'Live Models',
+        subtitle: 'Live Morey Z + Live Log5',
+        models: ['Live Morey Z', 'Live Log5'],
+        color: '#f97316',
+        borderCls: 'border-orange-500/40'
+      },
+      {
+        id: 'consensus',
+        title: 'Consensus Models',
+        subtitle: 'Consensus Morey Z + Consensus Log5',
+        models: ['Consensus Morey Z', 'Consensus Log5'],
+        color: '#38bdf8',
+        borderCls: 'border-sky-500/40'
+      },
+      {
+        id: 'old',
+        title: 'Old Models',
+        subtitle: 'Adj. Eff. + Base',
+        models: ['Adj. Eff.', 'Base'],
+        color: '#10b981',
+        borderCls: 'border-emerald-500/40'
+      },
+      {
+        id: 'all',
+        title: 'All 6 Models',
+        subtitle: 'Full 6-Model Unanimous Consensus',
+        models: ['Live Morey Z', 'Consensus Morey Z', 'Live Log5', 'Consensus Log5', 'Adj. Eff.', 'Base'],
+        color: '#a855f7',
+        borderCls: 'border-purple-500/40'
+      }
+    ];
+
+    function renderModelAgreementCards() {
+      const grid = document.getElementById('model-agreement-grid');
+      const badge = document.getElementById('agreement-window-badge');
+      if (!grid) return;
+
+      const windowGames = RAW_DATA.games.filter(g => filterDatesByWindow(g.d));
+      const winLabel = STATE.simDateFilter === 'ALL'
+        ? `All ${SORTED_DATES.length} Days`
+        : (STATE.simDateFilter === 'LAST7' ? 'Last 7 Graded Days' : STATE.simDateFilter);
+      if (badge) {
+        badge.textContent = `${winLabel} • ${windowGames.length} Graded Games`;
+      }
+
+      const stats = AGREEMENT_GROUPS.map(grp => {
+        let eligible = 0;
+        let agreeTotal = 0;
+        let agreeWins = 0;
+        let hiConfTotal = 0;
+        let hiConfWins = 0;
+        let vhiConfTotal = 0;
+        let vhiConfWins = 0;
+
+        windowGames.forEach(g => {
+          if (!g.m || !grp.models.every(mn => g.m[mn])) return;
+          eligible++;
+
+          const picks = grp.models.map(mn => (g.m[mn][0] >= g.m[mn][1] ? 1 : 2));
+          const unanimous = picks.every(p => p === picks[0]);
+          if (!unanimous) return;
+
+          agreeTotal++;
+          const pickedTeam = picks[0];
+          const isWin = (pickedTeam === 1 && g.s1 > g.s2) || (pickedTeam === 2 && g.s2 > g.s1);
+          if (isWin) agreeWins++;
+
+          const avgFavWp = grp.models.reduce((s, mn) => s + Math.max(g.m[mn][0], g.m[mn][1]), 0) / grp.models.length;
+          if (avgFavWp >= 75) {
+            hiConfTotal++;
+            if (isWin) hiConfWins++;
+          }
+          if (avgFavWp >= 90) {
+            vhiConfTotal++;
+            if (isWin) vhiConfWins++;
+          }
+        });
+
+        const winPct = agreeTotal > 0 ? (agreeWins / agreeTotal) * 100 : 0;
+        const agreeRate = eligible > 0 ? (agreeTotal / eligible) * 100 : 0;
+        const splitGames = eligible - agreeTotal;
+        const hiPct = hiConfTotal > 0 ? (hiConfWins / hiConfTotal) * 100 : null;
+        const vhiPct = vhiConfTotal > 0 ? (vhiConfWins / vhiConfTotal) * 100 : null;
+
+        return { grp, eligible, agreeTotal, agreeWins, winPct, agreeRate, splitGames, hiConfTotal, hiConfWins, hiPct, vhiConfTotal, vhiConfWins, vhiPct };
+      });
+
+      const bestPct = Math.max(...stats.map(s => (s.agreeTotal > 0 ? s.winPct : -1)));
+
+      grid.innerHTML = stats.map(s => {
+        const isBest = s.agreeTotal > 0 && s.winPct === bestPct;
+        const losses = s.agreeTotal - s.agreeWins;
+        const hiStr = s.hiPct !== null ? `${s.hiPct.toFixed(1)}% (${s.hiConfWins}/${s.hiConfTotal})` : '—';
+        const vhiStr = s.vhiPct !== null ? `${s.vhiPct.toFixed(1)}% (${s.vhiConfWins}/${s.vhiConfTotal})` : '—';
+
+        return `
+          <div class="rounded-2xl p-4 bg-slate-950/80 border ${isBest ? 'border-orange-500/80 ring-1 ring-orange-500/30' : s.grp.borderCls} shadow-lg flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-1.5">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${s.grp.color}"></span>
+                  <span class="text-xs sm:text-sm font-extrabold text-white truncate">${s.grp.title}</span>
+                </div>
+                ${isBest
+                  ? `<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-orange-500 text-white font-bold shrink-0">Best</span>`
+                  : `<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 shrink-0">${s.agreeRate.toFixed(0)}% Agree</span>`}
+              </div>
+              <div class="text-[11px] text-slate-400 truncate" title="${s.grp.subtitle}">${s.grp.subtitle}</div>
+
+              <div class="mt-3 flex items-baseline justify-between gap-2">
+                <div class="text-2xl sm:text-3xl font-extrabold text-white mono-num">
+                  ${s.agreeTotal > 0 ? s.winPct.toFixed(2) + '%' : '—'}
+                </div>
+                <div class="text-xs font-mono font-bold ${s.winPct >= 75 ? 'text-emerald-400' : 'text-slate-300'}">
+                  ${s.agreeWins}-${losses}
+                </div>
+              </div>
+              <div class="text-[11px] text-slate-400 mono-num mt-0.5">
+                Agreed on ${s.agreeTotal}/${s.eligible} games (${s.agreeRate.toFixed(1)}%) • ${s.splitGames} split
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-800/80">
+              <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-300" style="width: ${Math.min(100, s.winPct)}%; background-color: ${s.grp.color}"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-[10px] font-mono">
+                <div class="bg-slate-900/90 rounded-lg px-2 py-1.5 border border-slate-800/80">
+                  <div class="text-slate-400">75%+ Avg Conf</div>
+                  <div class="text-slate-200 font-bold mt-0.5">${hiStr}</div>
+                </div>
+                <div class="bg-slate-900/90 rounded-lg px-2 py-1.5 border border-slate-800/80">
+                  <div class="text-slate-400">90%+ Avg Conf</div>
+                  <div class="text-slate-200 font-bold mt-0.5">${vhiStr}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderModelCategoryBarChart(cat, perf, leaderName) {
