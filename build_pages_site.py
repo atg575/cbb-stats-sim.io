@@ -371,7 +371,7 @@ def normalize_accuracy(raw):
     return s
 
 
-def extract_simulations(sim_path):
+def extract_simulations(sim_path, match_team=None):
     wb = openpyxl.load_workbook(sim_path, data_only=True, read_only=True)
     date_sheets = sorted(s for s in wb.sheetnames if re.match(r"^\d{4}-\d{2}-\d{2}$", s))
     games = []
@@ -419,6 +419,10 @@ def extract_simulations(sim_path):
                 continue
 
             i += 2  # consume both rows of this game
+
+            if match_team:
+                t1 = match_team(t1) or t1.title()
+                t2 = match_team(t2) or t2.title()
 
             s1 = opt_int(r1[actual_col]) if actual_col < len(r1) else None
             s2 = opt_int(r2[actual_col]) if actual_col < len(r2) else None
@@ -592,7 +596,8 @@ BRACKET_ALIASES = {
     "miami-ohio": "Miami OH",
     "texas-arlington": "UT Arlington",
     "massachusetts-lowell": "UMass Lowell",
-    "omaha": "Nebraska Omaha", "seattle u": "Seattle", "sam houston": "Sam Houston St.",
+    "omaha": "Nebraska Omaha", "seattle u": "Seattle", "seattle university": "Seattle", "sam houston": "Sam Houston St.",
+    "tennessee-martin": "Tennessee Martin",
     "grambling": "Grambling St.", "southern u.": "Southern", "army west point": "Army",
     "lamar university": "Lamar", "alcorn": "Alcorn St.", "prairie view": "Prairie View A&M",
     "fdu": "Fairleigh Dickinson", "fgcu": "Florida Gulf Coast", "uiw": "Incarnate Word",
@@ -1398,7 +1403,7 @@ def main():
     games, upcoming_games, sheet_model_daily, date_sheets = [], [], {}, []
     if sim_path:
         print(f"[Build] Reading simulations: {os.path.basename(sim_path)}")
-        games, upcoming_games, sheet_model_daily, date_sheets = extract_simulations(sim_path)
+        games, upcoming_games, sheet_model_daily, date_sheets = extract_simulations(sim_path, build_team_matcher(teams))
     else:
         print("[Build] Warning: No simulation workbook found; exporting teams only.")
 
