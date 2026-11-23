@@ -110,7 +110,7 @@
       <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
       <div class="flex items-center gap-2 ml-auto">
         <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto switches to Light at sunrise and Dark at sunset">
-          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" onclick="requestGeoForSun()" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto'); requestGeoForSun();" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
           <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">☀️ Light</button>
           <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">🌙</button>
         </div>
@@ -206,6 +206,18 @@
           </div>
           <div class="relative h-72 w-full">
             <canvas id="efficiencyScatterChart"></canvas>
+            <!-- Floating Hover Team Logo Badge (fades in smoothly over hovered dot) -->
+            <div id="scatter-hover-logo"
+                 class="pointer-events-none absolute z-20 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/95 border border-slate-700 shadow-xl opacity-0 scale-90 transition-all duration-200 ease-out"
+                 style="left: 0; top: 0; transform: translate(-50%, -125%);">
+              <div class="w-8 h-8 rounded-lg bg-white/95 p-1 flex items-center justify-center shrink-0 shadow-sm">
+                <img id="scatter-hover-logo-img" src="" alt="" class="w-full h-full object-contain" />
+              </div>
+              <div class="leading-tight pr-0.5">
+                <div id="scatter-hover-logo-name" class="text-xs font-extrabold text-white whitespace-nowrap"></div>
+                <div id="scatter-hover-logo-meta" class="text-[10px] font-mono text-orange-300 whitespace-nowrap"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -413,10 +425,15 @@
   <div id="team-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4" onclick="if (event.target === this) closeTeamModal()">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl p-5 sm:p-6 space-y-5">
       <div class="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
-        <div>
-          <div id="modal-team-badges" class="flex flex-wrap items-center gap-2"></div>
-          <h2 id="modal-team-name" class="text-xl sm:text-2xl font-extrabold text-white mt-1">Team Name</h2>
-          <p id="modal-team-sub" class="text-xs text-slate-400 mono-num">Conference • Record</p>
+        <div class="flex items-center gap-3.5">
+          <div id="modal-team-logo-wrap" class="hidden w-14 h-14 rounded-2xl bg-white/95 border border-slate-700 p-1.5 shrink-0 flex items-center justify-center shadow-md">
+            <img id="modal-team-logo" src="" alt="" class="w-full h-full object-contain" />
+          </div>
+          <div>
+            <div id="modal-team-badges" class="flex flex-wrap items-center gap-2"></div>
+            <h2 id="modal-team-name" class="text-xl sm:text-2xl font-extrabold text-white mt-1">Team Name</h2>
+            <p id="modal-team-sub" class="text-xs text-slate-400 mono-num">Conference • Record</p>
+          </div>
         </div>
         <button type="button" onclick="closeTeamModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700">
           ✕ Close
@@ -448,6 +465,18 @@
 
     const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     const escJs = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+    function teamCellHtml(t, boldClass = 'font-semibold') {
+      const logo = t && t.logo
+        ? `<span class="w-5 h-5 rounded bg-white/95 p-0.5 inline-flex items-center justify-center shrink-0 shadow-sm">
+             <img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'" class="w-full h-full object-contain" />
+           </span>`
+        : `<span class="w-5 h-5 rounded bg-slate-800/80 inline-flex items-center justify-center shrink-0 text-[10px] text-slate-500">🏀</span>`;
+      return `<div class="flex items-center gap-2 whitespace-nowrap">
+        ${logo}
+        <span class="${boldClass} text-white">${esc(t.team)}</span>
+      </div>`;
+    }
 
     async function loadDashboardData() {
       const banner = document.getElementById('data-load-banner');
@@ -803,7 +832,7 @@
       // Uses Consensus ORtg/DRtg for Consensus Ratings, Live ORtg/DRtg for Live Ratings, AV ORtg/DRtg for AV Poll
       const pts = topTeams.map(t => {
         const m = getTeamModeMetrics(t);
-        return { x: m.ortg, y: m.drtg, team: t.team, rk: m.rk, net: m.net, conf: t.conf_short };
+        return { x: m.ortg, y: m.drtg, team: t.team, rk: m.rk, net: m.net, conf: t.conf_short, logo: t.logo || '' };
       });
 
       const ctx = document.getElementById('efficiencyScatterChart').getContext('2d');
@@ -827,6 +856,44 @@
           maintainAspectRatio: false,
           onClick: (_, elements) => {
             if (elements && elements.length > 0) openTeamModalByName(pts[elements[0].index].team);
+          },
+          onHover: (event, elements, chart) => {
+            const overlay = document.getElementById('scatter-hover-logo');
+            if (!overlay) return;
+            if (!elements || elements.length === 0) {
+              overlay.classList.add('opacity-0', 'scale-90');
+              overlay.classList.remove('opacity-100', 'scale-100');
+              chart.canvas.style.cursor = 'default';
+              return;
+            }
+            const hit = elements[0];
+            const d = pts[hit.index];
+            chart.canvas.style.cursor = 'pointer';
+
+            const img = document.getElementById('scatter-hover-logo-img');
+            const nameEl = document.getElementById('scatter-hover-logo-name');
+            const metaEl = document.getElementById('scatter-hover-logo-meta');
+
+            if (d.logo) {
+              img.src = d.logo;
+              img.alt = d.team;
+              img.parentElement.classList.remove('hidden');
+            } else {
+              img.parentElement.classList.add('hidden');
+            }
+            nameEl.textContent = `#${d.rk} ${d.team}`;
+            metaEl.textContent = `Net ${d.net >= 0 ? '+' : ''}${d.net.toFixed(1)}`;
+
+            // Position cleanly above the dot (flip below if near top edge)
+            const x = hit.element.x;
+            const y = hit.element.y;
+            const flipBelow = y < 68;
+            overlay.style.left = `${Math.max(70, Math.min(chart.width - 70, x))}px`;
+            overlay.style.top = `${y}px`;
+            overlay.style.transform = flipBelow ? 'translate(-50%, 16px)' : 'translate(-50%, -125%)';
+
+            overlay.classList.remove('opacity-0', 'scale-90');
+            overlay.classList.add('opacity-100', 'scale-100');
           },
           plugins: {
             legend: { display: false },
@@ -859,6 +926,14 @@
           }
         }
       });
+      const canvasEl = document.getElementById('efficiencyScatterChart');
+      canvasEl.onmouseleave = () => {
+        const overlay = document.getElementById('scatter-hover-logo');
+        if (overlay) {
+          overlay.classList.add('opacity-0', 'scale-90');
+          overlay.classList.remove('opacity-100', 'scale-100');
+        }
+      };
     }
 
     function renderDivergenceList() {
@@ -953,7 +1028,7 @@
           const emRk = isCon ? (t.em_rk || '-') : (t.em_inj_rk || t.em_rk || '-');
           return `<tr onclick="openTeamModalByName('${escJs(t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
             <td class="py-2.5 px-3 mono-num font-bold text-white">#${t.mode_rk}</td>
-            <td class="py-2.5 px-3 font-semibold text-white whitespace-nowrap">${esc(t.team)}</td>
+            <td class="py-2.5 px-3">${teamCellHtml(t)}</td>
             <td class="py-2.5 px-2.5 text-xs text-slate-400 mono-num">${esc(t.conf_short)}</td>
             <td class="py-2.5 px-2.5 mono-num text-slate-300">${t.w}-${t.l}</td>
             <td class="py-2.5 px-3 mono-num ${netCls}">${t.mode_net >= 0 ? '+' : ''}${t.mode_net.toFixed(2)}</td>
@@ -965,7 +1040,7 @@
             <td class="py-2.5 px-2.5 mono-num text-slate-300">#${t.bpi_rk || '-'}</td>
             <td class="py-2.5 px-2.5 mono-num text-slate-300">${t.elo.toFixed(0)} <span class="text-[11px] text-slate-500">#${t.elo_rk || '-'}</span></td>
             <td class="py-2.5 px-2.5 mono-num ${t.inj_delta_pct < 0 ? 'text-rose-400 font-semibold' : 'text-slate-500'}">${t.inj_delta_pct.toFixed(2)}%</td>
-          </tr>`;
+            </tr>`;
         }).join('');
       } else if (STATE.rkColPreset === 'fourfactors') {
         head.innerHTML = `<tr>
@@ -985,7 +1060,7 @@
         </tr>`;
         body.innerHTML = list.map(t => `<tr onclick="openTeamModalByName('${escJs(t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
           <td class="py-2.5 px-3 mono-num font-bold text-white">#${t.mode_rk}</td>
-          <td class="py-2.5 px-3 font-semibold text-white whitespace-nowrap">${esc(t.team)}</td>
+          <td class="py-2.5 px-3">${teamCellHtml(t)}</td>
           <td class="py-2.5 px-2.5 text-xs text-slate-400 mono-num">${esc(t.conf_short)}</td>
           <td class="py-2.5 px-2.5 mono-num text-slate-200">${t.mode_tempo.toFixed(1)}</td>
           <td class="py-2.5 px-2.5 mono-num text-emerald-300">${t.efg_pct.toFixed(1)}%</td>
@@ -1016,7 +1091,7 @@
         </tr>`;
         body.innerHTML = list.map(t => `<tr onclick="openTeamModalByName('${escJs(t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
           <td class="py-2.5 px-3 mono-num font-bold text-white">#${t.mode_rk}</td>
-          <td class="py-2.5 px-3 font-semibold text-white whitespace-nowrap">${esc(t.team)}</td>
+          <td class="py-2.5 px-3">${teamCellHtml(t)}</td>
           <td class="py-2.5 px-2.5 mono-num text-emerald-300">${t.ppg.toFixed(1)}</td>
           <td class="py-2.5 px-2.5 mono-num text-sky-300">${t.opp_ppg.toFixed(1)}</td>
           <td class="py-2.5 px-2.5 mono-num font-semibold ${t.pd >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${t.pd >= 0 ? '+' : ''}${t.pd.toFixed(1)}</td>
@@ -1124,7 +1199,7 @@
               : `<span class="text-slate-400">0</span>`));
         return `
           <tr onclick="openTeamModalByName('${escJs(r.t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
-            <td class="py-2 px-3 font-bold text-white whitespace-nowrap">${esc(r.t.team)}</td>
+            <td class="py-2 px-3">${teamCellHtml(r.t, 'font-bold')}</td>
             <td class="py-2 px-2.5 text-slate-400 mono-num">${esc(r.t.conf_short)}</td>
             <td class="py-2 px-2.5 text-slate-300 mono-num">${r.t.w}-${r.t.l}</td>
             <td class="py-2 px-3 mono-num font-bold text-orange-300">#${r.m.rk}</td>
@@ -1248,7 +1323,7 @@
       document.getElementById('polls-count-label').textContent = `Showing ${rows.length} teams`;
       document.getElementById('polls-comp-tbody').innerHTML = rows.map(r => `
         <tr onclick="openTeamModalByName('${escJs(r.t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
-          <td class="py-2 px-3 font-bold text-white whitespace-nowrap">${esc(r.t.team)}</td>
+          <td class="py-2 px-3">${teamCellHtml(r.t, 'font-bold')}</td>
           <td class="py-2 px-2.5 text-slate-400 mono-num">${esc(r.t.conf_short)}</td>
           <td class="py-2 px-2.5 text-slate-300 mono-num">${r.t.w}-${r.t.l}</td>
           <td class="py-2 px-3 mono-num font-bold text-orange-300">#${r.m.rk}</td>
@@ -1282,7 +1357,15 @@
     function openTeamModalByName(teamName) {
       const t = RAW_DATA.teams.find(x => x.team.toLowerCase() === teamName.toLowerCase());
       if (!t) return;
-
+      const logoWrap = document.getElementById('modal-team-logo-wrap');
+      const logoImg = document.getElementById('modal-team-logo');
+      if (t.logo && logoWrap && logoImg) {
+        logoImg.src = t.logo;
+        logoImg.alt = `${t.team} logo`;
+        logoWrap.classList.remove('hidden');
+      } else if (logoWrap) {
+        logoWrap.classList.add('hidden');
+      }
       const ext = RAW_DATA.external_rankings || {};
       const netRk = ext.net?.[t.team];
       const apRk = ext.ap?.[t.team];
@@ -1360,7 +1443,7 @@
       const modal = document.getElementById('team-modal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
-    }
+    }    
 
     // -----------------------------------------------------------------------
     // BOOTSTRAP

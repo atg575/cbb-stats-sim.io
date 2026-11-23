@@ -135,7 +135,7 @@
       <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
       <div class="flex items-center gap-2 ml-auto">
         <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto switches to Light at sunrise and Dark at sunset">
-          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" onclick="requestGeoForSun()" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto'); requestGeoForSun();" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
           <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">☀️ Light</button>
           <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">🌙</button>
         </div>
@@ -174,14 +174,13 @@
           <div>
             <label for="sim-date-filter" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Date Window</label>
             <select id="sim-date-filter" onchange="handleSimFilterChange()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-medium focus:outline-none focus:border-orange-500">
-              <option value="ALL">All Graded Days</option>
+              <option value="LAST7" selected>Last 7 Graded Days</option>
             </select>
           </div>
           <div>
             <label for="sim-calc-mode" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Accounting Source</label>
             <select id="sim-calc-mode" onchange="handleSimFilterChange()" class="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-medium focus:outline-none focus:border-orange-500">
-              <option value="exact">Exact Daily Game Logs (Reconciled)</option>
-              <option value="sheet">Raw Summary Sheet Cells</option>
+              <option value="exact" selected>Exact Daily Game Logs (Reconciled)</option>
             </select>
           </div>
         </div>
@@ -279,6 +278,24 @@
       </div>
     </div>
 
+    <!-- TODAY'S UNFINISHED GAME PREDICTIONS -->
+    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Live Slate • Pre-Tip &amp; In-Progress</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">Today's Unfinished Game Predictions</h3>
+          <p class="text-xs text-slate-400">
+            Projected scores, spreads, and certainty for today's scheduled games that have not finished yet.
+          </p>
+        </div>
+        <span id="today-preds-badge" class="text-xs font-mono px-2.5 py-1 rounded bg-slate-950 text-emerald-300 border border-slate-800">
+          Loading today's slate...
+        </span>
+      </div>
+
+      <div id="today-preds-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+    </section>
+
     <!-- Graded Simulation Game Log Explorer -->
     <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-xl space-y-4">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
@@ -287,7 +304,7 @@
           <p class="text-xs text-slate-400">Inspect individual games matching your selected category, model, or team search.</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <select id="game-log-model-select" onchange="renderGameLogTable()" class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-orange-500">
+          <select id="game-log-model-select" onchange="renderGameLogTable(); renderTodayPredictions();" class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-orange-500">
             <option value="Live Morey Z">Model: Live Morey Z</option>
             <option value="Consensus Morey Z">Model: Consensus Morey Z</option>
             <option value="Live Log5">Model: Live Log5</option>
@@ -338,12 +355,21 @@
 
     const STATE = {
       categoryIndex: 0,
-      simDateFilter: 'ALL',
+      simDateFilter: 'LAST7',
       simCalcMode: 'exact',
       trendShowAll: true,
       themeMode: localStorage.getItem('cbb_theme_mode') || 'auto',
       userCoords: null
     };
+
+    function parseGameDate(dStr) {
+      if (!dStr) return 0;
+      const s = String(dStr).trim();
+      const iso = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (iso) return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3])).getTime();
+      const parsed = Date.parse(s);
+      return isNaN(parsed) ? 0 : parsed;
+    }
 
     const CATEGORIES = [
       { key: '90%+', label: '90%+', short: '90%+', type: 'confidence', target: 90.0, title: '90%+ Confidence Bucket Win Accuracy', desc: 'Win prediction accuracy when projected win probability is 90.0% or higher (Target: 90.0%).' },
@@ -382,6 +408,8 @@
         RAW_DATA = {
           teams: Array.isArray(payload.teams) ? payload.teams : [],
           games: Array.isArray(payload.games) ? payload.games : [],
+          upcoming_games: Array.isArray(payload.upcoming_games) ? payload.upcoming_games : [],
+          build_date: payload.build_date || '',
           sheet_model_daily: payload.sheet_model_daily || {}
         };
         banner.classList.add('hidden');
@@ -506,6 +534,13 @@
         html += `<option value="${esc(d)}">${esc(d)} (${counts[d]} Games)</option>`;
       });
       sel.innerHTML = html;
+      if (SORTED_DATES.length > 7) {
+        sel.value = 'LAST7';
+        STATE.simDateFilter = 'LAST7';
+      } else {
+        sel.value = 'ALL';
+        STATE.simDateFilter = 'ALL';
+      }
     }
 
     function filterDatesByWindow(dateStr) {
@@ -679,6 +714,7 @@
       renderModelDailyTrendChart(cat);
       renderPerformanceMatrix(perf);
       renderGameLogTable();
+      renderTodayPredictions();
     }
 
     function renderModelCategoryBarChart(cat, perf, leaderName) {
@@ -738,12 +774,85 @@
       });
     }
 
+    function renderTodayPredictions() {
+      const grid = document.getElementById('today-preds-grid');
+      const badge = document.getElementById('today-preds-badge');
+      if (!grid || !badge) return;
+
+      const upcoming = Array.isArray(RAW_DATA.upcoming_games) ? RAW_DATA.upcoming_games : [];
+      const todayKey = RAW_DATA.build_date || new Date().toLocaleDateString('en-CA');
+      const todayGames = upcoming.filter(g => String(g.d || '').startsWith(todayKey));
+      const displayGames = todayGames.length > 0 ? todayGames : upcoming;
+
+      const teamMap = new Map((RAW_DATA.teams || []).map(t => [t.team.toLowerCase(), t]));
+      const activeModel = (document.getElementById('game-log-model-select')?.value) || 'Live Morey Z';
+
+      badge.textContent = `${displayGames.length} Unfinished Game${displayGames.length === 1 ? '' : 's'} • ${todayKey}`;
+
+      if (displayGames.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full rounded-xl bg-slate-950/70 border border-slate-800 p-4 text-center text-xs text-slate-400 mono-num">
+            All scheduled games for ${todayKey} have finished and moved into the graded table below.
+          </div>`;
+        return;
+      }
+
+      const logoTag = (name) => {
+        const tm = teamMap.get(String(name || '').toLowerCase());
+        if (!tm || !tm.logo) return '';
+        return `<img src="${tm.logo}" alt="${name}" class="w-6 h-6 rounded bg-white/95 p-0.5 object-contain shrink-0" />`;
+      };
+
+      grid.innerHTML = displayGames.map(g => {
+        const m = (g.m && (g.m[activeModel] || Object.values(g.m)[0])) || null;
+        const p1 = m ? m[2] : '—';
+        const p2 = m ? m[3] : '—';
+        const pick = m ? m[4] : '—';
+        const cert = m ? m[5] : '';
+        const tot = (typeof p1 === 'number' && typeof p2 === 'number') ? (p1 + p2).toFixed(1) : '—';
+        const spread = (typeof p1 === 'number' && typeof p2 === 'number')
+          ? (p1 >= p2 ? `${g.t1} -${(p1 - p2).toFixed(1)}` : `${g.t2} -${(p2 - p1).toFixed(1)}`)
+          : '—';
+
+        return `
+          <div class="rounded-xl bg-slate-950/80 border border-slate-800 hover:border-orange-500/40 transition p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span>${g.d}</span>
+              <span class="px-2 py-0.5 rounded bg-orange-500/15 text-orange-300 font-bold">${activeModel}</span>
+            </div>
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  ${logoTag(g.t1)}
+                  <span class="text-sm font-bold text-white truncate">${g.t1}</span>
+                </div>
+                <span class="mono-num text-sm font-extrabold text-emerald-400">${p1}</span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  ${logoTag(g.t2)}
+                  <span class="text-sm font-bold text-white truncate">${g.t2}</span>
+                </div>
+                <span class="mono-num text-sm font-extrabold text-sky-400">${p2}</span>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono">
+              <span class="text-slate-300">Line: <strong class="text-white">${spread}</strong> • O/U ${tot}</span>
+              ${cert ? `<span class="text-amber-300 font-semibold">${cert}</span>` : `<span class="text-orange-300">${pick}</span>`}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     function renderModelDailyTrendChart(cat) {
       if (typeof Chart === 'undefined') return;
       const isDark = document.documentElement.classList.contains('dark');
       const gridColor = isDark ? '#1e293b' : '#e2e8f0';
       const tickColor = isDark ? '#94a3b8' : '#475569';
       const legendColor = isDark ? '#cbd5e1' : '#334155';
+    
+    
 
       document.getElementById('model-trend-title').textContent = `Daily Trajectory: ${cat.label}`;
       const modelsToPlot = STATE.trendShowAll ? MODEL_NAMES : ['Live Morey Z', 'Adj. Eff.', 'Base'];
@@ -776,6 +885,7 @@
           tension: 0.25,
           spanGaps: true
         };
+    
       });
 
       const ctx = document.getElementById('modelDailyTrendChart').getContext('2d');
@@ -868,6 +978,8 @@
           return m[4] === cat.key;
         });
       }
+
+      games.sort((a, b) => parseGameDate(b.d) - parseGameDate(a.d));
 
       document.getElementById('game-log-count-label').textContent = `Showing ${Math.min(games.length, 150)} of ${games.length} matching games (${mName}${syncMode === 'SYNC' ? ' • ' + cat.label : ''})`;
 

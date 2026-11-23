@@ -117,7 +117,7 @@
       <!-- Top-Right Auto Sunrise/Sunset Light & Dark Toggle -->
       <div class="flex items-center gap-2 ml-auto">
         <div class="flex items-center bg-slate-800/90 p-0.5 rounded-lg border border-slate-700/80" title="Auto switches to Light at sunrise and Dark at sunset">
-          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto')" onclick="requestGeoForSun()" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
+          <button id="theme-btn-auto" type="button" onclick="setThemeMode('auto'); requestGeoForSun();" class="px-2 py-1 rounded-md text-[11px] font-bold transition bg-orange-500 text-white">🌓 Auto</button>
           <button id="theme-btn-light" type="button" onclick="setThemeMode('light')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">☀️ Light</button>
           <button id="theme-btn-dark" type="button" onclick="setThemeMode('dark')" class="px-2 py-1 rounded-md text-[11px] font-bold transition text-slate-300 hover:text-white">🌙</button>
         </div>
@@ -368,6 +368,23 @@
     // STATE, EXTERNAL BRACKETOLOGY SNAPSHOT & DATA LOADER
     // -----------------------------------------------------------------------
     let RAW_DATA = { teams: [], games: [] };
+    let TEAM_LOGO_MAP = new Map();
+
+    function buildLogoMap(teams) {
+      TEAM_LOGO_MAP = new Map(
+        (teams || [])
+          .filter(t => t && t.team && t.logo)
+          .map(t => [t.team.toLowerCase(), t.logo])
+      );
+    }
+
+    function bracketLogoHtml(teamName, size = 'w-4 h-4') {
+      const url = TEAM_LOGO_MAP.get(String(teamName || '').toLowerCase());
+      if (!url) return '';
+      return `<span class="${size} rounded bg-white/95 p-0.5 inline-flex items-center justify-center shrink-0 shadow-sm">
+        <img src="${esc(url)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'" class="w-full h-full object-contain" />
+      </span>`;
+    }
     let CURRENT_BRACKET_DATA = null;
     let BRACKET_PICKS = {}; // { 'Midwest_R32_0': teamObj, ..., 'FF_0': teamObj, 'CHAMP': teamObj }
 
@@ -787,10 +804,11 @@
 
       const bubbleRow = (t, lbl, col) => `
         <div onclick="openTeamModalByName('${escJs(t.team)}')" class="p-2 rounded-lg bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 cursor-pointer transition flex items-center justify-between gap-2">
-          <div class="truncate">
-            <span class="text-[10px] font-mono ${col} mr-1">${lbl}</span>
-            <span class="text-xs font-bold text-white">${esc(t.team)}</span>
-            <span class="text-[10px] text-slate-400 mono-num ml-1">(${esc(t.conf_short)})</span>
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="text-[10px] font-mono ${col} shrink-0">${lbl}</span>
+            ${bracketLogoHtml(t.team, 'w-4 h-4')}
+            <span class="text-xs font-bold text-white truncate">${esc(t.team)}</span>
+            <span class="text-[10px] text-slate-400 mono-num shrink-0">(${esc(t.conf_short)})</span>
           </div>
           <span class="text-[11px] font-mono text-slate-300 shrink-0">#${t[b.rkKey]}</span>
         </div>`;
@@ -816,15 +834,19 @@
 
       const playInCard = (g, idx) => `
         <div onclick="simulateBracketMatchup('${escJs(g.tA.team)}', '${escJs(g.tB.team)}')" class="p-3 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 cursor-pointer transition flex items-center justify-between gap-2">
-          <div class="space-y-0.5">
+          <div class="space-y-1 min-w-0">
             <div class="flex items-center gap-2">
               <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-orange-500/20 text-orange-300 border border-orange-500/30">${esc(g.region)} #${g.seedLine} Play-In</span>
               <span class="text-[10px] text-slate-400 mono-num">Game #${idx + 1}</span>
             </div>
-            <div class="text-xs sm:text-sm font-bold text-white">
-              ${esc(g.tA.team)} <span class="text-[11px] font-normal text-slate-400">(${esc(g.tA.conf_short)} • #${g.tA[b.rkKey]})</span>
-              <span class="text-orange-400 mx-1">vs.</span>
-              ${esc(g.tB.team)} <span class="text-[11px] font-normal text-slate-400">(${esc(g.tB.conf_short)} • #${g.tB[b.rkKey]})</span>
+            <div class="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-bold text-white">
+              ${bracketLogoHtml(g.tA.team, 'w-4 h-4')}
+              <span>${esc(g.tA.team)}</span>
+              <span class="text-[11px] font-normal text-slate-400">(${esc(g.tA.conf_short)} • #${g.tA[b.rkKey]})</span>
+              <span class="text-orange-400 mx-0.5">vs.</span>
+              ${bracketLogoHtml(g.tB.team, 'w-4 h-4')}
+              <span>${esc(g.tB.team)}</span>
+              <span class="text-[11px] font-normal text-slate-400">(${esc(g.tB.conf_short)} • #${g.tB[b.rkKey]})</span>
             </div>
           </div>
           <span class="text-[11px] font-semibold text-orange-400 shrink-0">Sim ➔</span>
@@ -940,7 +962,7 @@
       const slotHtml = (entry, nextKey, isPicked) => {
         if (!entry) return `<div class="bracket-team-slot text-slate-500 italic">TBD</div>`;
         return `<div onclick="pickBracketSlot('${nextKey}', '${escJs(entry.team.team)}', ${entry.seed})" class="bracket-team-slot ${isPicked ? 'picked text-emerald-300' : 'text-slate-200'}">
-          <span class="truncate"><span class="font-mono text-orange-400 mr-1">${entry.seed}</span>${esc(entry.team.team)}</span>
+          <span class="flex items-center gap-1.5 min-w-0 truncate"><span class="font-mono text-orange-400 shrink-0">${entry.seed}</span>${bracketLogoHtml(entry.team.team, 'w-3.5 h-3.5')}<span class="truncate">${esc(entry.team.team)}</span></span>
           <span class="text-[9px] font-mono text-slate-400">${esc(entry.team.conf_short)}</span>
         </div>`;
       };
@@ -1047,8 +1069,8 @@
       gridEl.className = (STATE.bracketViewMode === 'cards' ? '' : 'hidden ') + (regionsToShow.length === 1 ? 'grid grid-cols-1 gap-5' : 'grid grid-cols-1 lg:grid-cols-2 gap-5');
 
       const slotLbl = (slot) => !slot.isPlayIn
-        ? `<div class="flex items-center justify-between gap-2"><div class="truncate"><span class="font-bold text-white">${esc(slot.team.team)}</span> <span class="text-[10px] text-slate-400 mono-num">(${esc(slot.team.conf_short)})</span></div><span class="text-[10px] font-mono text-slate-400 shrink-0">#${slot.team[b.rkKey]}</span></div>`
-        : `<div class="flex items-center justify-between gap-2"><div class="truncate"><span class="font-bold text-orange-300">${esc(slot.team.team)}</span> / <span class="font-bold text-orange-300">${esc(slot.teamB.team)}</span></div><span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-orange-500/20 text-orange-300">${slot.bidType}</span></div>`;
+        ? `<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-1.5 min-w-0">${bracketLogoHtml(slot.team.team, 'w-4 h-4')}<span class="font-bold text-white truncate">${esc(slot.team.team)}</span> <span class="text-[10px] text-slate-400 mono-num shrink-0">(${esc(slot.team.conf_short)})</span></div><span class="text-[10px] font-mono text-slate-400 shrink-0">#${slot.team[b.rkKey]}</span></div>`
+        : `<div class="flex items-center justify-between gap-2"><div class="flex items-center gap-1 min-w-0 truncate">${bracketLogoHtml(slot.team.team, 'w-3.5 h-3.5')}<span class="font-bold text-orange-300 truncate">${esc(slot.team.team)}</span> / ${bracketLogoHtml(slot.teamB.team, 'w-3.5 h-3.5')}<span class="font-bold text-orange-300 truncate">${esc(slot.teamB.team)}</span></div><span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-orange-500/20 text-orange-300 shrink-0">${slot.bidType}</span></div>`;
 
       gridEl.innerHTML = regionsToShow.map(reg => {
         const slots = b.regions[reg];
@@ -1206,7 +1228,7 @@
               : `<span class="text-slate-400">0</span>`));
         return `
           <tr onclick="openTeamModalByName('${escJs(r.name)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
-            <td class="py-2 px-3 font-bold text-white">${esc(r.name)}</td>
+            <td class="py-2 px-3"><div class="flex items-center gap-2 whitespace-nowrap">${bracketLogoHtml(r.name, 'w-4 h-4')}<span class="font-bold text-white">${esc(r.name)}</span></div></td>
             <td class="py-2 px-2.5 text-slate-400 mono-num">${esc(r.conf)}</td>
             <td class="py-2 px-2.5 mono-num font-bold text-orange-300">${r.ours !== null ? '#' + r.ours : 'OUT'}</td>
             <td class="py-2 px-2.5 mono-num font-bold text-sky-300">${r.src !== null ? '#' + r.src : 'OUT'}</td>
@@ -1232,7 +1254,7 @@
           <tr onclick="openTeamModalByName('${escJs(t.team)}')" class="hover:bg-slate-800/70 cursor-pointer transition">
             <td class="py-2 px-2.5 mono-num font-bold text-slate-300">#${aqRank}</td>
             <td class="py-2 px-2.5 font-semibold text-slate-200">${esc(t.conf)} <span class="text-[10px] text-slate-500 mono-num">(${esc(t.conf_short)})</span></td>
-            <td class="py-2 px-2.5 font-bold text-white">${esc(t.team)} <span class="text-[10px] font-normal text-slate-400 mono-num">(${t.w}-${t.l})</span></td>
+            <td class="py-2 px-2.5"><div class="flex items-center gap-2 whitespace-nowrap">${bracketLogoHtml(t.team, 'w-4 h-4')}<span class="font-bold text-white">${esc(t.team)}</span> <span class="text-[10px] font-normal text-slate-400 mono-num">(${t.w}-${t.l})</span></div></td>
             <td class="py-2 px-2.5 mono-num text-slate-200">#${t[b.rkKey]}</td>
             <td class="py-2 px-2.5 mono-num ${t[b.netKey] >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${t[b.netKey] >= 0 ? '+' : ''}${t[b.netKey].toFixed(2)}</td>
             <td class="py-2 px-2.5 mono-num font-bold text-orange-300">#${info.seedLine} (${info.region})</td>
@@ -1315,6 +1337,7 @@
       fetchLastMainCommitDate();
       const ok = await loadDashboardData();
       if (!ok) return;
+      buildLogoMap(RAW_DATA.teams);
       renderBracketologyPage();
     });
   </script>

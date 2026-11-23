@@ -1291,6 +1291,76 @@ def fetch_external_rankings(teams, existing_ext=None):
 
     return ext
 
+def attach_team_logos(teams, prev_teams=None):
+    """Attach ESPN CDN logo URLs to each team dict using ESPN's public D1 teams API."""
+    prev_logo_map = {
+        t["team"]: t.get("logo", "")
+        for t in (prev_teams or [])
+        if t.get("team") and t.get("logo")
+    }
+    for t in teams:
+        if t["team"] in prev_logo_map:
+            t["logo"] = prev_logo_map[t["team"]]
+
+    if os.environ.get("SKIP_BRACKETOLOGY_SYNC") == "1":
+        return
+
+    try:
+        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/teams?limit=500"
+        raw = _fetch_html(url)
+        data = json.loads(raw)
+        espn_teams = (
+            data.get("sports", [{}])[0]
+            .get("leagues", [{}])[0]
+            .get("teams", [])
+        )
+        match_team = build_team_matcher(teams)
+        by_espn_name = {
+            (t.get("espn_name") or "").strip().lower(): t["team"]
+            for t in teams if t.get("espn_name")
+        }
+        logo_map = {}
+
+        for entry in espn_teams:
+            tm = entry.get("team", {})
+            tid = tm.get("id")
+            logos = tm.get("logos") or []
+            logo_url = logos[0].get("href") if logos else (
+                f"https://a.espncdn.com/i/teamlogos/ncaa/500/{tid}.png" if tid else ""
+            )
+            if not logo_url:
+                continue
+
+            # Try exact espn_name match first, then displayName / location / shortDisplayName
+            canon = None
+            for cand in (
+                tm.get("displayName", ""),
+                tm.get("location", ""),
+                tm.get("shortDisplayName", ""),
+                tm.get("name", ""),
+            ):
+                if not cand:
+                    continue
+                low = cand.strip().lower()
+                if low in by_espn_name:
+                    canon = by_espn_name[low]
+                    break
+                canon = match_team(cand)
+                if canon:
+                    break
+            if canon and canon not in logo_map:
+                logo_map[canon] = logo_url
+
+        matched = 0
+        for t in teams:
+            if t["team"] in logo_map:
+                t["logo"] = logo_map[t["team"]]
+                matched += 1
+        print(f"[Logos Sync] Attached ESPN logos to {matched}/{len(teams)} teams.")
+    except Exception as exc:
+        print(f"[Logos Sync] Skipped ({exc}); keeping cached logos.")
+        
+
 def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -1317,6 +1387,7 @@ def main():
 
     print(f"[Build] Reading stats: {os.path.basename(stats_path)}")
     teams = extract_teams(stats_path)
+    attach_team_logos(teams, prev_json.get("teams"))
 
     games, sheet_model_daily, date_sheets = [], {}, []
     if sim_path:
@@ -1366,6 +1437,8 @@ def main():
 
     size_kb = os.path.getsize(args.out) / 1024.0
     print(f"[Build] Wrote {args.out} ({size_kb:.1f} KB) — {len(teams)} teams, {len(games)} graded games across {len(date_sheets)} days.")
+
+    renderTodayPredictions()
 
     # Quick check that all 4 site pages exist in docs/
     expected_pages = ["index.html", "models.html", "climate.html", "bracket.html"]
