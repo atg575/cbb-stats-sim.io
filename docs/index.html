@@ -206,16 +206,17 @@
           </div>
           <div class="relative h-72 w-full">
             <canvas id="efficiencyScatterChart"></canvas>
-            <!-- Floating Hover Team Logo Badge (fades in smoothly over hovered dot) -->
+            <!-- Floating Hover Team Logo Card (replaces default Chart.js tooltip) -->
             <div id="scatter-hover-logo"
-                 class="pointer-events-none absolute z-20 flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900/95 border border-slate-700 shadow-xl opacity-0 scale-90 transition-all duration-200 ease-out"
-                 style="left: 0; top: 0; transform: translate(-50%, -125%);">
-              <div class="w-8 h-8 rounded-lg bg-white/95 p-1 flex items-center justify-center shrink-0 shadow-sm">
+                 class="pointer-events-none absolute z-20 flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-900/95 border border-slate-700 shadow-xl opacity-0 scale-90 transition-all duration-200 ease-out"
+                 style="left: 0; top: 0; transform: translate(-50%, -120%);">
+              <div class="w-9 h-9 rounded-lg bg-white/95 p-1 flex items-center justify-center shrink-0 shadow-sm">
                 <img id="scatter-hover-logo-img" src="" alt="" class="w-full h-full object-contain" />
               </div>
-              <div class="leading-tight pr-0.5">
+              <div class="leading-snug pr-0.5">
                 <div id="scatter-hover-logo-name" class="text-xs font-extrabold text-white whitespace-nowrap"></div>
                 <div id="scatter-hover-logo-meta" class="text-[10px] font-mono text-orange-300 whitespace-nowrap"></div>
+                <div id="scatter-hover-logo-eff" class="text-[10px] font-mono text-slate-300 whitespace-nowrap"></div>
               </div>
             </div>
           </div>
@@ -873,6 +874,7 @@
             const img = document.getElementById('scatter-hover-logo-img');
             const nameEl = document.getElementById('scatter-hover-logo-name');
             const metaEl = document.getElementById('scatter-hover-logo-meta');
+            const effEl = document.getElementById('scatter-hover-logo-eff');
 
             if (d.logo) {
               img.src = d.logo;
@@ -881,35 +883,26 @@
             } else {
               img.parentElement.classList.add('hidden');
             }
-            nameEl.textContent = `#${d.rk} ${d.team}`;
-            metaEl.textContent = `Net ${d.net >= 0 ? '+' : ''}${d.net.toFixed(1)}`;
+            nameEl.textContent = `#${d.rk} ${d.team} (${d.conf})`;
+            metaEl.textContent = `${prefix} Net: ${d.net >= 0 ? '+' : ''}${d.net.toFixed(2)}`;
+            if (effEl) {
+              effEl.textContent = `${prefix} ORtg: ${d.x.toFixed(1)} • DRtg: ${d.y.toFixed(1)}`;
+            }
 
             // Position cleanly above the dot (flip below if near top edge)
             const x = hit.element.x;
             const y = hit.element.y;
-            const flipBelow = y < 68;
-            overlay.style.left = `${Math.max(70, Math.min(chart.width - 70, x))}px`;
+            const flipBelow = y < 84;
+            overlay.style.left = `${Math.max(115, Math.min(chart.width - 115, x))}px`;
             overlay.style.top = `${y}px`;
-            overlay.style.transform = flipBelow ? 'translate(-50%, 16px)' : 'translate(-50%, -125%)';
+            overlay.style.transform = flipBelow ? 'translate(-50%, 16px)' : 'translate(-50%, -120%)';
 
             overlay.classList.remove('opacity-0', 'scale-90');
             overlay.classList.add('opacity-100', 'scale-100');
           },
           plugins: {
             legend: { display: false },
-            tooltip: {
-              backgroundColor: '#0f172a',
-              titleColor: '#f8fafc',
-              bodyColor: '#cbd5e1',
-              borderColor: '#334155',
-              borderWidth: 1,
-              callbacks: {
-                label: (ctx) => {
-                  const d = ctx.raw;
-                  return `#${d.rk} ${d.team} (${d.conf}) | ${prefix} ORtg: ${d.x.toFixed(1)}, ${prefix} DRtg: ${d.y.toFixed(1)} | Net: ${d.net >= 0 ? '+' : ''}${d.net.toFixed(2)}`;
-                }
-              }
-            }
+            tooltip: { enabled: false }
           },
           scales: {
             x: {
