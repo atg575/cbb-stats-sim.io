@@ -93,7 +93,6 @@ def is_strictly_final(tokens):
 
     return True
 
-
 def extract_verified_total_from_numbers(nums):
     """
     Given a list of integers from a completed team row (which might start with a Top-25 rank
