@@ -10,17 +10,19 @@ Usage:
 """
 
 import argparse
+from collections import Counter
 import datetime
+import difflib
 import json
 import math
 import os
 import re
+import ssl
 import subprocess
 import sys
 import urllib.request
 import openpyxl
-import ssl
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup
 
 
 MODEL_NAMES = [
@@ -373,6 +375,8 @@ def extract_simulations(sim_path):
     wb = openpyxl.load_workbook(sim_path, data_only=True, read_only=True)
     date_sheets = sorted(s for s in wb.sheetnames if re.match(r"^\d{4}-\d{2}-\d{2}$", s))
     games = []
+    upcoming_games = []
+    today_str = datetime.date.today().isoformat()
 
     for d_sheet in date_sheets:
         ws = wb[d_sheet]
@@ -418,31 +422,51 @@ def extract_simulations(sim_path):
 
             s1 = opt_int(r1[actual_col]) if actual_col < len(r1) else None
             s2 = opt_int(r2[actual_col]) if actual_col < len(r2) else None
-            if s1 is None or s2 is None:
-                continue  # skip ungraded / upcoming games
+            has_final_score = (s1 is not None and s2 is not None and not (s1 == 0 and s2 == 0))
+
+            if not has_final_score and d_sheet < today_str:
+                continue  # skip old ungraded rows
 
             m_dict = {}
             for m_name, (win_c, scr_c, acc_c, cert_c) in model_cols.items():
-                if max(win_c, scr_c, acc_c, cert_c) >= len(r1) or max(win_c, scr_c) >= len(r2):
+                if max(win_c, scr_c) >= len(r1) or max(win_c, scr_c) >= len(r2):
                     continue
                 wp1 = pct_val(r1[win_c], 1)
                 wp2 = pct_val(r2[win_c], 1)
-                ps1 = opt_int(r1[scr_c]) or 0
-                ps2 = opt_int(r2[scr_c]) or 0
-                acc = normalize_accuracy(r1[acc_c])
-                cert = clean_str(r1[cert_c])
-                if acc:
-                    m_dict[m_name] = [wp1, wp2, ps1, ps2, acc, cert]
+                ps1 = opt_int(r1[scr_c])
+                ps2 = opt_int(r2[scr_c])
+                if ps1 is None or ps2 is None:
+                    continue
+                acc = normalize_accuracy(r1[acc_c]) if acc_c < len(r1) else ""
+                cert = clean_str(r1[cert_c]) if cert_c < len(r1) else ""
+                if not cert:
+                    max_wp = max(wp1, wp2)
+                    cert = "90%+" if max_wp >= 90 else ("75%+" if max_wp >= 75 else ("60%+" if max_wp >= 60 else "50%+"))
+
+                if has_final_score:
+                    if acc:
+                        m_dict[m_name] = [wp1, wp2, ps1, ps2, acc, cert]
+                else:
+                    pick = t1 if wp1 >= wp2 else t2
+                    m_dict[m_name] = [wp1, wp2, ps1, ps2, pick, cert]
 
             if m_dict:
-                games.append({
-                    "d": d_sheet,
-                    "t1": t1,
-                    "t2": t2,
-                    "s1": s1,
-                    "s2": s2,
-                    "m": m_dict,
-                })
+                if has_final_score:
+                    games.append({
+                        "d": d_sheet,
+                        "t1": t1,
+                        "t2": t2,
+                        "s1": s1,
+                        "s2": s2,
+                        "m": m_dict,
+                    })
+                else:
+                    upcoming_games.append({
+                        "d": d_sheet,
+                        "t1": t1,
+                        "t2": t2,
+                        "m": m_dict,
+                    })
 
     # Extract raw summary sheet rows for the "Raw Summary Sheet Cells" mode
     sheet_model_daily = {}
@@ -490,17 +514,10 @@ def extract_simulations(sim_path):
             })
 
     wb.close()
-    return games, sheet_model_daily, date_sheets
+    return games, upcoming_games, sheet_model_daily, date_sheets
 
 
-from bs4 import BeautifulSoup
 
-import difflib
-from bs4 import BeautifulSoup
-
-import difflib
-import ssl
-from bs4 import BeautifulSoup
 
 BRACKET_ALIASES = {
     "uconn": "Connecticut", "conn": "Connecticut",
@@ -687,9 +704,6 @@ def _fetch_html_playwright(url, wait_ms=2500, timeout_ms=25000):
             browser.close()
 
 
-from collections import Counter
-
-
 def build_team_matcher(teams):
     lookup = {}
 
@@ -805,25 +819,6 @@ def _parse_seed_team_lines(text_lines, match_team):
             elif len(cleaned) <= 35:
                 unmatched.append(f"{seed}: {cleaned}")
     return parsed, unmatched
-
-def _find_seed_before_link(a_tag):
-    """Return the 1-16 seed if the immediately preceding text node is a valid seed (skipping React HTML comments)."""
-    for el in a_tag.previous_elements:
-        if type(el) is not NavigableString:
-            continue
-        if el.parent and el.parent.name in ("script", "style"):
-            continue
-        txt = str(el).strip()
-        if not txt:
-            continue
-        m = re.fullmatch(r"#?(\d{1,2})\.?", txt)
-        if m:
-            s = int(m.group(1))
-            if 1 <= s <= 16:
-                return s
-        return None
-    return None
-
 
 SEED_MAX_TEAMS = {s: (8 if s in (10, 11, 12, 15, 16) else 4) for s in range(1, 17)}
 
@@ -1385,44 +1380,48 @@ def main():
         print("ERROR: Could not locate stats Excel workbook.")
         sys.exit(1)
 
-    print(f"[Build] Reading stats: {os.path.basename(stats_path)}")
-    teams = extract_teams(stats_path)
-    attach_team_logos(teams, prev_json.get("teams"))
-
-    games, sheet_model_daily, date_sheets = [], {}, []
-    if sim_path:
-        print(f"[Build] Reading simulations: {os.path.basename(sim_path)}")
-        games, sheet_model_daily, date_sheets = extract_simulations(sim_path)
-    else:
-        print("[Build] Warning: No simulation workbook found; exporting teams only.")
-
-    # Preserve previously saved external_bracketology if present
-    existing_ext, existing_rankings = {}, {}
+    # Load previously saved data.json first so cached logos/snapshots are available
+    prev_json = {}
     if os.path.isfile(args.out):
         try:
             with open(args.out, "r", encoding="utf-8") as f:
                 prev_json = json.load(f)
-                existing_ext = prev_json.get("external_bracketology", {})
-                existing_rankings = prev_json.get("external_rankings", {})
         except Exception:
-            pass
+            prev_json = {}
+    existing_ext = prev_json.get("external_bracketology", {})
+    existing_rankings = prev_json.get("external_rankings", {})
+
+    print(f"[Build] Reading stats: {os.path.basename(stats_path)}")
+    teams = extract_teams(stats_path)
+    attach_team_logos(teams, prev_json.get("teams"))
+
+    games, upcoming_games, sheet_model_daily, date_sheets = [], [], {}, []
+    if sim_path:
+        print(f"[Build] Reading simulations: {os.path.basename(sim_path)}")
+        games, upcoming_games, sheet_model_daily, date_sheets = extract_simulations(sim_path)
+    else:
+        print("[Build] Warning: No simulation workbook found; exporting teams only.")
 
     ext_bracket = fetch_latest_external_bracketology(teams, existing_ext)
     ext_rankings = fetch_external_rankings(teams, existing_rankings)
 
+    today_iso = datetime.date.today().isoformat()
     payload = {
         "meta": {
             "updated_label": get_last_git_commit_label(base_dir),
             "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "team_count": len(teams),
             "game_count": len(games),
+            "upcoming_count": len(upcoming_games),
             "date_sheets": date_sheets,
         },
+        "build_date": today_iso,
         "teams": teams,
         "games": games,
+        "upcoming_games": upcoming_games,
         "sheet_model_daily": sheet_model_daily,
         "external_bracketology": ext_bracket,
-        "external_rankings": ext_rankings
+        "external_rankings": ext_rankings,
     }
 
     # Atomic, NaN-proof JSON write
@@ -1436,9 +1435,10 @@ def main():
     os.replace(tmp_path, args.out)
 
     size_kb = os.path.getsize(args.out) / 1024.0
-    print(f"[Build] Wrote {args.out} ({size_kb:.1f} KB) — {len(teams)} teams, {len(games)} graded games across {len(date_sheets)} days.")
-
-    renderTodayPredictions()
+    print(
+        f"[Build] Wrote {args.out} ({size_kb:.1f} KB) — "
+        f"{len(teams)} teams, {len(games)} graded games, {len(upcoming_games)} upcoming games across {len(date_sheets)} days."
+    )
 
     # Quick check that all 4 site pages exist in docs/
     expected_pages = ["index.html", "models.html", "climate.html", "bracket.html"]
