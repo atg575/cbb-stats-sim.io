@@ -9,7 +9,7 @@ def run_master_scraper():
         "evan-miya-ratings.py",
         "espn_bpi_puller.py",
         "elo_ratings.py",
-        "old_stat_puller.py"
+        "cbbref_stat_puller.py"
     ]
 
     print("Starting Master CBB Scraper...\n")
