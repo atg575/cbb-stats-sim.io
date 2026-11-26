@@ -36,6 +36,8 @@ jobs:
           # Add any scraper credentials here as GitHub Repo Secrets (e.g., KenPom)
           KENPOM_EMAIL: ${{ secrets.KENPOM_EMAIL }}
           KENPOM_PASSWORD: ${{ secrets.KENPOM_PASSWORD }}
+          EVANMIYA_EMAIL: ${{ secrets.EVANMIYA_EMAIL }}
+          EVANMIYA_PASSWORD: ${{ secrets.EVANMIYA_PASSWORD }}
         run: python3 batch_pull.py
 
       - name: 2. Headless Excel formula recalculation
