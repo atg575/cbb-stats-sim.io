@@ -21,6 +21,7 @@ import ssl
 import subprocess
 import sys
 import urllib.request
+from zoneinfo import ZoneInfo
 import openpyxl
 from bs4 import BeautifulSoup
 
@@ -45,6 +46,11 @@ CONF_FULL_NAMES = {
     "Pat": "Patriot League", "AE": "America East", "MEAC": "MEAC",
     "SWAC": "SWAC", "NEC": "NEC",
 }
+
+
+def get_cbb_slate_date():
+    """Return current CBB slate date in US Eastern Time (rolls over at 4:00 AM ET)."""
+    return (datetime.datetime.now(ZoneInfo("America/New_York")) - datetime.timedelta(hours=4)).date()
 
 
 def num(v, d=2, default=0.0):
@@ -376,7 +382,7 @@ def extract_simulations(sim_path, match_team=None):
     date_sheets = sorted(s for s in wb.sheetnames if re.match(r"^\d{4}-\d{2}-\d{2}$", s))
     games = []
     upcoming_games = []
-    today_str = datetime.date.today().isoformat()
+    today_str = get_cbb_slate_date().isoformat()
 
     for d_sheet in date_sheets:
         ws = wb[d_sheet]
@@ -898,7 +904,7 @@ def fetch_latest_external_bracketology(teams, existing_ext=None):
         return ext
 
     match_team = build_team_matcher(teams)
-    today_label = datetime.datetime.now().strftime("%b %d, %Y")
+    today_label = get_cbb_slate_date().strftime("%b %d, %Y")
 
     # 1. CBS Sports (static fetch first, Playwright fallback if throttled/JS-gated)
     try:
@@ -1132,7 +1138,7 @@ def fetch_external_rankings(teams, existing_ext=None):
         return ext
 
     match_team = build_team_matcher(teams)
-    today_label = datetime.datetime.now().strftime("%b %d, %Y")
+    today_label = get_cbb_slate_date().strftime("%b %d, %Y")
 
     # 1. NCAA NET (or Warren Nolan NET / RPI fallback)
     net_sources = [
@@ -1411,7 +1417,7 @@ def main():
     ext_bracket = fetch_latest_external_bracketology(teams, existing_ext)
     ext_rankings = fetch_external_rankings(teams, existing_rankings)
 
-    today_iso = datetime.date.today().isoformat()
+    today_iso = get_cbb_slate_date().isoformat()
     payload = {
         "meta": {
             "updated_label": get_last_git_commit_label(base_dir),

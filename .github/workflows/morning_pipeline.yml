@@ -1,0 +1,60 @@
+name: Morning CBB Pull, Sim & Site Build
+
+on:
+  schedule:
+    # 8:00 AM EST = 13:00 UTC (switch to 12:00 UTC during EDT in March)
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  morning-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies & LibreOffice
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreoffice-calc
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: 1. Run batch_pull.py
+        env:
+          # Add any scraper credentials here as GitHub Repo Secrets (e.g., KenPom)
+          KENPOM_EMAIL: ${{ secrets.KENPOM_EMAIL }}
+          KENPOM_PASSWORD: ${{ secrets.KENPOM_PASSWORD }}
+        run: python3 batch_pull.py
+
+      - name: 2. Headless Excel formula recalculation
+        run: |
+          libreoffice --headless --convert-to xlsx --outdir /tmp "2026-27 Men's College Basketball Stats_code.xlsx"
+          mv "/tmp/2026-27 Men's College Basketball Stats_code.xlsx" "2026-27 Men's College Basketball Stats_code.xlsx"
+
+      - name: 3. Run batch_sim.py for today's slate
+        run: python3 batch_sim.py
+
+      - name: 4. Build docs/data.json (full sync: logos, polls, bracketology)
+        run: python3 build_pages_site.py
+
+      - name: 5. Commit & push updates to GitHub Pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "2026-27 Men's College Basketball Stats_code.xlsx" Batch_Simulation_Results.xlsx docs/data.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Morning CBB update ($(TZ=America/New_York date +%Y-%m-%d))"
+            git push
+          fi

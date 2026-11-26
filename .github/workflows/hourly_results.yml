@@ -1,0 +1,48 @@
+name: Hourly CBB Results Grading
+
+on:
+  schedule:
+    # Every hour from 12:00 PM EST (17:00 UTC) through 2:00 AM EST (07:00 UTC)
+    - cron: '0 17-23,0-7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  grade-results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install lightweight dependencies
+        run: pip install pandas openpyxl requests beautifulsoup4
+
+      - name: 1. Run batch_result.py
+        run: python3 batch_result.py
+
+      - name: 2. Rebuild docs/data.json (skip slow external bracketology/poll sync)
+        env:
+          SKIP_BRACKETOLOGY_SYNC: "1"
+        run: python3 build_pages_site.py
+
+      - name: 3. Commit & push only if results changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Batch_Simulation_Results.xlsx docs/data.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Hourly game grading ($(TZ=America/New_York date '+%Y-%m-%d %I:%M %p EST'))"
+            git push
+          else
+            echo "No newly completed games; skipping push."
+          fi
