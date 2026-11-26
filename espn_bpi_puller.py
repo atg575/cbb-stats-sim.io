@@ -5,7 +5,7 @@ from io import StringIO
 from datetime import datetime
 from playwright.sync_api import sync_playwright
 
-def scrape_espn_bpi(file_name="2026-27 Men's College Basketball Stats_code.xlsx"):
+def scrape_espn_bpi(out_path="data/raw/espn_bpi.csv"):
     base_url = "https://www.espn.com/mens-college-basketball/bpi/_/page/"
     all_dfs = []
     
@@ -91,16 +91,9 @@ def scrape_espn_bpi(file_name="2026-27 Men's College Basketball Stats_code.xlsx"
             
     print(f"\nTotal teams extracted: {len(final_df)}")
     
-    # Save to Excel
-    sheet_name = "ESPN BPI"
-    if os.path.exists(file_name):
-        with pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-            final_df.to_excel(writer, sheet_name=sheet_name, index=False)
-            print(f"Data replaced in {file_name}")
-    else:
-        with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
-            final_df.to_excel(writer, sheet_name=sheet_name, index=False)
-            print(f"Data saved to new file {file_name}")
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    final_df.to_csv(out_path, index=False)
+    print(f"Saved {len(final_df)} rows to {out_path}")
 
 if __name__ == '__main__':
     scrape_espn_bpi()

@@ -1,0 +1,1237 @@
+{
+  "date": "2026-11-16",
+  "games": [
+    {
+      "t1": "florida a&m",
+      "t2": "utep",
+      "s1": 46,
+      "s2": 79,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.0634,
+          "wp2": 0.9365,
+          "ps1": 72,
+          "ps2": 94,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0444,
+          "wp2": 0.9556,
+          "ps1": 67,
+          "ps2": 92,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.0379,
+          "wp2": 0.962,
+          "ps1": 68,
+          "ps2": 94,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0478,
+          "wp2": 0.9521,
+          "ps1": 67,
+          "ps2": 92,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.0972,
+          "wp2": 0.9028,
+          "ps1": 72,
+          "ps2": 91,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Base": {
+          "wp1": 0.174,
+          "wp2": 0.8258,
+          "ps1": 66,
+          "ps2": 79,
+          "acc": "TEAM",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "iona",
+      "t2": "umbc",
+      "s1": 67,
+      "s2": 75,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.4969,
+          "wp2": 0.5028,
+          "ps1": 67,
+          "ps2": 67,
+          "acc": "TOTAL",
+          "cert": "50%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.5501,
+          "wp2": 0.4496,
+          "ps1": 62,
+          "ps2": 60,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Live Log5": {
+          "wp1": 0.5052,
+          "wp2": 0.4947,
+          "ps1": 61,
+          "ps2": 61,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.55,
+          "wp2": 0.4498,
+          "ps1": 62,
+          "ps2": 60,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.5107,
+          "wp2": 0.4892,
+          "ps1": 68,
+          "ps2": 67,
+          "acc": "TOTAL",
+          "cert": "50%+"
+        },
+        "Base": {
+          "wp1": 0.6768,
+          "wp2": 0.323,
+          "ps1": 73,
+          "ps2": 67,
+          "acc": "TOTAL",
+          "cert": "60%+"
+        }
+      }
+    },
+    {
+      "t1": "alcorn state",
+      "t2": "maryland",
+      "s1": 57,
+      "s2": 117,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.1214,
+          "wp2": 0.8784,
+          "ps1": 86,
+          "ps2": 103,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.1566,
+          "wp2": 0.8433,
+          "ps1": 83,
+          "ps2": 98,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Live Log5": {
+          "wp1": 0.1493,
+          "wp2": 0.8505,
+          "ps1": 84,
+          "ps2": 99,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.1532,
+          "wp2": 0.8466,
+          "ps1": 83,
+          "ps2": 98,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.1664,
+          "wp2": 0.8335,
+          "ps1": 86,
+          "ps2": 100,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Base": {
+          "wp1": 0.0806,
+          "wp2": 0.9193,
+          "ps1": 62,
+          "ps2": 81,
+          "acc": "TEAM",
+          "cert": "90%+"
+        }
+      }
+    },
+    {
+      "t1": "prairie view a&m",
+      "t2": "ohio state",
+      "s1": 59,
+      "s2": 86,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.315,
+          "wp2": 0.6848,
+          "ps1": 87,
+          "ps2": 94,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.3278,
+          "wp2": 0.6721,
+          "ps1": 82,
+          "ps2": 88,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Live Log5": {
+          "wp1": 0.362,
+          "wp2": 0.6379,
+          "ps1": 83,
+          "ps2": 88,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.3294,
+          "wp2": 0.6705,
+          "ps1": 82,
+          "ps2": 88,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.3038,
+          "wp2": 0.6961,
+          "ps1": 86,
+          "ps2": 93,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Base": {
+          "wp1": 0.109,
+          "wp2": 0.891,
+          "ps1": 75,
+          "ps2": 93,
+          "acc": "TEAM AND DIFF",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "saint thomas",
+      "t2": "long island",
+      "s1": 79,
+      "s2": 70,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.8892,
+          "wp2": 0.1107,
+          "ps1": 98,
+          "ps2": 80,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.9522,
+          "wp2": 0.0477,
+          "ps1": 98,
+          "ps2": 73,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.9601,
+          "wp2": 0.0398,
+          "ps1": 100,
+          "ps2": 73,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.9507,
+          "wp2": 0.0492,
+          "ps1": 98,
+          "ps2": 73,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.8214,
+          "wp2": 0.1785,
+          "ps1": 94,
+          "ps2": 80,
+          "acc": "TEAM AND DIFF",
+          "cert": "75%+"
+        },
+        "Base": {
+          "wp1": 0.9962,
+          "wp2": 0.0037,
+          "ps1": 95,
+          "ps2": 57,
+          "acc": "TEAM",
+          "cert": "90%+"
+        }
+      }
+    },
+    {
+      "t1": "western kentucky",
+      "t2": "tulsa",
+      "s1": 64,
+      "s2": 67,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.1904,
+          "wp2": 0.8095,
+          "ps1": 77,
+          "ps2": 90,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.1349,
+          "wp2": 0.865,
+          "ps1": 72,
+          "ps2": 89,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Live Log5": {
+          "wp1": 0.1621,
+          "wp2": 0.8378,
+          "ps1": 74,
+          "ps2": 89,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.1336,
+          "wp2": 0.8662,
+          "ps1": 72,
+          "ps2": 89,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.2118,
+          "wp2": 0.7881,
+          "ps1": 77,
+          "ps2": 89,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Base": {
+          "wp1": 0.2186,
+          "wp2": 0.7812,
+          "ps1": 80,
+          "ps2": 92,
+          "acc": "TEAM",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "grambling state",
+      "t2": "kentucky",
+      "s1": 59,
+      "s2": 88,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.0836,
+          "wp2": 0.9162,
+          "ps1": 84,
+          "ps2": 105,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0407,
+          "wp2": 0.9592,
+          "ps1": 80,
+          "ps2": 106,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.0528,
+          "wp2": 0.9472,
+          "ps1": 81,
+          "ps2": 106,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0387,
+          "wp2": 0.9613,
+          "ps1": 79,
+          "ps2": 106,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.0934,
+          "wp2": 0.9064,
+          "ps1": 82,
+          "ps2": 102,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Base": {
+          "wp1": 0.075,
+          "wp2": 0.9249,
+          "ps1": 76,
+          "ps2": 97,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        }
+      }
+    },
+    {
+      "t1": "eastern kentucky",
+      "t2": "kent state",
+      "s1": 65,
+      "s2": 49,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.9186,
+          "wp2": 0.0813,
+          "ps1": 90,
+          "ps2": 70,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.9586,
+          "wp2": 0.0414,
+          "ps1": 87,
+          "ps2": 62,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.9598,
+          "wp2": 0.0402,
+          "ps1": 88,
+          "ps2": 63,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.9589,
+          "wp2": 0.041,
+          "ps1": 87,
+          "ps2": 62,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.8888,
+          "wp2": 0.1111,
+          "ps1": 88,
+          "ps2": 70,
+          "acc": "TEAM AND DIFF",
+          "cert": "75%+"
+        },
+        "Base": {
+          "wp1": 0.8631,
+          "wp2": 0.1368,
+          "ps1": 99,
+          "ps2": 82,
+          "acc": "TEAM AND DIFF",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "the citadel",
+      "t2": "clemson",
+      "s1": 51,
+      "s2": 87,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.9456,
+          "wp2": 0.0544,
+          "ps1": 102,
+          "ps2": 80,
+          "acc": "WRONG",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.9615,
+          "wp2": 0.0385,
+          "ps1": 103,
+          "ps2": 77,
+          "acc": "WRONG",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.9697,
+          "wp2": 0.0303,
+          "ps1": 105,
+          "ps2": 78,
+          "acc": "WRONG",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.9615,
+          "wp2": 0.0384,
+          "ps1": 103,
+          "ps2": 77,
+          "acc": "WRONG",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.8942,
+          "wp2": 0.1057,
+          "ps1": 97,
+          "ps2": 79,
+          "acc": "WRONG",
+          "cert": "75%+"
+        },
+        "Base": {
+          "wp1": 0.2653,
+          "wp2": 0.7345,
+          "ps1": 87,
+          "ps2": 97,
+          "acc": "TEAM",
+          "cert": "60%+"
+        }
+      }
+    },
+    {
+      "t1": "richmond",
+      "t2": "virginia tech",
+      "s1": 68,
+      "s2": 85,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.7281,
+          "wp2": 0.2718,
+          "ps1": 91,
+          "ps2": 82,
+          "acc": "WRONG",
+          "cert": "60%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.7508,
+          "wp2": 0.249,
+          "ps1": 89,
+          "ps2": 79,
+          "acc": "WRONG",
+          "cert": "75%+"
+        },
+        "Live Log5": {
+          "wp1": 0.762,
+          "wp2": 0.2378,
+          "ps1": 90,
+          "ps2": 80,
+          "acc": "WRONG",
+          "cert": "75%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.7513,
+          "wp2": 0.2485,
+          "ps1": 89,
+          "ps2": 79,
+          "acc": "WRONG",
+          "cert": "75%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.6914,
+          "wp2": 0.3084,
+          "ps1": 88,
+          "ps2": 81,
+          "acc": "WRONG",
+          "cert": "60%+"
+        },
+        "Base": {
+          "wp1": 0.4835,
+          "wp2": 0.5163,
+          "ps1": 96,
+          "ps2": 96,
+          "acc": "WRONG",
+          "cert": "50%+"
+        }
+      }
+    },
+    {
+      "t1": "jacksonville",
+      "t2": "georgia",
+      "s1": 62,
+      "s2": 107,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.5509,
+          "wp2": 0.449,
+          "ps1": 76,
+          "ps2": 74,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.4835,
+          "wp2": 0.5162,
+          "ps1": 71,
+          "ps2": 72,
+          "acc": "TEAM",
+          "cert": "50%+"
+        },
+        "Live Log5": {
+          "wp1": 0.5254,
+          "wp2": 0.4744,
+          "ps1": 73,
+          "ps2": 72,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.482,
+          "wp2": 0.5176,
+          "ps1": 71,
+          "ps2": 72,
+          "acc": "TEAM",
+          "cert": "50%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.4922,
+          "wp2": 0.5076,
+          "ps1": 74,
+          "ps2": 75,
+          "acc": "TEAM",
+          "cert": "50%+"
+        },
+        "Base": {
+          "wp1": 0.4866,
+          "wp2": 0.5132,
+          "ps1": 82,
+          "ps2": 83,
+          "acc": "TEAM",
+          "cert": "50%+"
+        }
+      }
+    },
+    {
+      "t1": "tarleton state",
+      "t2": "drake",
+      "s1": 83,
+      "s2": 79,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.8436,
+          "wp2": 0.1561,
+          "ps1": 83,
+          "ps2": 68,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.8326,
+          "wp2": 0.1673,
+          "ps1": 78,
+          "ps2": 64,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Live Log5": {
+          "wp1": 0.8216,
+          "wp2": 0.1784,
+          "ps1": 78,
+          "ps2": 65,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.8387,
+          "wp2": 0.1612,
+          "ps1": 78,
+          "ps2": 64,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.8542,
+          "wp2": 0.1457,
+          "ps1": 82,
+          "ps2": 67,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Base": {
+          "wp1": 0.1527,
+          "wp2": 0.8473,
+          "ps1": 79,
+          "ps2": 95,
+          "acc": "WRONG",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "columbia",
+      "t2": "northwestern",
+      "s1": 75,
+      "s2": 53,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.7334,
+          "wp2": 0.2663,
+          "ps1": 80,
+          "ps2": 72,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.7778,
+          "wp2": 0.2222,
+          "ps1": 77,
+          "ps2": 67,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Live Log5": {
+          "wp1": 0.7917,
+          "wp2": 0.2082,
+          "ps1": 79,
+          "ps2": 67,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.7746,
+          "wp2": 0.2252,
+          "ps1": 78,
+          "ps2": 67,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.6713,
+          "wp2": 0.3284,
+          "ps1": 78,
+          "ps2": 72,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Base": {
+          "wp1": 0.6961,
+          "wp2": 0.3037,
+          "ps1": 84,
+          "ps2": 77,
+          "acc": "TEAM",
+          "cert": "60%+"
+        }
+      }
+    },
+    {
+      "t1": "abilene christian",
+      "t2": "missouri state",
+      "s1": 64,
+      "s2": 73,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.0002,
+          "wp2": 0.9998,
+          "ps1": 57,
+          "ps2": 106,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0,
+          "wp2": 1.0,
+          "ps1": 50,
+          "ps2": 108,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.0001,
+          "wp2": 0.9999,
+          "ps1": 51,
+          "ps2": 109,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0,
+          "wp2": 1.0,
+          "ps1": 51,
+          "ps2": 108,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.0004,
+          "wp2": 0.9996,
+          "ps1": 59,
+          "ps2": 107,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Base": {
+          "wp1": 0.1388,
+          "wp2": 0.8612,
+          "ps1": 75,
+          "ps2": 91,
+          "acc": "TEAM",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "central arkansas",
+      "t2": "oklahoma state",
+      "s1": 66,
+      "s2": 99,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.5424,
+          "wp2": 0.4573,
+          "ps1": 92,
+          "ps2": 91,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.5469,
+          "wp2": 0.453,
+          "ps1": 89,
+          "ps2": 88,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Live Log5": {
+          "wp1": 0.586,
+          "wp2": 0.4139,
+          "ps1": 91,
+          "ps2": 88,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.5415,
+          "wp2": 0.4584,
+          "ps1": 89,
+          "ps2": 88,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.4552,
+          "wp2": 0.5446,
+          "ps1": 89,
+          "ps2": 90,
+          "acc": "TEAM",
+          "cert": "50%+"
+        },
+        "Base": {
+          "wp1": 0.416,
+          "wp2": 0.5839,
+          "ps1": 87,
+          "ps2": 90,
+          "acc": "TEAM",
+          "cert": "50%+"
+        }
+      }
+    },
+    {
+      "t1": "western illinois",
+      "t2": "minnesota",
+      "s1": 63,
+      "s2": 99,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.0184,
+          "wp2": 0.9816,
+          "ps1": 61,
+          "ps2": 89,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0147,
+          "wp2": 0.9853,
+          "ps1": 54,
+          "ps2": 83,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.0162,
+          "wp2": 0.9837,
+          "ps1": 55,
+          "ps2": 84,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0148,
+          "wp2": 0.9851,
+          "ps1": 54,
+          "ps2": 83,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.0235,
+          "wp2": 0.9764,
+          "ps1": 61,
+          "ps2": 88,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Base": {
+          "wp1": 0.1122,
+          "wp2": 0.8877,
+          "ps1": 73,
+          "ps2": 90,
+          "acc": "TEAM",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "montana",
+      "t2": "kansas state",
+      "s1": 45,
+      "s2": 86,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.5886,
+          "wp2": 0.4112,
+          "ps1": 83,
+          "ps2": 80,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.5423,
+          "wp2": 0.4574,
+          "ps1": 79,
+          "ps2": 77,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Live Log5": {
+          "wp1": 0.5855,
+          "wp2": 0.4142,
+          "ps1": 81,
+          "ps2": 78,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.5332,
+          "wp2": 0.4666,
+          "ps1": 79,
+          "ps2": 78,
+          "acc": "WRONG",
+          "cert": "50%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.4764,
+          "wp2": 0.5234,
+          "ps1": 82,
+          "ps2": 83,
+          "acc": "TEAM",
+          "cert": "50%+"
+        },
+        "Base": {
+          "wp1": 0.2169,
+          "wp2": 0.7828,
+          "ps1": 83,
+          "ps2": 95,
+          "acc": "TEAM",
+          "cert": "75%+"
+        }
+      }
+    },
+    {
+      "t1": "southeastern louisiana",
+      "t2": "texas a&m",
+      "s1": 69,
+      "s2": 101,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.0,
+          "wp2": 1.0,
+          "ps1": 56,
+          "ps2": 117,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0,
+          "wp2": 1.0,
+          "ps1": 50,
+          "ps2": 120,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.0,
+          "wp2": 1.0,
+          "ps1": 51,
+          "ps2": 120,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0,
+          "wp2": 1.0,
+          "ps1": 50,
+          "ps2": 120,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.0,
+          "wp2": 0.9999,
+          "ps1": 56,
+          "ps2": 114,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Base": {
+          "wp1": 0.008,
+          "wp2": 0.992,
+          "ps1": 71,
+          "ps2": 108,
+          "acc": "ALL",
+          "cert": "90%+"
+        }
+      }
+    },
+    {
+      "t1": "east texas a&m",
+      "t2": "oregon state",
+      "s1": 71,
+      "s2": 109,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.036,
+          "wp2": 0.9639,
+          "ps1": 66,
+          "ps2": 92,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0172,
+          "wp2": 0.9827,
+          "ps1": 60,
+          "ps2": 90,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.0233,
+          "wp2": 0.9766,
+          "ps1": 62,
+          "ps2": 91,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0148,
+          "wp2": 0.9852,
+          "ps1": 61,
+          "ps2": 91,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.0456,
+          "wp2": 0.9543,
+          "ps1": 66,
+          "ps2": 90,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Base": {
+          "wp1": 0.0436,
+          "wp2": 0.9563,
+          "ps1": 80,
+          "ps2": 106,
+          "acc": "ALL",
+          "cert": "90%+"
+        }
+      }
+    },
+    {
+      "t1": "portland state",
+      "t2": "saint mary's college",
+      "s1": 78,
+      "s2": 94,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.3492,
+          "wp2": 0.6505,
+          "ps1": 83,
+          "ps2": 88,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.3338,
+          "wp2": 0.6662,
+          "ps1": 80,
+          "ps2": 86,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Live Log5": {
+          "wp1": 0.3203,
+          "wp2": 0.6796,
+          "ps1": 80,
+          "ps2": 87,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.3376,
+          "wp2": 0.6623,
+          "ps1": 80,
+          "ps2": 86,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.3828,
+          "wp2": 0.617,
+          "ps1": 81,
+          "ps2": 85,
+          "acc": "TEAM",
+          "cert": "60%+"
+        },
+        "Base": {
+          "wp1": 0.0334,
+          "wp2": 0.9664,
+          "ps1": 83,
+          "ps2": 111,
+          "acc": "TEAM",
+          "cert": "90%+"
+        }
+      }
+    },
+    {
+      "t1": "long beach state",
+      "t2": "ucla",
+      "s1": 66,
+      "s2": 105,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.0008,
+          "wp2": 0.9991,
+          "ps1": 57,
+          "ps2": 103,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0002,
+          "wp2": 0.9998,
+          "ps1": 51,
+          "ps2": 102,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.0002,
+          "wp2": 0.9998,
+          "ps1": 52,
+          "ps2": 103,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0001,
+          "wp2": 0.9998,
+          "ps1": 51,
+          "ps2": 102,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.0024,
+          "wp2": 0.9976,
+          "ps1": 59,
+          "ps2": 100,
+          "acc": "TEAM AND DIFF",
+          "cert": "90%+"
+        },
+        "Base": {
+          "wp1": 0.0634,
+          "wp2": 0.9364,
+          "ps1": 68,
+          "ps2": 89,
+          "acc": "TEAM",
+          "cert": "90%+"
+        }
+      }
+    },
+    {
+      "t1": "texas southern",
+      "t2": "uc san diego",
+      "s1": 92,
+      "s2": 97,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.1109,
+          "wp2": 0.8891,
+          "ps1": 84,
+          "ps2": 103,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.0805,
+          "wp2": 0.9194,
+          "ps1": 79,
+          "ps2": 100,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Live Log5": {
+          "wp1": 0.088,
+          "wp2": 0.9119,
+          "ps1": 80,
+          "ps2": 101,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.0838,
+          "wp2": 0.9162,
+          "ps1": 79,
+          "ps2": 100,
+          "acc": "TEAM",
+          "cert": "90%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.1325,
+          "wp2": 0.8674,
+          "ps1": 83,
+          "ps2": 100,
+          "acc": "TEAM",
+          "cert": "75%+"
+        },
+        "Base": {
+          "wp1": 0.0801,
+          "wp2": 0.9198,
+          "ps1": 72,
+          "ps2": 92,
+          "acc": "TEAM",
+          "cert": "90%+"
+        }
+      }
+    }
+  ]
+}

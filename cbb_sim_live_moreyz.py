@@ -1,4 +1,6 @@
+import json
 import math
+import os
 import pandas as pd
 import random
 
@@ -576,15 +578,20 @@ def simulate_game_with_rebounds_and_adjustments(
     }
 
 # Correct file path
-file_path = r"/Users/alexvazquez/Coding/cbb_stats/2026-27 Men's College Basketball Stats_code.xlsx"
+file_path = os.path.join("data", "stats_master.json")
 
-def load_dataset(file_path):
-    # Load the dataset
-    try:
-        # Adjust header row based on your dataset's structure
-        df = pd.read_excel(file_path, sheet_name='Worksheet', header=1)  # Use header=0 if the first row contains column names
-    except FileNotFoundError:
+def load_dataset(file_path=None):
+    if file_path is None:
+        file_path = os.path.join("data", "stats_master.json")
+    if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found. Ensure the file exists at: {file_path}")
+
+    if str(file_path).lower().endswith(".json"):
+        with open(file_path, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+        df = pd.DataFrame(payload.get("teams", payload))
+    else:
+        df = pd.read_excel(file_path, sheet_name='Worksheet', header=1)
 
     # Check and adjust columns
     #print("Dataset Columns:", df.columns.tolist())

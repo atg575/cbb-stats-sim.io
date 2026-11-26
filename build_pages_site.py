@@ -22,8 +22,14 @@ import subprocess
 import sys
 import urllib.request
 from zoneinfo import ZoneInfo
-import openpyxl
-from bs4 import BeautifulSoup
+try:
+    import openpyxl
+except ImportError:
+    openpyxl = None
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 
 MODEL_NAMES = [
@@ -1368,6 +1374,184 @@ def attach_team_logos(teams, prev_teams=None):
         print(f"[Logos Sync] Skipped ({exc}); keeping cached logos.")
         
 
+
+def extract_teams_from_json(master_json_path):
+    with open(master_json_path, "r", encoding="utf-8") as f:
+        payload = json.load(f)
+    raw_rows = payload.get("teams", payload)
+    teams = []
+    for r in raw_rows:
+        con_tempo = num(r.get("Consensus Tempo"), 1)
+        con_ortg = num(r.get("Consensus ORtg"), 2)
+        con_drtg = num(r.get("Consensus DRtg"), 2)
+        con_net = num(r.get("Consensus Net Rtg"), 2)
+        live_tempo = num(r.get("Live Tempo"), 1) or con_tempo
+        live_ortg = num(r.get("Live ORtg"), 2)
+        live_drtg = num(r.get("Live DRtg"), 2)
+        live_net = num(r.get("Live Net Rtg"), 2)
+        net_score = num(r.get("Net Score"), 2)
+
+        inj_delta = num(r.get("Injury Delta"), 4)
+        if 0 < abs(inj_delta) < 0.25:
+            inj_delta = round(inj_delta * 100.0, 2)
+        else:
+            inj_delta = round(inj_delta, 2)
+
+        conf_short = clean_str(r.get("conf_short"), "D1")
+        conf_full = clean_str(r.get("conf")) or CONF_FULL_NAMES.get(conf_short, conf_short)
+
+        teams.append({
+            "id": int(num(r.get("Rk"), 0)),
+            "team": clean_str(r.get("Kenpom Name")),
+            "espn_name": clean_str(r.get("ESPN Name")),
+            "conf": conf_full,
+            "conf_short": conf_short,
+            "g": int(num(r.get("G"), 0)),
+            "w": int(num(r.get("W"), 0)),
+            "l": int(num(r.get("L"), 0)),
+            "wl_pct": num(r.get("W-L%"), 3),
+            "srs": num(r.get("SRS"), 2),
+            "sos": num(r.get("SOS"), 2),
+            "sor": num(r.get("SOR Calc"), 2),
+            "ppg": num(r.get("Tm."), 1),
+            "opp_ppg": num(r.get("Opp."), 1),
+            "pd": num(r.get("PD"), 1),
+            "fg_pct": pct_val(r.get("FG%"), 1),
+            "two_pct": pct_val(r.get("2P%"), 1),
+            "three_pct": pct_val(r.get("3P%"), 1),
+            "ft_pct": pct_val(r.get("FT%"), 1),
+            "orb_pg": num(r.get("ORB"), 1),
+            "second_c_pct": pct_val(r.get("2C%"), 1),
+            "trb": num(r.get("TRB"), 1),
+            "ast": num(r.get("AST"), 1),
+            "stl": num(r.get("STL"), 1),
+            "blk": num(r.get("BLK"), 1),
+            "tov": num(r.get("TOV"), 1),
+            "efg_pct": pct_val(r.get("eFG%"), 1),
+            "tov_pct": pct_val(r.get("TOV%"), 1),
+            "orb_pct": pct_val(r.get("ORB%"), 1),
+            "ftr": pct_val(r.get("FTr"), 1),
+            "opp_efg_pct": pct_val(r.get("Opp eFG%"), 1),
+            "opp_tov_pct": pct_val(r.get("Opp TOV%"), 1),
+            "opp_orb_pct": pct_val(r.get("Opp ORB%"), 1),
+            "opp_ftr": pct_val(r.get("Opp FTr"), 1),
+            "avg_ht": num(r.get("Avg. Ht"), 2),
+            "eff_ht": num(r.get("Eff. Ht"), 2),
+            "adj_net_ff": num(r.get("Adj. Net FF"), 2),
+            "bpi_ortg": num(r.get("BPI Ortg"), 1),
+            "bpi_drtg": num(r.get("BPI DRtg"), 1),
+            "bpi_net": num(r.get("BPI Net Rtg"), 1),
+            "bpi_rk": opt_int(r.get("bpi_rk")),
+            "em_ortg": num(r.get("EM Adj. ORtg"), 2),
+            "em_drtg": num(r.get("EM Adj. DRtg"), 2),
+            "em_net": num(r.get("EM Adj. Net Rtg"), 2),
+            "em_rk": opt_int(r.get("em_rk")),
+            "em_inj_ortg": num(r.get("EM Adj. Inj Ortg"), 2),
+            "em_inj_drtg": num(r.get("EM Adj. Inj Drtg"), 2),
+            "em_inj_net": num(r.get("EM Adj. Net inj rtg"), 2),
+            "em_inj_rk": opt_int(r.get("em_inj_rk")),
+            "inj_delta_pct": inj_delta,
+            "elo": num(r.get("ELO"), 1),
+            "elo_rk": opt_int(r.get("elo_rk")),
+            "kp_ortg": num(r.get("Adj. ORtg"), 2),
+            "kp_drtg": num(r.get("Adj. DRtg"), 2),
+            "kp_net": num(r.get("Adj. Net Rtg"), 2),
+            "kp_rk": opt_int(r.get("kp_rk")),
+            "kp_inj_ortg": num(r.get("KP Inj Ortg"), 2),
+            "kp_inj_drtg": num(r.get("KP Inj Drtg"), 2),
+            "kp_inj_net": num(r.get("KP Inj Net rtg"), 2),
+            "con_tempo": con_tempo,
+            "con_ortg": con_ortg,
+            "con_drtg": con_drtg,
+            "con_net": con_net,
+            "live_tempo": live_tempo,
+            "live_ortg": live_ortg,
+            "live_drtg": live_drtg,
+            "live_net": live_net,
+            "net_score": net_score,
+            "size_rk": opt_int(r.get("size_rk")),
+            "exp": num(r.get("exp"), 2, None) if r.get("exp") is not None else None,
+            "continuity": num(r.get("continuity"), 1, None) if r.get("continuity") is not None else None,
+            "win_conf_pct": clean_str(r.get("win_conf_pct")),
+            "proj_conf_wl": clean_str(r.get("proj_conf_wl")),
+        })
+
+    for i, t in enumerate(sorted(teams, key=lambda x: x["con_net"], reverse=True), 1):
+        t["con_rk"] = i
+    for i, t in enumerate(sorted(teams, key=lambda x: x["con_ortg"], reverse=True), 1):
+        t["con_ortg_rk"] = i
+    for i, t in enumerate(sorted(teams, key=lambda x: x["con_drtg"] if x["con_drtg"] > 0 else 999), 1):
+        t["con_drtg_rk"] = i
+    for i, t in enumerate(sorted(teams, key=lambda x: x["live_net"], reverse=True), 1):
+        t["live_rk"] = i
+    for i, t in enumerate(sorted(teams, key=lambda x: x["live_ortg"], reverse=True), 1):
+        t["live_ortg_rk"] = i
+    for i, t in enumerate(sorted(teams, key=lambda x: x["live_drtg"] if x["live_drtg"] > 0 else 999), 1):
+        t["live_drtg_rk"] = i
+
+    teams.sort(key=lambda x: x["con_rk"])
+    return teams
+
+
+def extract_simulations_from_json_dir(sims_dir, match_team=None):
+    date_files = sorted(
+        f for f in os.listdir(sims_dir)
+        if re.match(r"^\d{4}-\d{2}-\d{2}\.json$", f)
+    )
+    date_sheets = [f[:-5] for f in date_files]
+    games = []
+    upcoming_games = []
+    today_str = get_cbb_slate_date().isoformat()
+
+    for fname in date_files:
+        d_sheet = fname[:-5]
+        with open(os.path.join(sims_dir, fname), "r", encoding="utf-8") as f:
+            slate = json.load(f)
+
+        for g in slate.get("games", []):
+            t1 = clean_str(g.get("t1"))
+            t2 = clean_str(g.get("t2"))
+            if not t1 or not t2:
+                continue
+            if match_team:
+                t1 = match_team(t1) or t1.title()
+                t2 = match_team(t2) or t2.title()
+
+            s1 = opt_int(g.get("s1"))
+            s2 = opt_int(g.get("s2"))
+            has_final_score = (s1 is not None and s2 is not None and not (s1 == 0 and s2 == 0))
+            if not has_final_score and d_sheet < today_str:
+                continue
+
+            m_dict = {}
+            for m_name, md in (g.get("models") or {}).items():
+                wp1 = pct_val(md.get("wp1"), 1)
+                wp2 = pct_val(md.get("wp2"), 1)
+                ps1 = opt_int(md.get("ps1"))
+                ps2 = opt_int(md.get("ps2"))
+                if ps1 is None or ps2 is None:
+                    continue
+                cert = clean_str(md.get("cert"))
+                if not cert:
+                    max_wp = max(wp1, wp2)
+                    cert = "90%+" if max_wp >= 90 else ("75%+" if max_wp >= 75 else ("60%+" if max_wp >= 60 else "50%+"))
+                if has_final_score:
+                    acc = normalize_accuracy(md.get("acc"))
+                    if acc:
+                        m_dict[m_name] = [wp1, wp2, ps1, ps2, acc, cert]
+                else:
+                    pick = t1 if wp1 >= wp2 else t2
+                    m_dict[m_name] = [wp1, wp2, ps1, ps2, pick, cert]
+
+            if m_dict:
+                if has_final_score:
+                    games.append({"d": d_sheet, "t1": t1, "t2": t2, "s1": s1, "s2": s2, "m": m_dict})
+                else:
+                    upcoming_games.append({"d": d_sheet, "t1": t1, "t2": t2, "m": m_dict})
+
+    return games, upcoming_games, {}, date_sheets
+
+
 def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -1388,8 +1572,11 @@ def main():
         "simulation",
     )
 
-    if not stats_path:
-        print("ERROR: Could not locate stats Excel workbook.")
+    master_json_path = os.path.join(base_dir, "data", "stats_master.json")
+    sims_json_dir = os.path.join(base_dir, "data", "sims")
+
+    if not os.path.isfile(master_json_path) and not stats_path:
+        print("ERROR: Could not locate data/stats_master.json or stats Excel workbook.")
         sys.exit(1)
 
     # Load previously saved data.json first so cached logos/snapshots are available
@@ -1403,16 +1590,25 @@ def main():
     existing_ext = prev_json.get("external_bracketology", {})
     existing_rankings = prev_json.get("external_rankings", {})
 
-    print(f"[Build] Reading stats: {os.path.basename(stats_path)}")
-    teams = extract_teams(stats_path)
+    if not args.stats and os.path.isfile(master_json_path):
+        print("[Build] Reading stats: data/stats_master.json")
+        teams = extract_teams_from_json(master_json_path)
+    else:
+        print(f"[Build] Reading stats: {os.path.basename(stats_path)}")
+        teams = extract_teams(stats_path)
     attach_team_logos(teams, prev_json.get("teams"))
 
     games, upcoming_games, sheet_model_daily, date_sheets = [], [], {}, []
-    if sim_path:
+    if not args.sims and os.path.isdir(sims_json_dir) and any(f.endswith(".json") for f in os.listdir(sims_json_dir)):
+        print("[Build] Reading simulations: data/sims/*.json")
+        games, upcoming_games, sheet_model_daily, date_sheets = extract_simulations_from_json_dir(
+            sims_json_dir, build_team_matcher(teams)
+        )
+    elif sim_path:
         print(f"[Build] Reading simulations: {os.path.basename(sim_path)}")
         games, upcoming_games, sheet_model_daily, date_sheets = extract_simulations(sim_path, build_team_matcher(teams))
     else:
-        print("[Build] Warning: No simulation workbook found; exporting teams only.")
+        print("[Build] Warning: No simulation data found; exporting teams only.")
 
     ext_bracket = fetch_latest_external_bracketology(teams, existing_ext)
     ext_rankings = fetch_external_rankings(teams, existing_rankings)

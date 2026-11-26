@@ -9,7 +9,8 @@ def run_master_scraper():
         "evan-miya-ratings.py",
         "espn_bpi_puller.py",
         "elo_ratings.py",
-        "cbbref_stat_puller.py"
+        "cbbref_stat_puller.py",
+        "compute_stats.py"
     ]
 
     print("Starting Master CBB Scraper...\n")
@@ -31,7 +32,7 @@ def run_master_scraper():
             print(f"ERROR: Could not find '{script}'. Check the spelling and folder location.\n")
 
     print("All scraping scripts have finished executing!")
-    print("ACTION REQUIRED: Open your master Excel spreadsheet, let formulas calculate, and click Save.")
+    print("Master stats recomputed in data/stats_master.json — no Excel recalculation needed!")
 
 if __name__ == "__main__":
     run_master_scraper()

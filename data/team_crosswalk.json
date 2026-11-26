@@ -1,0 +1,3287 @@
+[
+  {
+    "Rk": 1,
+    "Kenpom Name": "Houston",
+    "CBBRef Name": "Houston",
+    "Warren Name": "houston",
+    "ESPN Name": "Houston Cougars",
+    "EvanMiya Name": "Houston",
+    "School": "Houston"
+  },
+  {
+    "Rk": 2,
+    "Kenpom Name": "Illinois",
+    "CBBRef Name": "Illinois",
+    "Warren Name": "illinois",
+    "ESPN Name": "Illinois Fighting Illini",
+    "EvanMiya Name": "Illinois",
+    "School": "Illinois"
+  },
+  {
+    "Rk": 3,
+    "Kenpom Name": "Arizona",
+    "CBBRef Name": "Arizona",
+    "Warren Name": "arizona",
+    "ESPN Name": "Arizona Wildcats",
+    "EvanMiya Name": "Arizona",
+    "School": "Arizona"
+  },
+  {
+    "Rk": 4,
+    "Kenpom Name": "Kansas",
+    "CBBRef Name": "Kansas",
+    "Warren Name": "kansas",
+    "ESPN Name": "Kansas Jayhawks",
+    "EvanMiya Name": "Kansas",
+    "School": "Kansas"
+  },
+  {
+    "Rk": 5,
+    "Kenpom Name": "Florida",
+    "CBBRef Name": "Florida",
+    "Warren Name": "florida",
+    "ESPN Name": "Florida Gators",
+    "EvanMiya Name": "Florida",
+    "School": "Uf"
+  },
+  {
+    "Rk": 6,
+    "Kenpom Name": "Duke",
+    "CBBRef Name": "Duke",
+    "Warren Name": "duke",
+    "ESPN Name": "Duke Blue Devils",
+    "EvanMiya Name": "Duke",
+    "School": "Duke"
+  },
+  {
+    "Rk": 7,
+    "Kenpom Name": "Gonzaga",
+    "CBBRef Name": "Gonzaga",
+    "Warren Name": "gonzaga",
+    "ESPN Name": "Gonzaga Bulldogs",
+    "EvanMiya Name": "Gonzaga",
+    "School": "Gonzaga"
+  },
+  {
+    "Rk": 8,
+    "Kenpom Name": "Vanderbilt",
+    "CBBRef Name": "Vanderbilt",
+    "Warren Name": "vanderbilt",
+    "ESPN Name": "Vanderbilt Commodores",
+    "EvanMiya Name": "Vanderbilt",
+    "School": "Vanderbilt"
+  },
+  {
+    "Rk": 9,
+    "Kenpom Name": "Connecticut",
+    "CBBRef Name": "Connecticut",
+    "Warren Name": "connecticut",
+    "ESPN Name": "UConn Huskies",
+    "EvanMiya Name": "Connecticut",
+    "School": "Uconn"
+  },
+  {
+    "Rk": 10,
+    "Kenpom Name": "St. John's",
+    "CBBRef Name": "St. John's (NY)",
+    "Warren Name": "saint john's",
+    "ESPN Name": "St. John's Red Storm",
+    "EvanMiya Name": "St. John's",
+    "School": "St. Johns"
+  },
+  {
+    "Rk": 11,
+    "Kenpom Name": "UCLA",
+    "CBBRef Name": "UCLA",
+    "Warren Name": "ucla",
+    "ESPN Name": "UCLA Bruins",
+    "EvanMiya Name": "UCLA",
+    "School": "Ucla"
+  },
+  {
+    "Rk": 12,
+    "Kenpom Name": "Texas Tech",
+    "CBBRef Name": "Texas Tech",
+    "Warren Name": "texas tech",
+    "ESPN Name": "Texas Tech Red Raiders",
+    "EvanMiya Name": "Texas Tech",
+    "School": "Texas Tech"
+  },
+  {
+    "Rk": 13,
+    "Kenpom Name": "Virginia",
+    "CBBRef Name": "Virginia",
+    "Warren Name": "virginia",
+    "ESPN Name": "Virginia Cavaliers",
+    "EvanMiya Name": "Virginia",
+    "School": "Uva"
+  },
+  {
+    "Rk": 14,
+    "Kenpom Name": "Alabama",
+    "CBBRef Name": "Alabama",
+    "Warren Name": "alabama",
+    "ESPN Name": "Alabama Crimson Tide",
+    "EvanMiya Name": "Alabama",
+    "School": "Alabama"
+  },
+  {
+    "Rk": 15,
+    "Kenpom Name": "Texas",
+    "CBBRef Name": "Texas",
+    "Warren Name": "texas",
+    "ESPN Name": "Texas Longhorns",
+    "EvanMiya Name": "Texas",
+    "School": "Texas"
+  },
+  {
+    "Rk": 16,
+    "Kenpom Name": "Nebraska",
+    "CBBRef Name": "Nebraska",
+    "Warren Name": "nebraska",
+    "ESPN Name": "Nebraska Cornhuskers",
+    "EvanMiya Name": "Nebraska",
+    "School": "Nebraska"
+  },
+  {
+    "Rk": 17,
+    "Kenpom Name": "Utah St.",
+    "CBBRef Name": "Utah State",
+    "Warren Name": "utah state",
+    "ESPN Name": "Utah State Aggies",
+    "EvanMiya Name": "Utah State",
+    "School": "Utah State"
+  },
+  {
+    "Rk": 18,
+    "Kenpom Name": "Texas A&M",
+    "CBBRef Name": "Texas A&M",
+    "Warren Name": "texas a&m",
+    "ESPN Name": "Texas A&M Aggies",
+    "EvanMiya Name": "Texas A&M",
+    "School": "Tamu"
+  },
+  {
+    "Rk": 19,
+    "Kenpom Name": "Tennessee",
+    "CBBRef Name": "Tennessee",
+    "Warren Name": "tennessee",
+    "ESPN Name": "Tennessee Volunteers",
+    "EvanMiya Name": "Tennessee",
+    "School": "Tennessee"
+  },
+  {
+    "Rk": 20,
+    "Kenpom Name": "USC",
+    "CBBRef Name": "Southern California",
+    "Warren Name": "usc",
+    "ESPN Name": "USC Trojans",
+    "EvanMiya Name": "USC",
+    "School": "Usc"
+  },
+  {
+    "Rk": 21,
+    "Kenpom Name": "Iowa St.",
+    "CBBRef Name": "Iowa State",
+    "Warren Name": "iowa state",
+    "ESPN Name": "Iowa State Cyclones",
+    "EvanMiya Name": "Iowa State",
+    "School": "Iowa State"
+  },
+  {
+    "Rk": 22,
+    "Kenpom Name": "Michigan St.",
+    "CBBRef Name": "Michigan State",
+    "Warren Name": "michigan state",
+    "ESPN Name": "Michigan State Spartans",
+    "EvanMiya Name": "Michigan State",
+    "School": "Michigan State"
+  },
+  {
+    "Rk": 23,
+    "Kenpom Name": "Iowa",
+    "CBBRef Name": "Iowa",
+    "Warren Name": "iowa",
+    "ESPN Name": "Iowa Hawkeyes",
+    "EvanMiya Name": "Iowa",
+    "School": "Iowa"
+  },
+  {
+    "Rk": 24,
+    "Kenpom Name": "Missouri",
+    "CBBRef Name": "Missouri",
+    "Warren Name": "missouri",
+    "ESPN Name": "Missouri Tigers",
+    "EvanMiya Name": "Missouri",
+    "School": "Missouri"
+  },
+  {
+    "Rk": 25,
+    "Kenpom Name": "LSU",
+    "CBBRef Name": "Louisiana State",
+    "Warren Name": "lsu",
+    "ESPN Name": "LSU Tigers",
+    "EvanMiya Name": "LSU",
+    "School": "Lsu"
+  },
+  {
+    "Rk": 26,
+    "Kenpom Name": "Baylor",
+    "CBBRef Name": "Baylor",
+    "Warren Name": "baylor",
+    "ESPN Name": "Baylor Bears",
+    "EvanMiya Name": "Baylor",
+    "School": "Baylor"
+  },
+  {
+    "Rk": 27,
+    "Kenpom Name": "Mississippi",
+    "CBBRef Name": "Mississippi",
+    "Warren Name": "ole miss",
+    "ESPN Name": "Ole Miss Rebels",
+    "EvanMiya Name": "Ole Miss",
+    "School": "Ole Miss"
+  },
+  {
+    "Rk": 28,
+    "Kenpom Name": "Oklahoma St.",
+    "CBBRef Name": "Oklahoma State",
+    "Warren Name": "oklahoma state",
+    "ESPN Name": "Oklahoma State Cowboys",
+    "EvanMiya Name": "Oklahoma State",
+    "School": "Oklahoma State"
+  },
+  {
+    "Rk": 29,
+    "Kenpom Name": "Minnesota",
+    "CBBRef Name": "Minnesota",
+    "Warren Name": "minnesota",
+    "ESPN Name": "Minnesota Golden Gophers",
+    "EvanMiya Name": "Minnesota",
+    "School": "Minnesota"
+  },
+  {
+    "Rk": 30,
+    "Kenpom Name": "Auburn",
+    "CBBRef Name": "Auburn",
+    "Warren Name": "auburn",
+    "ESPN Name": "Auburn Tigers",
+    "EvanMiya Name": "Auburn",
+    "School": "Auburn"
+  },
+  {
+    "Rk": 31,
+    "Kenpom Name": "BYU",
+    "CBBRef Name": "Brigham Young",
+    "Warren Name": "byu",
+    "ESPN Name": "BYU Cougars",
+    "EvanMiya Name": "BYU",
+    "School": "BYU"
+  },
+  {
+    "Rk": 32,
+    "Kenpom Name": "Miami FL",
+    "CBBRef Name": "Miami (FL)",
+    "Warren Name": "miami (fl)",
+    "ESPN Name": "Miami Hurricanes",
+    "EvanMiya Name": "Miami (Fla.)",
+    "School": "Miami"
+  },
+  {
+    "Rk": 33,
+    "Kenpom Name": "Louisville",
+    "CBBRef Name": "Louisville",
+    "Warren Name": "louisville",
+    "ESPN Name": "Louisville Cardinals",
+    "EvanMiya Name": "Louisville",
+    "School": "Louisville"
+  },
+  {
+    "Rk": 34,
+    "Kenpom Name": "Indiana",
+    "CBBRef Name": "Indiana",
+    "Warren Name": "indiana",
+    "ESPN Name": "Indiana Hoosiers",
+    "EvanMiya Name": "Indiana",
+    "School": "Indiana"
+  },
+  {
+    "Rk": 35,
+    "Kenpom Name": "West Virginia",
+    "CBBRef Name": "West Virginia",
+    "Warren Name": "west virginia",
+    "ESPN Name": "West Virginia Mountaineers",
+    "EvanMiya Name": "West Virginia",
+    "School": "Wvu"
+  },
+  {
+    "Rk": 36,
+    "Kenpom Name": "Saint Louis",
+    "CBBRef Name": "Saint Louis",
+    "Warren Name": "saint louis",
+    "ESPN Name": "Saint Louis Billikens",
+    "EvanMiya Name": "Saint Louis",
+    "School": "Saint Louis"
+  },
+  {
+    "Rk": 37,
+    "Kenpom Name": "TCU",
+    "CBBRef Name": "Texas christian",
+    "Warren Name": "tcu",
+    "ESPN Name": "TCU Horned Frogs",
+    "EvanMiya Name": "TCU",
+    "School": "Tcu"
+  },
+  {
+    "Rk": 38,
+    "Kenpom Name": "Memphis",
+    "CBBRef Name": "Memphis",
+    "Warren Name": "memphis",
+    "ESPN Name": "Memphis Tigers",
+    "EvanMiya Name": "Memphis",
+    "School": "Memphis"
+  },
+  {
+    "Rk": 39,
+    "Kenpom Name": "Creighton",
+    "CBBRef Name": "Creighton",
+    "Warren Name": "creighton",
+    "ESPN Name": "Creighton Bluejays",
+    "EvanMiya Name": "Creighton",
+    "School": "Creighton"
+  },
+  {
+    "Rk": 40,
+    "Kenpom Name": "Michigan",
+    "CBBRef Name": "Michigan",
+    "Warren Name": "michigan",
+    "ESPN Name": "Michigan Wolverines",
+    "EvanMiya Name": "Michigan",
+    "School": "Michigan"
+  },
+  {
+    "Rk": 41,
+    "Kenpom Name": "Cincinnati",
+    "CBBRef Name": "Cincinnati",
+    "Warren Name": "cincinnati",
+    "ESPN Name": "Cincinnati Bearcats",
+    "EvanMiya Name": "Cincinnati",
+    "School": "Cincinnati"
+  },
+  {
+    "Rk": 42,
+    "Kenpom Name": "North Carolina",
+    "CBBRef Name": "North Carolina",
+    "Warren Name": "north carolina",
+    "ESPN Name": "North Carolina Tar Heels",
+    "EvanMiya Name": "North Carolina",
+    "School": "Unc"
+  },
+  {
+    "Rk": 43,
+    "Kenpom Name": "Saint Mary's",
+    "CBBRef Name": "Saint Mary's",
+    "Warren Name": "saint mary's college",
+    "ESPN Name": "Saint Mary's Gaels",
+    "EvanMiya Name": "Saint Mary's",
+    "School": "Saint Marys"
+  },
+  {
+    "Rk": 44,
+    "Kenpom Name": "Marquette",
+    "CBBRef Name": "Marquette",
+    "Warren Name": "marquette",
+    "ESPN Name": "Marquette Golden Eagles",
+    "EvanMiya Name": "Marquette",
+    "School": "Marquette"
+  },
+  {
+    "Rk": 45,
+    "Kenpom Name": "Purdue",
+    "CBBRef Name": "Purdue",
+    "Warren Name": "purdue",
+    "ESPN Name": "Purdue Boilermakers",
+    "EvanMiya Name": "Purdue",
+    "School": "Purdue"
+  },
+  {
+    "Rk": 46,
+    "Kenpom Name": "Wichita St.",
+    "CBBRef Name": "Wichita State",
+    "Warren Name": "wichita state",
+    "ESPN Name": "Wichita State Shockers",
+    "EvanMiya Name": "Wichita State",
+    "School": "Wichita State"
+  },
+  {
+    "Rk": 47,
+    "Kenpom Name": "DePaul",
+    "CBBRef Name": "DePaul",
+    "Warren Name": "depaul",
+    "ESPN Name": "DePaul Blue Demons",
+    "EvanMiya Name": "DePaul",
+    "School": "Depaul"
+  },
+  {
+    "Rk": 48,
+    "Kenpom Name": "Ohio St.",
+    "CBBRef Name": "Ohio State",
+    "Warren Name": "ohio state",
+    "ESPN Name": "Ohio State Buckeyes",
+    "EvanMiya Name": "Ohio State",
+    "School": "Ohio State"
+  },
+  {
+    "Rk": 49,
+    "Kenpom Name": "Grand Canyon",
+    "CBBRef Name": "Grand Canyon",
+    "Warren Name": "grand canyon",
+    "ESPN Name": "Grand Canyon Lopes",
+    "EvanMiya Name": "Grand Canyon",
+    "School": "gcu"
+  },
+  {
+    "Rk": 50,
+    "Kenpom Name": "Xavier",
+    "CBBRef Name": "Xavier",
+    "Warren Name": "xavier",
+    "ESPN Name": "Xavier Musketeers",
+    "EvanMiya Name": "Xavier",
+    "School": "Xavier"
+  },
+  {
+    "Rk": 51,
+    "Kenpom Name": "Pittsburgh",
+    "CBBRef Name": "Pittsburgh",
+    "Warren Name": "pittsburgh",
+    "ESPN Name": "Pittsburgh Panthers",
+    "EvanMiya Name": "Pittsburgh",
+    "School": "Pittsburgh"
+  },
+  {
+    "Rk": 52,
+    "Kenpom Name": "High Point",
+    "CBBRef Name": "High Point",
+    "Warren Name": "high point",
+    "ESPN Name": "High Point Panthers",
+    "EvanMiya Name": "High Point",
+    "School": "High Point"
+  },
+  {
+    "Rk": 53,
+    "Kenpom Name": "San Diego St.",
+    "CBBRef Name": "San Diego State",
+    "Warren Name": "san diego state",
+    "ESPN Name": "San Diego State Aztecs",
+    "EvanMiya Name": "San Diego State",
+    "School": "San Diego State"
+  },
+  {
+    "Rk": 54,
+    "Kenpom Name": "Notre Dame",
+    "CBBRef Name": "Notre Dame",
+    "Warren Name": "notre dame",
+    "ESPN Name": "Notre Dame Fighting Irish",
+    "EvanMiya Name": "Notre Dame",
+    "School": "Notre Dame"
+  },
+  {
+    "Rk": 55,
+    "Kenpom Name": "N.C. State",
+    "CBBRef Name": "NC State",
+    "Warren Name": "north carolina state",
+    "ESPN Name": "NC State Wolfpack",
+    "EvanMiya Name": "NC State",
+    "School": "Nc State"
+  },
+  {
+    "Rk": 56,
+    "Kenpom Name": "Mississippi St.",
+    "CBBRef Name": "Mississippi State",
+    "Warren Name": "mississippi state",
+    "ESPN Name": "Mississippi State Bulldogs",
+    "EvanMiya Name": "Mississippi State",
+    "School": "Miss State"
+  },
+  {
+    "Rk": 57,
+    "Kenpom Name": "Georgia",
+    "CBBRef Name": "Georgia",
+    "Warren Name": "georgia",
+    "ESPN Name": "Georgia Bulldogs",
+    "EvanMiya Name": "Georgia",
+    "School": "Georgia"
+  },
+  {
+    "Rk": 58,
+    "Kenpom Name": "Virginia Tech",
+    "CBBRef Name": "Virginia Tech",
+    "Warren Name": "virginia tech",
+    "ESPN Name": "Virginia Tech Hokies",
+    "EvanMiya Name": "Virginia Tech",
+    "School": "Vt"
+  },
+  {
+    "Rk": 59,
+    "Kenpom Name": "Arkansas",
+    "CBBRef Name": "Arkansas",
+    "Warren Name": "arkansas",
+    "ESPN Name": "Arkansas Razorbacks",
+    "EvanMiya Name": "Arkansas",
+    "School": "Arkansas"
+  },
+  {
+    "Rk": 60,
+    "Kenpom Name": "Seton Hall",
+    "CBBRef Name": "Seton Hall",
+    "Warren Name": "seton hall",
+    "ESPN Name": "Seton Hall Pirates",
+    "EvanMiya Name": "Seton Hall",
+    "School": "Seton Hall"
+  },
+  {
+    "Rk": 61,
+    "Kenpom Name": "Providence",
+    "CBBRef Name": "Providence",
+    "Warren Name": "providence",
+    "ESPN Name": "Providence Friars",
+    "EvanMiya Name": "Providence",
+    "School": "Providence"
+  },
+  {
+    "Rk": 62,
+    "Kenpom Name": "UC Santa Barbara",
+    "CBBRef Name": "UC Santa Barbara",
+    "Warren Name": "uc santa barbara",
+    "ESPN Name": "UC Santa Barbara Gauchos",
+    "EvanMiya Name": "UC Santa Barbara",
+    "School": "Ucsb"
+  },
+  {
+    "Rk": 63,
+    "Kenpom Name": "Florida St.",
+    "CBBRef Name": "Florida State",
+    "Warren Name": "florida state",
+    "ESPN Name": "Florida State Seminoles",
+    "EvanMiya Name": "Florida State",
+    "School": "Fsu"
+  },
+  {
+    "Rk": 64,
+    "Kenpom Name": "Nevada",
+    "CBBRef Name": "Nevada",
+    "Warren Name": "nevada",
+    "ESPN Name": "Nevada Wolf Pack",
+    "EvanMiya Name": "Nevada",
+    "School": "Nevada"
+  },
+  {
+    "Rk": 65,
+    "Kenpom Name": "VCU",
+    "CBBRef Name": "Virginia Commonwealth",
+    "Warren Name": "vcu",
+    "ESPN Name": "VCU Rams",
+    "EvanMiya Name": "VCU",
+    "School": "Vcu"
+  },
+  {
+    "Rk": 66,
+    "Kenpom Name": "Rutgers",
+    "CBBRef Name": "Rutgers",
+    "Warren Name": "rutgers",
+    "ESPN Name": "Rutgers Scarlet Knights",
+    "EvanMiya Name": "Rutgers",
+    "School": "Rutgers"
+  },
+  {
+    "Rk": 67,
+    "Kenpom Name": "Oregon St.",
+    "CBBRef Name": "Oregon State",
+    "Warren Name": "oregon state",
+    "ESPN Name": "Oregon State Beavers",
+    "EvanMiya Name": "Oregon State",
+    "School": "Oregon State"
+  },
+  {
+    "Rk": 68,
+    "Kenpom Name": "Villanova",
+    "CBBRef Name": "Villanova",
+    "Warren Name": "villanova",
+    "ESPN Name": "Villanova Wildcats",
+    "EvanMiya Name": "Villanova",
+    "School": "Villanova"
+  },
+  {
+    "Rk": 69,
+    "Kenpom Name": "California",
+    "CBBRef Name": "California",
+    "Warren Name": "california",
+    "ESPN Name": "California Golden Bears",
+    "EvanMiya Name": "California",
+    "School": "California"
+  },
+  {
+    "Rk": 70,
+    "Kenpom Name": "Texas St.",
+    "CBBRef Name": "Texas State",
+    "Warren Name": "texas state",
+    "ESPN Name": "Texas State Bobcats",
+    "EvanMiya Name": "Texas State",
+    "School": "Texas State"
+  },
+  {
+    "Rk": 71,
+    "Kenpom Name": "SMU",
+    "CBBRef Name": "Southern Methodist",
+    "Warren Name": "smu",
+    "ESPN Name": "SMU Mustangs",
+    "EvanMiya Name": "SMU",
+    "School": "Smu"
+  },
+  {
+    "Rk": 72,
+    "Kenpom Name": "Illinois St.",
+    "CBBRef Name": "Illinois State",
+    "Warren Name": "illinois state",
+    "ESPN Name": "Illinois State Redbirds",
+    "EvanMiya Name": "Illinois State",
+    "School": "Illinois State"
+  },
+  {
+    "Rk": 73,
+    "Kenpom Name": "Kentucky",
+    "CBBRef Name": "Kentucky",
+    "Warren Name": "kentucky",
+    "ESPN Name": "Kentucky Wildcats",
+    "EvanMiya Name": "Kentucky",
+    "School": "Kentucky"
+  },
+  {
+    "Rk": 74,
+    "Kenpom Name": "Maryland",
+    "CBBRef Name": "Maryland",
+    "Warren Name": "maryland",
+    "ESPN Name": "Maryland Terrapins",
+    "EvanMiya Name": "Maryland",
+    "School": "Maryland"
+  },
+  {
+    "Rk": 75,
+    "Kenpom Name": "Wisconsin",
+    "CBBRef Name": "Wisconsin",
+    "Warren Name": "wisconsin",
+    "ESPN Name": "Wisconsin Badgers",
+    "EvanMiya Name": "Wisconsin",
+    "School": "Wisconsin"
+  },
+  {
+    "Rk": 76,
+    "Kenpom Name": "Oregon",
+    "CBBRef Name": "Oregon",
+    "Warren Name": "oregon",
+    "ESPN Name": "Oregon Ducks",
+    "EvanMiya Name": "Oregon",
+    "School": "Oregon"
+  },
+  {
+    "Rk": 77,
+    "Kenpom Name": "Sam Houston St.",
+    "CBBRef Name": "Sam Houston",
+    "Warren Name": "sam houston state",
+    "ESPN Name": "Sam Houston Bearkats",
+    "EvanMiya Name": "Sam Houston State",
+    "School": "Shsu"
+  },
+  {
+    "Rk": 78,
+    "Kenpom Name": "Boise St.",
+    "CBBRef Name": "Boise State",
+    "Warren Name": "boise state",
+    "ESPN Name": "Boise State Broncos",
+    "EvanMiya Name": "Boise State",
+    "School": "Boise State"
+  },
+  {
+    "Rk": 79,
+    "Kenpom Name": "Wake Forest",
+    "CBBRef Name": "Wake Forest",
+    "Warren Name": "wake forest",
+    "ESPN Name": "Wake Forest Demon Deacons",
+    "EvanMiya Name": "Wake Forest",
+    "School": "Wake Forest"
+  },
+  {
+    "Rk": 80,
+    "Kenpom Name": "Murray St.",
+    "CBBRef Name": "Murray State",
+    "Warren Name": "murray state",
+    "ESPN Name": "Murray State Racers",
+    "EvanMiya Name": "Murray State",
+    "School": "Murray State"
+  },
+  {
+    "Rk": 81,
+    "Kenpom Name": "Arizona St.",
+    "CBBRef Name": "Arizona State",
+    "Warren Name": "arizona state",
+    "ESPN Name": "Arizona State Sun Devils",
+    "EvanMiya Name": "Arizona State",
+    "School": "Arizona State"
+  },
+  {
+    "Rk": 82,
+    "Kenpom Name": "UCF",
+    "CBBRef Name": "UCF",
+    "Warren Name": "ucf",
+    "ESPN Name": "UCF Knights",
+    "EvanMiya Name": "UCF",
+    "School": "Ucf"
+  },
+  {
+    "Rk": 83,
+    "Kenpom Name": "Wyoming",
+    "CBBRef Name": "Wyoming",
+    "Warren Name": "wyoming",
+    "ESPN Name": "Wyoming Cowboys",
+    "EvanMiya Name": "Wyoming",
+    "School": "Wyoming"
+  },
+  {
+    "Rk": 84,
+    "Kenpom Name": "New Mexico",
+    "CBBRef Name": "New Mexico",
+    "Warren Name": "new mexico",
+    "ESPN Name": "New Mexico Lobos",
+    "EvanMiya Name": "New Mexico",
+    "School": "New Mexico"
+  },
+  {
+    "Rk": 85,
+    "Kenpom Name": "Tulsa",
+    "CBBRef Name": "Tulsa",
+    "Warren Name": "tulsa",
+    "ESPN Name": "Tulsa Golden Hurricane",
+    "EvanMiya Name": "Tulsa",
+    "School": "Tulsa"
+  },
+  {
+    "Rk": 86,
+    "Kenpom Name": "Butler",
+    "CBBRef Name": "Butler",
+    "Warren Name": "butler",
+    "ESPN Name": "Butler Bulldogs",
+    "EvanMiya Name": "Butler",
+    "School": "Butler"
+  },
+  {
+    "Rk": 87,
+    "Kenpom Name": "Syracuse",
+    "CBBRef Name": "Syracuse",
+    "Warren Name": "syracuse",
+    "ESPN Name": "Syracuse Orange",
+    "EvanMiya Name": "Syracuse",
+    "School": "Syracuse"
+  },
+  {
+    "Rk": 88,
+    "Kenpom Name": "Western Kentucky",
+    "CBBRef Name": "Western Kentucky",
+    "Warren Name": "western kentucky",
+    "ESPN Name": "Western Kentucky Hilltoppers",
+    "EvanMiya Name": "Western Kentucky",
+    "School": "Wku"
+  },
+  {
+    "Rk": 89,
+    "Kenpom Name": "Colorado",
+    "CBBRef Name": "Colorado",
+    "Warren Name": "colorado",
+    "ESPN Name": "Colorado Buffaloes",
+    "EvanMiya Name": "Colorado",
+    "School": "Colorado"
+  },
+  {
+    "Rk": 90,
+    "Kenpom Name": "Georgetown",
+    "CBBRef Name": "Georgetown",
+    "Warren Name": "georgetown",
+    "ESPN Name": "Georgetown Hoyas",
+    "EvanMiya Name": "Georgetown",
+    "School": "Georgetown"
+  },
+  {
+    "Rk": 91,
+    "Kenpom Name": "Montana St.",
+    "CBBRef Name": "Montana State",
+    "Warren Name": "montana state",
+    "ESPN Name": "Montana State Bobcats",
+    "EvanMiya Name": "Montana State",
+    "School": "Montana State"
+  },
+  {
+    "Rk": 92,
+    "Kenpom Name": "George Washington",
+    "CBBRef Name": "George Washington",
+    "Warren Name": "george washington",
+    "ESPN Name": "George Washington Revolutionaries",
+    "EvanMiya Name": "George Washington",
+    "School": "Gw"
+  },
+  {
+    "Rk": 93,
+    "Kenpom Name": "Washington",
+    "CBBRef Name": "Washington",
+    "Warren Name": "washington",
+    "ESPN Name": "Washington Huskies",
+    "EvanMiya Name": "Washington",
+    "School": "Washington"
+  },
+  {
+    "Rk": 94,
+    "Kenpom Name": "Pepperdine",
+    "CBBRef Name": "Pepperdine",
+    "Warren Name": "pepperdine",
+    "ESPN Name": "Pepperdine Waves",
+    "EvanMiya Name": "Pepperdine",
+    "School": "Pepperdine"
+  },
+  {
+    "Rk": 95,
+    "Kenpom Name": "Colorado St.",
+    "CBBRef Name": "Colorado State",
+    "Warren Name": "colorado state",
+    "ESPN Name": "Colorado State Rams",
+    "EvanMiya Name": "Colorado State",
+    "School": "Colorado State"
+  },
+  {
+    "Rk": 96,
+    "Kenpom Name": "Santa Clara",
+    "CBBRef Name": "Santa Clara",
+    "Warren Name": "santa clara",
+    "ESPN Name": "Santa Clara Broncos",
+    "EvanMiya Name": "Santa Clara",
+    "School": "Santa Clara"
+  },
+  {
+    "Rk": 97,
+    "Kenpom Name": "South Florida",
+    "CBBRef Name": "South Florida",
+    "Warren Name": "south florida",
+    "ESPN Name": "South Florida Bulls",
+    "EvanMiya Name": "South Florida",
+    "School": "Usf"
+  },
+  {
+    "Rk": 98,
+    "Kenpom Name": "Wright St.",
+    "CBBRef Name": "Wright State",
+    "Warren Name": "wright state",
+    "ESPN Name": "Wright State Raiders",
+    "EvanMiya Name": "Wright State",
+    "School": "Wright State"
+  },
+  {
+    "Rk": 99,
+    "Kenpom Name": "Miami OH",
+    "CBBRef Name": "Miami (OH)",
+    "Warren Name": "miami (oh)",
+    "ESPN Name": "Miami (OH) RedHawks",
+    "EvanMiya Name": "Miami (OH)",
+    "School": "Miami Oh"
+  },
+  {
+    "Rk": 100,
+    "Kenpom Name": "South Carolina",
+    "CBBRef Name": "South Carolina",
+    "Warren Name": "south carolina",
+    "ESPN Name": "South Carolina Gamecocks",
+    "EvanMiya Name": "South Carolina",
+    "School": "South Carolina"
+  },
+  {
+    "Rk": 101,
+    "Kenpom Name": "Davidson",
+    "CBBRef Name": "Davidson",
+    "Warren Name": "davidson",
+    "ESPN Name": "Davidson Wildcats",
+    "EvanMiya Name": "Davidson",
+    "School": "Davidson"
+  },
+  {
+    "Rk": 102,
+    "Kenpom Name": "Clemson",
+    "CBBRef Name": "Clemson",
+    "Warren Name": "clemson",
+    "ESPN Name": "Clemson Tigers",
+    "EvanMiya Name": "Clemson",
+    "School": "Clemson"
+  },
+  {
+    "Rk": 103,
+    "Kenpom Name": "Penn St.",
+    "CBBRef Name": "Penn State",
+    "Warren Name": "penn state",
+    "ESPN Name": "Penn State Nittany Lions",
+    "EvanMiya Name": "Penn State",
+    "School": "Penn State"
+  },
+  {
+    "Rk": 104,
+    "Kenpom Name": "George Mason",
+    "CBBRef Name": "George Mason",
+    "Warren Name": "george mason",
+    "ESPN Name": "George Mason Patriots",
+    "EvanMiya Name": "George Mason",
+    "School": "Gm"
+  },
+  {
+    "Rk": 105,
+    "Kenpom Name": "Washington St.",
+    "CBBRef Name": "Washington State",
+    "Warren Name": "washington state",
+    "ESPN Name": "Washington State Cougars",
+    "EvanMiya Name": "Washington State",
+    "School": "Washington State"
+  },
+  {
+    "Rk": 106,
+    "Kenpom Name": "Stanford",
+    "CBBRef Name": "Stanford",
+    "Warren Name": "stanford",
+    "ESPN Name": "Stanford Cardinal",
+    "EvanMiya Name": "Stanford",
+    "School": "Stanford"
+  },
+  {
+    "Rk": 107,
+    "Kenpom Name": "UNLV",
+    "CBBRef Name": "Nevada-Las Vegas",
+    "Warren Name": "unlv",
+    "ESPN Name": "UNLV Rebels",
+    "EvanMiya Name": "UNLV",
+    "School": "Unlv"
+  },
+  {
+    "Rk": 108,
+    "Kenpom Name": "James Madison",
+    "CBBRef Name": "James Madison",
+    "Warren Name": "james madison",
+    "ESPN Name": "James Madison Dukes",
+    "EvanMiya Name": "James Madison",
+    "School": "Jmu"
+  },
+  {
+    "Rk": 109,
+    "Kenpom Name": "Cal St. Fullerton",
+    "CBBRef Name": "Cal State Fullerton",
+    "Warren Name": "cal state fullerton",
+    "ESPN Name": "Cal State Fullerton Titans",
+    "EvanMiya Name": "Cal State Fullerton",
+    "School": "Csuf"
+  },
+  {
+    "Rk": 110,
+    "Kenpom Name": "UC Irvine",
+    "CBBRef Name": "UC Irvine",
+    "Warren Name": "uc irvine",
+    "ESPN Name": "UC Irvine Anteaters",
+    "EvanMiya Name": "UC Irvine",
+    "School": "Uci"
+  },
+  {
+    "Rk": 111,
+    "Kenpom Name": "Central Arkansas",
+    "CBBRef Name": "Central Arkansas",
+    "Warren Name": "central arkansas",
+    "ESPN Name": "Central Arkansas Bears",
+    "EvanMiya Name": "Central Arkansas",
+    "School": "Central Arkansas"
+  },
+  {
+    "Rk": 112,
+    "Kenpom Name": "North Texas",
+    "CBBRef Name": "North Texas",
+    "Warren Name": "north texas",
+    "ESPN Name": "North Texas Mean Green",
+    "EvanMiya Name": "North Texas",
+    "School": "North Texas"
+  },
+  {
+    "Rk": 113,
+    "Kenpom Name": "McNeese",
+    "CBBRef Name": "McNeese",
+    "Warren Name": "mcneese",
+    "ESPN Name": "McNeese Cowboys",
+    "EvanMiya Name": "McNeese State",
+    "School": "Mcneese State"
+  },
+  {
+    "Rk": 114,
+    "Kenpom Name": "Kansas St.",
+    "CBBRef Name": "Kansas State",
+    "Warren Name": "kansas state",
+    "ESPN Name": "Kansas State Wildcats",
+    "EvanMiya Name": "Kansas State",
+    "School": "Kansas State"
+  },
+  {
+    "Rk": 115,
+    "Kenpom Name": "Charlotte",
+    "CBBRef Name": "Charlotte",
+    "Warren Name": "charlotte",
+    "ESPN Name": "Charlotte 49ers",
+    "EvanMiya Name": "Charlotte",
+    "School": "Charlotte"
+  },
+  {
+    "Rk": 116,
+    "Kenpom Name": "St. Bonaventure",
+    "CBBRef Name": "St. Bonaventure",
+    "Warren Name": "saint bonaventure",
+    "ESPN Name": "St. Bonaventure Bonnies",
+    "EvanMiya Name": "Saint Bonaventure",
+    "School": "St Bona"
+  },
+  {
+    "Rk": 117,
+    "Kenpom Name": "Furman",
+    "CBBRef Name": "Furman",
+    "Warren Name": "furman",
+    "ESPN Name": "Furman Paladins",
+    "EvanMiya Name": "Furman",
+    "School": "Furman"
+  },
+  {
+    "Rk": 118,
+    "Kenpom Name": "Northwestern",
+    "CBBRef Name": "Northwestern",
+    "Warren Name": "northwestern",
+    "ESPN Name": "Northwestern Wildcats",
+    "EvanMiya Name": "Northwestern",
+    "School": "Northwestern"
+  },
+  {
+    "Rk": 119,
+    "Kenpom Name": "Tennessee Tech",
+    "CBBRef Name": "Tennessee Tech",
+    "Warren Name": "tennessee tech",
+    "ESPN Name": "Tennessee Tech Golden Eagles",
+    "EvanMiya Name": "Tennessee Tech",
+    "School": "Tennessee Tech"
+  },
+  {
+    "Rk": 120,
+    "Kenpom Name": "Oklahoma",
+    "CBBRef Name": "Oklahoma",
+    "Warren Name": "oklahoma",
+    "ESPN Name": "Oklahoma Sooners",
+    "EvanMiya Name": "Oklahoma",
+    "School": "Oklahoma"
+  },
+  {
+    "Rk": 121,
+    "Kenpom Name": "Akron",
+    "CBBRef Name": "Akron",
+    "Warren Name": "akron",
+    "ESPN Name": "Akron Zips",
+    "EvanMiya Name": "Akron",
+    "School": "Akron"
+  },
+  {
+    "Rk": 122,
+    "Kenpom Name": "Richmond",
+    "CBBRef Name": "Richmond",
+    "Warren Name": "richmond",
+    "ESPN Name": "Richmond Spiders",
+    "EvanMiya Name": "Richmond",
+    "School": "Richmond"
+  },
+  {
+    "Rk": 123,
+    "Kenpom Name": "Tennessee St.",
+    "CBBRef Name": "Tennessee State",
+    "Warren Name": "tennessee state",
+    "ESPN Name": "Tennessee State Tigers",
+    "EvanMiya Name": "Tennessee State",
+    "School": "Tennessee State"
+  },
+  {
+    "Rk": 124,
+    "Kenpom Name": "Appalachian St.",
+    "CBBRef Name": "Appalachian State",
+    "Warren Name": "appalachian state",
+    "ESPN Name": "App State Mountaineers",
+    "EvanMiya Name": "Appalachian State",
+    "School": "App State"
+  },
+  {
+    "Rk": 125,
+    "Kenpom Name": "Portland St.",
+    "CBBRef Name": "Portland State",
+    "Warren Name": "portland state",
+    "ESPN Name": "Portland State Vikings",
+    "EvanMiya Name": "Portland State",
+    "School": "Portland State"
+  },
+  {
+    "Rk": 126,
+    "Kenpom Name": "Rhode Island",
+    "CBBRef Name": "Rhode Island",
+    "Warren Name": "rhode island",
+    "ESPN Name": "Rhode Island Rams",
+    "EvanMiya Name": "Rhode Island",
+    "School": "Uri"
+  },
+  {
+    "Rk": 127,
+    "Kenpom Name": "Utah Valley",
+    "CBBRef Name": "Utah Valley",
+    "Warren Name": "utah valley",
+    "ESPN Name": "Utah Valley Wolverines",
+    "EvanMiya Name": "Utah Valley",
+    "School": "Utah Valley"
+  },
+  {
+    "Rk": 128,
+    "Kenpom Name": "Stephen F. Austin",
+    "CBBRef Name": "Stephen F. Austin",
+    "Warren Name": "stephen f. austin",
+    "ESPN Name": "Stephen F. Austin Lumberjacks",
+    "EvanMiya Name": "Stephen F. Austin",
+    "School": "Sfa"
+  },
+  {
+    "Rk": 129,
+    "Kenpom Name": "Charleston",
+    "CBBRef Name": "College of Charleston",
+    "Warren Name": "charleston",
+    "ESPN Name": "Charleston Cougars",
+    "EvanMiya Name": "College of Charleston",
+    "School": "Charleston"
+  },
+  {
+    "Rk": 130,
+    "Kenpom Name": "Seattle",
+    "CBBRef Name": "Seattle",
+    "Warren Name": "seattle university",
+    "ESPN Name": "Seattle U Redhawks",
+    "EvanMiya Name": "Seattle",
+    "School": "Seattle"
+  },
+  {
+    "Rk": 131,
+    "Kenpom Name": "Liberty",
+    "CBBRef Name": "Liberty",
+    "Warren Name": "liberty",
+    "ESPN Name": "Liberty Flames",
+    "EvanMiya Name": "Liberty",
+    "School": "Liberty"
+  },
+  {
+    "Rk": 132,
+    "Kenpom Name": "UNC Wilmington",
+    "CBBRef Name": "UNC Wilmington",
+    "Warren Name": "uncw",
+    "ESPN Name": "UNC Wilmington Seahawks",
+    "EvanMiya Name": "UNC Wilmington",
+    "School": "Uncw"
+  },
+  {
+    "Rk": 133,
+    "Kenpom Name": "Western Michigan",
+    "CBBRef Name": "Western Michigan",
+    "Warren Name": "western michigan",
+    "ESPN Name": "Western Michigan Broncos",
+    "EvanMiya Name": "Western Michigan",
+    "School": "Western Michigan"
+  },
+  {
+    "Rk": 134,
+    "Kenpom Name": "Boston College",
+    "CBBRef Name": "Boston College",
+    "Warren Name": "boston college",
+    "ESPN Name": "Boston College Eagles",
+    "EvanMiya Name": "Boston College",
+    "School": "Bc"
+  },
+  {
+    "Rk": 135,
+    "Kenpom Name": "Columbia",
+    "CBBRef Name": "Columbia",
+    "Warren Name": "columbia",
+    "ESPN Name": "Columbia Lions",
+    "EvanMiya Name": "Columbia",
+    "School": "Columbia"
+  },
+  {
+    "Rk": 136,
+    "Kenpom Name": "Duquesne",
+    "CBBRef Name": "Duquesne",
+    "Warren Name": "duquesne",
+    "ESPN Name": "Duquesne Dukes",
+    "EvanMiya Name": "Duquesne",
+    "School": "Dq"
+  },
+  {
+    "Rk": 137,
+    "Kenpom Name": "Valparaiso",
+    "CBBRef Name": "Valparaiso",
+    "Warren Name": "valparaiso",
+    "ESPN Name": "Valparaiso Beacons",
+    "EvanMiya Name": "Valparaiso",
+    "School": "Valpo"
+  },
+  {
+    "Rk": 138,
+    "Kenpom Name": "Saint Joseph's",
+    "CBBRef Name": "Saint Joseph's",
+    "Warren Name": "saint joseph's",
+    "ESPN Name": "Saint Joseph's Hawks",
+    "EvanMiya Name": "Saint Joseph's",
+    "School": "St Joes"
+  },
+  {
+    "Rk": 139,
+    "Kenpom Name": "Tennessee Martin",
+    "CBBRef Name": "Tennessee-Martin",
+    "Warren Name": "tennessee-martin",
+    "ESPN Name": "UT Martin Skyhawks",
+    "EvanMiya Name": "Tennessee-Martin",
+    "School": "Utm"
+  },
+  {
+    "Rk": 140,
+    "Kenpom Name": "East Tennessee St.",
+    "CBBRef Name": "East Tennessee State",
+    "Warren Name": "east tennessee state",
+    "ESPN Name": "East Tennessee State Buccaneers",
+    "EvanMiya Name": "East Tennessee State",
+    "School": "Etsu"
+  },
+  {
+    "Rk": 141,
+    "Kenpom Name": "Dayton",
+    "CBBRef Name": "Dayton",
+    "Warren Name": "dayton",
+    "ESPN Name": "Dayton Flyers",
+    "EvanMiya Name": "Dayton",
+    "School": "Dayton"
+  },
+  {
+    "Rk": 142,
+    "Kenpom Name": "San Diego",
+    "CBBRef Name": "San Diego",
+    "Warren Name": "san diego",
+    "ESPN Name": "San Diego Toreros",
+    "EvanMiya Name": "San Diego",
+    "School": "San Diego"
+  },
+  {
+    "Rk": 143,
+    "Kenpom Name": "Delaware",
+    "CBBRef Name": "Delaware",
+    "Warren Name": "delaware",
+    "ESPN Name": "Delaware Blue Hens",
+    "EvanMiya Name": "Delaware",
+    "School": "Delaware"
+  },
+  {
+    "Rk": 144,
+    "Kenpom Name": "Kennesaw St.",
+    "CBBRef Name": "Kennesaw State",
+    "Warren Name": "kennesaw state",
+    "ESPN Name": "Kennesaw State Owls",
+    "EvanMiya Name": "Kennesaw State",
+    "School": "Kennesaw State"
+  },
+  {
+    "Rk": 145,
+    "Kenpom Name": "Illinois Chicago",
+    "CBBRef Name": "Illinois-Chicago",
+    "Warren Name": "uic",
+    "ESPN Name": "UIC Flames",
+    "EvanMiya Name": "Illinois-Chicago",
+    "School": "Uic"
+  },
+  {
+    "Rk": 146,
+    "Kenpom Name": "Penn",
+    "CBBRef Name": "Pennsylvania",
+    "Warren Name": "penn",
+    "ESPN Name": "Pennsylvania Quakers",
+    "EvanMiya Name": "Penn",
+    "School": "Penn"
+  },
+  {
+    "Rk": 147,
+    "Kenpom Name": "Pacific",
+    "CBBRef Name": "Pacific",
+    "Warren Name": "pacific",
+    "ESPN Name": "Pacific Tigers",
+    "EvanMiya Name": "Pacific",
+    "School": "Pacific"
+  },
+  {
+    "Rk": 148,
+    "Kenpom Name": "Missouri St.",
+    "CBBRef Name": "Missouri State",
+    "Warren Name": "missouri state",
+    "ESPN Name": "Missouri State Bears",
+    "EvanMiya Name": "Missouri State",
+    "School": "Missouri State"
+  },
+  {
+    "Rk": 149,
+    "Kenpom Name": "Loyola Chicago",
+    "CBBRef Name": "Loyola (IL)",
+    "Warren Name": "loyola-chicago",
+    "ESPN Name": "Loyola Chicago Ramblers",
+    "EvanMiya Name": "Loyola Chicago",
+    "School": "Loyola Chicago"
+  },
+  {
+    "Rk": 150,
+    "Kenpom Name": "Belmont",
+    "CBBRef Name": "Belmont",
+    "Warren Name": "belmont",
+    "ESPN Name": "Belmont Bruins",
+    "EvanMiya Name": "Belmont",
+    "School": "Belmont"
+  },
+  {
+    "Rk": 151,
+    "Kenpom Name": "Lamar",
+    "CBBRef Name": "Lamar",
+    "Warren Name": "lamar",
+    "ESPN Name": "Lamar Cardinals",
+    "EvanMiya Name": "Lamar",
+    "School": "Lamar"
+  },
+  {
+    "Rk": 152,
+    "Kenpom Name": "Bethune Cookman",
+    "CBBRef Name": "Bethune-Cookman",
+    "Warren Name": "bethune-cookman",
+    "ESPN Name": "Bethune-Cookman Wildcats",
+    "EvanMiya Name": "Bethune-Cookman",
+    "School": "Bethune"
+  },
+  {
+    "Rk": 153,
+    "Kenpom Name": "St. Thomas",
+    "CBBRef Name": "St. Thomas",
+    "Warren Name": "saint thomas",
+    "ESPN Name": "St. Thomas Tommies",
+    "EvanMiya Name": "St. Thomas (MN)",
+    "School": "St. Thomas"
+  },
+  {
+    "Rk": 154,
+    "Kenpom Name": "Florida Atlantic",
+    "CBBRef Name": "Florida Atlantic",
+    "Warren Name": "fau",
+    "ESPN Name": "Florida Atlantic Owls",
+    "EvanMiya Name": "Florida Atlantic",
+    "School": "Fau"
+  },
+  {
+    "Rk": 155,
+    "Kenpom Name": "Austin Peay",
+    "CBBRef Name": "Austin Peay",
+    "Warren Name": "austin peay",
+    "ESPN Name": "Austin Peay Governors",
+    "EvanMiya Name": "Austin Peay",
+    "School": "Austin Peay"
+  },
+  {
+    "Rk": 156,
+    "Kenpom Name": "Fordham",
+    "CBBRef Name": "Fordham",
+    "Warren Name": "fordham",
+    "ESPN Name": "Fordham Rams",
+    "EvanMiya Name": "Fordham",
+    "School": "Fordham"
+  },
+  {
+    "Rk": 157,
+    "Kenpom Name": "Old Dominion",
+    "CBBRef Name": "Old Dominion",
+    "Warren Name": "old dominion",
+    "ESPN Name": "Old Dominion Monarchs",
+    "EvanMiya Name": "Old Dominion",
+    "School": "Old Dominion"
+  },
+  {
+    "Rk": 158,
+    "Kenpom Name": "Utah Tech",
+    "CBBRef Name": "Utah Tech",
+    "Warren Name": "utah tech",
+    "ESPN Name": "Utah Tech Trailblazers",
+    "EvanMiya Name": "Utah Tech",
+    "School": "Utah Tech"
+  },
+  {
+    "Rk": 159,
+    "Kenpom Name": "American",
+    "CBBRef Name": "American",
+    "Warren Name": "american",
+    "ESPN Name": "American University Eagles",
+    "EvanMiya Name": "American",
+    "School": "American"
+  },
+  {
+    "Rk": 160,
+    "Kenpom Name": "Jacksonville St.",
+    "CBBRef Name": "Jacksonville State",
+    "Warren Name": "jacksonville state",
+    "ESPN Name": "Jacksonville State Gamecocks",
+    "EvanMiya Name": "Jacksonville State",
+    "School": "Jacksonville State"
+  },
+  {
+    "Rk": 161,
+    "Kenpom Name": "Marshall",
+    "CBBRef Name": "Marshall",
+    "Warren Name": "marshall",
+    "ESPN Name": "Marshall Thundering Herd",
+    "EvanMiya Name": "Marshall",
+    "School": "Marshall"
+  },
+  {
+    "Rk": 162,
+    "Kenpom Name": "Yale",
+    "CBBRef Name": "Yale",
+    "Warren Name": "yale",
+    "ESPN Name": "Yale Bulldogs",
+    "EvanMiya Name": "Yale",
+    "School": "Yale"
+  },
+  {
+    "Rk": 163,
+    "Kenpom Name": "Southern Illinois",
+    "CBBRef Name": "Southern Illinois",
+    "Warren Name": "southern illinois",
+    "ESPN Name": "Southern Illinois Salukis",
+    "EvanMiya Name": "Southern Illinois",
+    "School": "Siu"
+  },
+  {
+    "Rk": 164,
+    "Kenpom Name": "Drake",
+    "CBBRef Name": "Drake",
+    "Warren Name": "drake",
+    "ESPN Name": "Drake Bulldogs",
+    "EvanMiya Name": "Drake",
+    "School": "Drake"
+  },
+  {
+    "Rk": 165,
+    "Kenpom Name": "Hofstra",
+    "CBBRef Name": "Hofstra",
+    "Warren Name": "hofstra",
+    "ESPN Name": "Hofstra Pride",
+    "EvanMiya Name": "Hofstra",
+    "School": "Hofstra"
+  },
+  {
+    "Rk": 166,
+    "Kenpom Name": "UT Rio Grande Valley",
+    "CBBRef Name": "Texas-Rio Grande Valley",
+    "Warren Name": "utrgv",
+    "ESPN Name": "UT Rio Grande Valley Vaqueros",
+    "EvanMiya Name": "Texas-Rio Grande Valley",
+    "School": "Utrgv"
+  },
+  {
+    "Rk": 167,
+    "Kenpom Name": "UTEP",
+    "CBBRef Name": "UTEP",
+    "Warren Name": "utep",
+    "ESPN Name": "UTEP Miners",
+    "EvanMiya Name": "UTEP",
+    "School": "Utep"
+  },
+  {
+    "Rk": 168,
+    "Kenpom Name": "Rice",
+    "CBBRef Name": "Rice",
+    "Warren Name": "rice",
+    "ESPN Name": "Rice Owls",
+    "EvanMiya Name": "Rice",
+    "School": "Rice"
+  },
+  {
+    "Rk": 169,
+    "Kenpom Name": "William & Mary",
+    "CBBRef Name": "William & Mary",
+    "Warren Name": "william & mary",
+    "ESPN Name": "William & Mary Tribe",
+    "EvanMiya Name": "William & Mary",
+    "School": "Wm"
+  },
+  {
+    "Rk": 170,
+    "Kenpom Name": "Idaho",
+    "CBBRef Name": "Idaho",
+    "Warren Name": "idaho",
+    "ESPN Name": "Idaho Vandals",
+    "EvanMiya Name": "Idaho",
+    "School": "Idaho"
+  },
+  {
+    "Rk": 171,
+    "Kenpom Name": "Western Carolina",
+    "CBBRef Name": "Western Carolina",
+    "Warren Name": "western carolina",
+    "ESPN Name": "Western Carolina Catamounts",
+    "EvanMiya Name": "Western Carolina",
+    "School": "Western Carolina"
+  },
+  {
+    "Rk": 172,
+    "Kenpom Name": "Georgia Tech",
+    "CBBRef Name": "Georgia Tech",
+    "Warren Name": "georgia tech",
+    "ESPN Name": "Georgia Tech Yellow Jackets",
+    "EvanMiya Name": "Georgia Tech",
+    "School": "Gt"
+  },
+  {
+    "Rk": 173,
+    "Kenpom Name": "Florida Gulf Coast",
+    "CBBRef Name": "Florida Gulf Coast",
+    "Warren Name": "fgcu",
+    "ESPN Name": "Florida Gulf Coast Eagles",
+    "EvanMiya Name": "Florida Gulf Coast",
+    "School": "Fgcu"
+  },
+  {
+    "Rk": 174,
+    "Kenpom Name": "Princeton",
+    "CBBRef Name": "Princeton",
+    "Warren Name": "princeton",
+    "ESPN Name": "Princeton Tigers",
+    "EvanMiya Name": "Princeton",
+    "School": "Princeton"
+  },
+  {
+    "Rk": 175,
+    "Kenpom Name": "Utah",
+    "CBBRef Name": "Utah",
+    "Warren Name": "utah",
+    "ESPN Name": "Utah Utes",
+    "EvanMiya Name": "Utah",
+    "School": "Utah"
+  },
+  {
+    "Rk": 176,
+    "Kenpom Name": "San Francisco",
+    "CBBRef Name": "San Francisco",
+    "Warren Name": "san francisco",
+    "ESPN Name": "San Francisco Dons",
+    "EvanMiya Name": "San Francisco",
+    "School": "San Francisco"
+  },
+  {
+    "Rk": 177,
+    "Kenpom Name": "Massachusetts",
+    "CBBRef Name": "Massachusetts",
+    "Warren Name": "umass",
+    "ESPN Name": "Massachusetts Minutemen",
+    "EvanMiya Name": "Massachusetts",
+    "School": "Umass"
+  },
+  {
+    "Rk": 178,
+    "Kenpom Name": "Oral Roberts",
+    "CBBRef Name": "Oral Roberts",
+    "Warren Name": "oral roberts",
+    "ESPN Name": "Oral Roberts Golden Eagles",
+    "EvanMiya Name": "Oral Roberts",
+    "School": "Oral Roberts"
+  },
+  {
+    "Rk": 179,
+    "Kenpom Name": "Buffalo",
+    "CBBRef Name": "Buffalo",
+    "Warren Name": "buffalo",
+    "ESPN Name": "Buffalo Bulls",
+    "EvanMiya Name": "Buffalo",
+    "School": "Buffalo"
+  },
+  {
+    "Rk": 180,
+    "Kenpom Name": "Cal Poly",
+    "CBBRef Name": "Cal Poly",
+    "Warren Name": "cal poly",
+    "ESPN Name": "Cal Poly Mustangs",
+    "EvanMiya Name": "Cal Poly",
+    "School": "Cal Poly"
+  },
+  {
+    "Rk": 181,
+    "Kenpom Name": "Colgate",
+    "CBBRef Name": "Colgate",
+    "Warren Name": "colgate",
+    "ESPN Name": "Colgate Raiders",
+    "EvanMiya Name": "Colgate",
+    "School": "Colgate"
+  },
+  {
+    "Rk": 182,
+    "Kenpom Name": "UAB",
+    "CBBRef Name": "UAB",
+    "Warren Name": "uab",
+    "ESPN Name": "UAB Blazers",
+    "EvanMiya Name": "UAB",
+    "School": "Uab"
+  },
+  {
+    "Rk": 183,
+    "Kenpom Name": "Cornell",
+    "CBBRef Name": "Cornell",
+    "Warren Name": "cornell",
+    "ESPN Name": "Cornell Big Red",
+    "EvanMiya Name": "Cornell",
+    "School": "Cornell"
+  },
+  {
+    "Rk": 184,
+    "Kenpom Name": "Denver",
+    "CBBRef Name": "Denver",
+    "Warren Name": "denver",
+    "ESPN Name": "Denver Pioneers",
+    "EvanMiya Name": "Denver",
+    "School": "Denver"
+  },
+  {
+    "Rk": 185,
+    "Kenpom Name": "Northern Illinois",
+    "CBBRef Name": "Northern Illinois",
+    "Warren Name": "northern illinois",
+    "ESPN Name": "Northern Illinois Huskies",
+    "EvanMiya Name": "Northern Illinois",
+    "School": "Northern Illinois"
+  },
+  {
+    "Rk": 186,
+    "Kenpom Name": "Arkansas St.",
+    "CBBRef Name": "Arkansas State",
+    "Warren Name": "arkansas state",
+    "ESPN Name": "Arkansas State Red Wolves",
+    "EvanMiya Name": "Arkansas State",
+    "School": "Arkansas State"
+  },
+  {
+    "Rk": 187,
+    "Kenpom Name": "UT Arlington",
+    "CBBRef Name": "UT Arlington",
+    "Warren Name": "uta",
+    "ESPN Name": "UT Arlington Mavericks",
+    "EvanMiya Name": "UT Arlington",
+    "School": "Uta"
+  },
+  {
+    "Rk": 188,
+    "Kenpom Name": "Middle Tennessee",
+    "CBBRef Name": "Middle Tennessee",
+    "Warren Name": "middle tennessee",
+    "ESPN Name": "Middle Tennessee Blue Raiders",
+    "EvanMiya Name": "Middle Tennessee",
+    "School": "Mtsu"
+  },
+  {
+    "Rk": 189,
+    "Kenpom Name": "Eastern Kentucky",
+    "CBBRef Name": "Eastern Kentucky",
+    "Warren Name": "eastern kentucky",
+    "ESPN Name": "Eastern Kentucky Colonels",
+    "EvanMiya Name": "Eastern Kentucky",
+    "School": "Eastern Kentucky"
+  },
+  {
+    "Rk": 190,
+    "Kenpom Name": "Hawaii",
+    "CBBRef Name": "Hawaii",
+    "Warren Name": "hawaii",
+    "ESPN Name": "Hawai'i Rainbow Warriors",
+    "EvanMiya Name": "Hawaii",
+    "School": "Hawaii"
+  },
+  {
+    "Rk": 191,
+    "Kenpom Name": "San Jose St.",
+    "CBBRef Name": "San Jose State",
+    "Warren Name": "san jose state",
+    "ESPN Name": "San José State Spartans",
+    "EvanMiya Name": "San Jose State",
+    "School": "Sjsu"
+  },
+  {
+    "Rk": 192,
+    "Kenpom Name": "Radford",
+    "CBBRef Name": "Radford",
+    "Warren Name": "radford",
+    "ESPN Name": "Radford Highlanders",
+    "EvanMiya Name": "Radford",
+    "School": "Radford"
+  },
+  {
+    "Rk": 193,
+    "Kenpom Name": "Eastern Washington",
+    "CBBRef Name": "Eastern Washington",
+    "Warren Name": "eastern washington",
+    "ESPN Name": "Eastern Washington Eagles",
+    "EvanMiya Name": "Eastern Washington",
+    "School": "Eastern Washington"
+  },
+  {
+    "Rk": 194,
+    "Kenpom Name": "Eastern Michigan",
+    "CBBRef Name": "Eastern Michigan",
+    "Warren Name": "eastern michigan",
+    "ESPN Name": "Eastern Michigan Eagles",
+    "EvanMiya Name": "Eastern Michigan",
+    "School": "Eastern Michigan"
+  },
+  {
+    "Rk": 195,
+    "Kenpom Name": "Milwaukee",
+    "CBBRef Name": "Milwaukee",
+    "Warren Name": "milwaukee",
+    "ESPN Name": "Milwaukee Panthers",
+    "EvanMiya Name": "Milwaukee",
+    "School": "Milwaukee"
+  },
+  {
+    "Rk": 196,
+    "Kenpom Name": "Chattanooga",
+    "CBBRef Name": "Chattanooga",
+    "Warren Name": "chattanooga",
+    "ESPN Name": "Chattanooga Mocs",
+    "EvanMiya Name": "Chattanooga",
+    "School": "Chattanooga"
+  },
+  {
+    "Rk": 197,
+    "Kenpom Name": "Louisiana Tech",
+    "CBBRef Name": "Louisiana Tech",
+    "Warren Name": "louisiana tech",
+    "ESPN Name": "Louisiana Tech Bulldogs",
+    "EvanMiya Name": "Louisiana Tech",
+    "School": "Louisiana Tech"
+  },
+  {
+    "Rk": 198,
+    "Kenpom Name": "Troy",
+    "CBBRef Name": "Troy",
+    "Warren Name": "troy",
+    "ESPN Name": "Troy Trojans",
+    "EvanMiya Name": "Troy",
+    "School": "Troy"
+  },
+  {
+    "Rk": 199,
+    "Kenpom Name": "Houston Christian",
+    "CBBRef Name": "Houston Christian",
+    "Warren Name": "houston christian",
+    "ESPN Name": "Houston Christian Huskies",
+    "EvanMiya Name": "Houston Christian",
+    "School": "Houston Christian"
+  },
+  {
+    "Rk": 200,
+    "Kenpom Name": "UMass Lowell",
+    "CBBRef Name": "Massachusetts-Lowell",
+    "Warren Name": "umass-lowell",
+    "ESPN Name": "UMass Lowell River Hawks",
+    "EvanMiya Name": "UMass Lowell",
+    "School": "Umass Lowell"
+  },
+  {
+    "Rk": 201,
+    "Kenpom Name": "Southern Utah",
+    "CBBRef Name": "Southern Utah",
+    "Warren Name": "southern utah",
+    "ESPN Name": "Southern Utah Thunderbirds",
+    "EvanMiya Name": "Southern Utah",
+    "School": "Southern Utah"
+  },
+  {
+    "Rk": 202,
+    "Kenpom Name": "CSUN",
+    "CBBRef Name": "Cal State Northridge",
+    "Warren Name": "cal state northridge",
+    "ESPN Name": "Cal State Northridge Matadors",
+    "EvanMiya Name": "Cal State Northridge",
+    "School": "Csun"
+  },
+  {
+    "Rk": 203,
+    "Kenpom Name": "Ohio",
+    "CBBRef Name": "Ohio",
+    "Warren Name": "ohio",
+    "ESPN Name": "Ohio Bobcats",
+    "EvanMiya Name": "Ohio",
+    "School": "Ohio"
+  },
+  {
+    "Rk": 204,
+    "Kenpom Name": "UC San Diego",
+    "CBBRef Name": "UC San Diego",
+    "Warren Name": "uc san diego",
+    "ESPN Name": "UC San Diego Tritons",
+    "EvanMiya Name": "UC San Diego",
+    "School": "Ucsd"
+  },
+  {
+    "Rk": 205,
+    "Kenpom Name": "Loyola Marymount",
+    "CBBRef Name": "Loyola Marymount",
+    "Warren Name": "loyola-marymount",
+    "ESPN Name": "Loyola Maryland Greyhounds",
+    "EvanMiya Name": "Loyola Marymount",
+    "School": "Lmu"
+  },
+  {
+    "Rk": 206,
+    "Kenpom Name": "Southern Miss",
+    "CBBRef Name": "Southern Mississippi",
+    "Warren Name": "southern miss",
+    "ESPN Name": "Southern Miss Golden Eagles",
+    "EvanMiya Name": "Southern Mississippi",
+    "School": "Southern Miss"
+  },
+  {
+    "Rk": 207,
+    "Kenpom Name": "Toledo",
+    "CBBRef Name": "Toledo",
+    "Warren Name": "toledo",
+    "ESPN Name": "Toledo Rockets",
+    "EvanMiya Name": "Toledo",
+    "School": "Toledo"
+  },
+  {
+    "Rk": 208,
+    "Kenpom Name": "South Dakota St.",
+    "CBBRef Name": "South Dakota State",
+    "Warren Name": "south dakota state",
+    "ESPN Name": "South Dakota State Jackrabbits",
+    "EvanMiya Name": "South Dakota State",
+    "School": "South Dakota State"
+  },
+  {
+    "Rk": 209,
+    "Kenpom Name": "North Dakota St.",
+    "CBBRef Name": "North Dakota State",
+    "Warren Name": "north dakota state",
+    "ESPN Name": "North Dakota State Bison",
+    "EvanMiya Name": "North Dakota State",
+    "School": "Ndsu"
+  },
+  {
+    "Rk": 210,
+    "Kenpom Name": "Presbyterian",
+    "CBBRef Name": "Presbyterian",
+    "Warren Name": "presbyterian college",
+    "ESPN Name": "Presbyterian Blue Hose",
+    "EvanMiya Name": "Presbyterian",
+    "School": "Presbyterian"
+  },
+  {
+    "Rk": 211,
+    "Kenpom Name": "Texas A&M Corpus Chris",
+    "CBBRef Name": "TAMUCC",
+    "Warren Name": "texas a&m-corpus christi",
+    "ESPN Name": "Texas A&M-Corpus Christi Islanders",
+    "EvanMiya Name": "Texas A&M-Corpus Christi",
+    "School": "Tamucc"
+  },
+  {
+    "Rk": 212,
+    "Kenpom Name": "Howard",
+    "CBBRef Name": "Howard",
+    "Warren Name": "howard",
+    "ESPN Name": "Howard Bison",
+    "EvanMiya Name": "Howard",
+    "School": "Howard"
+  },
+  {
+    "Rk": 213,
+    "Kenpom Name": "FIU",
+    "CBBRef Name": "Florida International",
+    "Warren Name": "fiu",
+    "ESPN Name": "Florida International Panthers",
+    "EvanMiya Name": "Florida International",
+    "School": "Fiu"
+  },
+  {
+    "Rk": 214,
+    "Kenpom Name": "Portland",
+    "CBBRef Name": "Portland",
+    "Warren Name": "portland",
+    "ESPN Name": "Portland Pilots",
+    "EvanMiya Name": "Portland",
+    "School": "Portland"
+  },
+  {
+    "Rk": 215,
+    "Kenpom Name": "Monmouth",
+    "CBBRef Name": "Monmouth",
+    "Warren Name": "monmouth",
+    "ESPN Name": "Monmouth Hawks",
+    "EvanMiya Name": "Monmouth",
+    "School": "Monmouth"
+  },
+  {
+    "Rk": 216,
+    "Kenpom Name": "Samford",
+    "CBBRef Name": "Samford",
+    "Warren Name": "samford",
+    "ESPN Name": "Samford Bulldogs",
+    "EvanMiya Name": "Samford",
+    "School": "Samford"
+  },
+  {
+    "Rk": 217,
+    "Kenpom Name": "Siena",
+    "CBBRef Name": "Siena",
+    "Warren Name": "siena",
+    "ESPN Name": "Siena Saints",
+    "EvanMiya Name": "Siena",
+    "School": "Siena"
+  },
+  {
+    "Rk": 218,
+    "Kenpom Name": "Bellarmine",
+    "CBBRef Name": "Bellarmine",
+    "Warren Name": "bellarmine",
+    "ESPN Name": "Bellarmine Knights",
+    "EvanMiya Name": "Bellarmine",
+    "School": "Bellarmine"
+  },
+  {
+    "Rk": 219,
+    "Kenpom Name": "Abilene Christian",
+    "CBBRef Name": "Abilene Christian",
+    "Warren Name": "abilene christian",
+    "ESPN Name": "Abilene Christian Wildcats",
+    "EvanMiya Name": "Abilene Christian",
+    "School": "Abilene Christian"
+  },
+  {
+    "Rk": 220,
+    "Kenpom Name": "Ball St.",
+    "CBBRef Name": "Ball State",
+    "Warren Name": "ball state",
+    "ESPN Name": "Ball State Cardinals",
+    "EvanMiya Name": "Ball State",
+    "School": "Ball State"
+  },
+  {
+    "Rk": 221,
+    "Kenpom Name": "Kent St.",
+    "CBBRef Name": "Kent State",
+    "Warren Name": "kent state",
+    "ESPN Name": "Kent State Golden Flashes",
+    "EvanMiya Name": "Kent State",
+    "School": "Kent State"
+  },
+  {
+    "Rk": 222,
+    "Kenpom Name": "Montana",
+    "CBBRef Name": "Montana",
+    "Warren Name": "montana",
+    "ESPN Name": "Montana Grizzlies",
+    "EvanMiya Name": "Montana",
+    "School": "Montana"
+  },
+  {
+    "Rk": 223,
+    "Kenpom Name": "La Salle",
+    "CBBRef Name": "La Salle",
+    "Warren Name": "la salle",
+    "ESPN Name": "La Salle Explorers",
+    "EvanMiya Name": "La Salle",
+    "School": "La Salle"
+  },
+  {
+    "Rk": 224,
+    "Kenpom Name": "UC Riverside",
+    "CBBRef Name": "UC Riverside",
+    "Warren Name": "uc riverside",
+    "ESPN Name": "UC Riverside Highlanders",
+    "EvanMiya Name": "UC Riverside",
+    "School": "Ucr"
+  },
+  {
+    "Rk": 225,
+    "Kenpom Name": "Elon",
+    "CBBRef Name": "Elon",
+    "Warren Name": "elon",
+    "ESPN Name": "Elon Phoenix",
+    "EvanMiya Name": "Elon",
+    "School": "Elon"
+  },
+  {
+    "Rk": 226,
+    "Kenpom Name": "Cal St. Bakersfield",
+    "CBBRef Name": "Cal State Bakersfield",
+    "Warren Name": "cal state bakersfield",
+    "ESPN Name": "Cal State Bakersfield Roadrunners",
+    "EvanMiya Name": "Cal State Bakersfield",
+    "School": "Csub"
+  },
+  {
+    "Rk": 227,
+    "Kenpom Name": "Mercer",
+    "CBBRef Name": "Mercer",
+    "Warren Name": "mercer",
+    "ESPN Name": "Mercer Bears",
+    "EvanMiya Name": "Mercer",
+    "School": "Mercer"
+  },
+  {
+    "Rk": 228,
+    "Kenpom Name": "Stony Brook",
+    "CBBRef Name": "Stony Brook",
+    "Warren Name": "stony brook",
+    "ESPN Name": "Stony Brook Seawolves",
+    "EvanMiya Name": "Stony Brook",
+    "School": "Stony Brook"
+  },
+  {
+    "Rk": 229,
+    "Kenpom Name": "Northern Arizona",
+    "CBBRef Name": "Northern Arizona",
+    "Warren Name": "northern arizona",
+    "ESPN Name": "Northern Arizona Lumberjacks",
+    "EvanMiya Name": "Northern Arizona",
+    "School": "Northern Arizona"
+  },
+  {
+    "Rk": 230,
+    "Kenpom Name": "Bradley",
+    "CBBRef Name": "Bradley",
+    "Warren Name": "bradley",
+    "ESPN Name": "Bradley Braves",
+    "EvanMiya Name": "Bradley",
+    "School": "Bradley"
+  },
+  {
+    "Rk": 231,
+    "Kenpom Name": "Towson",
+    "CBBRef Name": "Towson",
+    "Warren Name": "towson",
+    "ESPN Name": "Towson Tigers",
+    "EvanMiya Name": "Towson",
+    "School": "Towson"
+  },
+  {
+    "Rk": 232,
+    "Kenpom Name": "South Alabama",
+    "CBBRef Name": "South Alabama",
+    "Warren Name": "south alabama",
+    "ESPN Name": "South Alabama Jaguars",
+    "EvanMiya Name": "South Alabama",
+    "School": "South Alabama"
+  },
+  {
+    "Rk": 233,
+    "Kenpom Name": "Evansville",
+    "CBBRef Name": "Evansville",
+    "Warren Name": "evansville",
+    "ESPN Name": "Evansville Purple Aces",
+    "EvanMiya Name": "Evansville",
+    "School": "Evansville"
+  },
+  {
+    "Rk": 234,
+    "Kenpom Name": "Fresno St.",
+    "CBBRef Name": "Fresno State",
+    "Warren Name": "fresno state",
+    "ESPN Name": "Fresno State Bulldogs",
+    "EvanMiya Name": "Fresno State",
+    "School": "Fresno State"
+  },
+  {
+    "Rk": 235,
+    "Kenpom Name": "Purdue Fort Wayne",
+    "CBBRef Name": "Purdue Fort Wayne",
+    "Warren Name": "purdue fort wayne",
+    "ESPN Name": "Purdue Fort Wayne Mastodons",
+    "EvanMiya Name": "Fort Wayne",
+    "School": "Purdue Fort Wayne"
+  },
+  {
+    "Rk": 236,
+    "Kenpom Name": "Longwood",
+    "CBBRef Name": "Longwood",
+    "Warren Name": "longwood",
+    "ESPN Name": "Longwood Lancers",
+    "EvanMiya Name": "Longwood",
+    "School": "Longwood"
+  },
+  {
+    "Rk": 237,
+    "Kenpom Name": "Temple",
+    "CBBRef Name": "Temple",
+    "Warren Name": "temple",
+    "ESPN Name": "Temple Owls",
+    "EvanMiya Name": "Temple",
+    "School": "Temple"
+  },
+  {
+    "Rk": 238,
+    "Kenpom Name": "UTSA",
+    "CBBRef Name": "UTSA",
+    "Warren Name": "utsa",
+    "ESPN Name": "UTSA Roadrunners",
+    "EvanMiya Name": "UTSA",
+    "School": "Utsa"
+  },
+  {
+    "Rk": 239,
+    "Kenpom Name": "New Mexico St.",
+    "CBBRef Name": "New Mexico State",
+    "Warren Name": "new mexico state",
+    "ESPN Name": "New Mexico State Aggies",
+    "EvanMiya Name": "New Mexico State",
+    "School": "Nmsu"
+  },
+  {
+    "Rk": 240,
+    "Kenpom Name": "Lipscomb",
+    "CBBRef Name": "Lipscomb",
+    "Warren Name": "lipscomb",
+    "ESPN Name": "Lipscomb Bisons",
+    "EvanMiya Name": "Lipscomb",
+    "School": "Lipscomb"
+  },
+  {
+    "Rk": 241,
+    "Kenpom Name": "Georgia St.",
+    "CBBRef Name": "Georgia State",
+    "Warren Name": "georgia state",
+    "ESPN Name": "Georgia State Panthers",
+    "EvanMiya Name": "Georgia State",
+    "School": "Georgia State"
+  },
+  {
+    "Rk": 242,
+    "Kenpom Name": "Central Michigan",
+    "CBBRef Name": "Central Michigan",
+    "Warren Name": "central michigan",
+    "ESPN Name": "Central Michigan Chippewas",
+    "EvanMiya Name": "Central Michigan",
+    "School": "Central Michigan"
+  },
+  {
+    "Rk": 243,
+    "Kenpom Name": "Bowling Green",
+    "CBBRef Name": "Bowling Green",
+    "Warren Name": "bowling green",
+    "ESPN Name": "Bowling Green Falcons",
+    "EvanMiya Name": "Bowling Green",
+    "School": "Bowling Green"
+  },
+  {
+    "Rk": 244,
+    "Kenpom Name": "Boston University",
+    "CBBRef Name": "Boston University",
+    "Warren Name": "boston university",
+    "ESPN Name": "Boston University Terriers",
+    "EvanMiya Name": "Boston University",
+    "School": "Bu"
+  },
+  {
+    "Rk": 245,
+    "Kenpom Name": "Drexel",
+    "CBBRef Name": "Drexel",
+    "Warren Name": "drexel",
+    "ESPN Name": "Drexel Dragons",
+    "EvanMiya Name": "Drexel",
+    "School": "Drexel"
+  },
+  {
+    "Rk": 246,
+    "Kenpom Name": "Green Bay",
+    "CBBRef Name": "Green Bay",
+    "Warren Name": "green bay",
+    "ESPN Name": "Green Bay Phoenix",
+    "EvanMiya Name": "Green Bay",
+    "School": "Green Bay"
+  },
+  {
+    "Rk": 247,
+    "Kenpom Name": "Le Moyne",
+    "CBBRef Name": "Le Moyne",
+    "Warren Name": "le moyne",
+    "ESPN Name": "Le Moyne Dolphins",
+    "EvanMiya Name": "Le Moyne",
+    "School": "Le Moyne"
+  },
+  {
+    "Rk": 248,
+    "Kenpom Name": "Lehigh",
+    "CBBRef Name": "Lehigh",
+    "Warren Name": "lehigh",
+    "ESPN Name": "Lehigh Mountain Hawks",
+    "EvanMiya Name": "Lehigh",
+    "School": "Lehigh"
+  },
+  {
+    "Rk": 249,
+    "Kenpom Name": "Wofford",
+    "CBBRef Name": "Wofford",
+    "Warren Name": "wofford",
+    "ESPN Name": "Wofford Terriers",
+    "EvanMiya Name": "Wofford",
+    "School": "Wofford"
+  },
+  {
+    "Rk": 250,
+    "Kenpom Name": "Campbell",
+    "CBBRef Name": "Campbell",
+    "Warren Name": "campbell",
+    "ESPN Name": "Campbell Fighting Camels",
+    "EvanMiya Name": "Campbell",
+    "School": "Campbell"
+  },
+  {
+    "Rk": 251,
+    "Kenpom Name": "Lafayette",
+    "CBBRef Name": "Lafayette",
+    "Warren Name": "lafayette",
+    "ESPN Name": "Lafayette Leopards",
+    "EvanMiya Name": "Lafayette",
+    "School": "Lafayette"
+  },
+  {
+    "Rk": 252,
+    "Kenpom Name": "Vermont",
+    "CBBRef Name": "Vermont",
+    "Warren Name": "vermont",
+    "ESPN Name": "Vermont Catamounts",
+    "EvanMiya Name": "Vermont",
+    "School": "Vermont"
+  },
+  {
+    "Rk": 253,
+    "Kenpom Name": "Wagner",
+    "CBBRef Name": "Wagner",
+    "Warren Name": "wagner",
+    "ESPN Name": "Wagner Seahawks",
+    "EvanMiya Name": "Wagner",
+    "School": "Wagner"
+  },
+  {
+    "Rk": 254,
+    "Kenpom Name": "Harvard",
+    "CBBRef Name": "Harvard",
+    "Warren Name": "harvard",
+    "ESPN Name": "Harvard Crimson",
+    "EvanMiya Name": "Harvard",
+    "School": "Harvard"
+  },
+  {
+    "Rk": 255,
+    "Kenpom Name": "Queens",
+    "CBBRef Name": "Queens (NC)",
+    "Warren Name": "queens",
+    "ESPN Name": "Queens University Royals",
+    "EvanMiya Name": "Queens",
+    "School": "Queens"
+  },
+  {
+    "Rk": 256,
+    "Kenpom Name": "Sacramento St.",
+    "CBBRef Name": "Sacramento State",
+    "Warren Name": "sacramento state",
+    "ESPN Name": "Sacramento State Hornets",
+    "EvanMiya Name": "Sacramento State",
+    "School": "Sacramento State"
+  },
+  {
+    "Rk": 257,
+    "Kenpom Name": "Indiana St.",
+    "CBBRef Name": "Indiana State",
+    "Warren Name": "indiana state",
+    "ESPN Name": "Indiana State Sycamores",
+    "EvanMiya Name": "Indiana State",
+    "School": "Indiana State"
+  },
+  {
+    "Rk": 258,
+    "Kenpom Name": "SIUE",
+    "CBBRef Name": "SIU Edwardsville",
+    "Warren Name": "siue",
+    "ESPN Name": "SIU Edwardsville Cougars",
+    "EvanMiya Name": "SIU Edwardsville",
+    "School": "Siue"
+  },
+  {
+    "Rk": 259,
+    "Kenpom Name": "North Alabama",
+    "CBBRef Name": "North Alabama",
+    "Warren Name": "north alabama",
+    "ESPN Name": "North Alabama Lions",
+    "EvanMiya Name": "North Alabama",
+    "School": "North Alabama"
+  },
+  {
+    "Rk": 260,
+    "Kenpom Name": "Grambling St.",
+    "CBBRef Name": "Grambling",
+    "Warren Name": "grambling state",
+    "ESPN Name": "Grambling Tigers",
+    "EvanMiya Name": "Grambling",
+    "School": "Grambling"
+  },
+  {
+    "Rk": 261,
+    "Kenpom Name": "Louisiana",
+    "CBBRef Name": "Louisiana",
+    "Warren Name": "louisiana",
+    "ESPN Name": "Louisiana Ragin' Cajuns",
+    "EvanMiya Name": "Louisiana-Lafayette",
+    "School": "Louisiana"
+  },
+  {
+    "Rk": 262,
+    "Kenpom Name": "Southern",
+    "CBBRef Name": "Southern",
+    "Warren Name": "southern",
+    "ESPN Name": "Southern Jaguars",
+    "EvanMiya Name": "Southern",
+    "School": "Southern"
+  },
+  {
+    "Rk": 263,
+    "Kenpom Name": "Tulane",
+    "CBBRef Name": "Tulane",
+    "Warren Name": "tulane",
+    "ESPN Name": "Tulane Green Wave",
+    "EvanMiya Name": "Tulane",
+    "School": "Tulane"
+  },
+  {
+    "Rk": 264,
+    "Kenpom Name": "Prairie View A&M",
+    "CBBRef Name": "Prairie View a&M",
+    "Warren Name": "prairie view a&m",
+    "ESPN Name": "Prairie View A&M Panthers",
+    "EvanMiya Name": "Prairie View",
+    "School": "Prairie View"
+  },
+  {
+    "Rk": 265,
+    "Kenpom Name": "Tarleton St.",
+    "CBBRef Name": "Tarleton State",
+    "Warren Name": "tarleton state",
+    "ESPN Name": "Tarleton State Texans",
+    "EvanMiya Name": "Tarleton State",
+    "School": "Tarleton State"
+  },
+  {
+    "Rk": 266,
+    "Kenpom Name": "Northwestern St.",
+    "CBBRef Name": "Northwestern State",
+    "Warren Name": "northwestern state",
+    "ESPN Name": "Northwestern State Demons",
+    "EvanMiya Name": "Northwestern State",
+    "School": "Northwestern State"
+  },
+  {
+    "Rk": 267,
+    "Kenpom Name": "Jacksonville",
+    "CBBRef Name": "Jacksonville",
+    "Warren Name": "jacksonville",
+    "ESPN Name": "Jacksonville Dolphins",
+    "EvanMiya Name": "Jacksonville",
+    "School": "Jacksonville"
+  },
+  {
+    "Rk": 268,
+    "Kenpom Name": "Northern Iowa",
+    "CBBRef Name": "Northern Iowa",
+    "Warren Name": "northern iowa",
+    "ESPN Name": "Northern Iowa Panthers",
+    "EvanMiya Name": "Northern Iowa",
+    "School": "Northern Iowa"
+  },
+  {
+    "Rk": 269,
+    "Kenpom Name": "South Dakota",
+    "CBBRef Name": "South Dakota",
+    "Warren Name": "south dakota",
+    "ESPN Name": "South Dakota Coyotes",
+    "EvanMiya Name": "South Dakota",
+    "School": "South Dakota"
+  },
+  {
+    "Rk": 270,
+    "Kenpom Name": "Youngstown St.",
+    "CBBRef Name": "Youngstown State",
+    "Warren Name": "youngstown state",
+    "ESPN Name": "Youngstown State Penguins",
+    "EvanMiya Name": "Youngstown State",
+    "School": "Youngstown State"
+  },
+  {
+    "Rk": 271,
+    "Kenpom Name": "Merrimack",
+    "CBBRef Name": "Merrimack",
+    "Warren Name": "merrimack",
+    "ESPN Name": "Merrimack Warriors",
+    "EvanMiya Name": "Merrimack",
+    "School": "Merrimack"
+  },
+  {
+    "Rk": 272,
+    "Kenpom Name": "Oakland",
+    "CBBRef Name": "Oakland",
+    "Warren Name": "oakland",
+    "ESPN Name": "Oakland Golden Grizzlies",
+    "EvanMiya Name": "Oakland",
+    "School": "Oakland"
+  },
+  {
+    "Rk": 273,
+    "Kenpom Name": "LSU New Orleans",
+    "CBBRef Name": "New Orleans",
+    "Warren Name": "LSU new orleans",
+    "ESPN Name": "LSU New Orleans Privateers",
+    "EvanMiya Name": "New Orleans",
+    "School": "New Orleans"
+  },
+  {
+    "Rk": 274,
+    "Kenpom Name": "Coastal Carolina",
+    "CBBRef Name": "Coastal Carolina",
+    "Warren Name": "coastal carolina",
+    "ESPN Name": "Coastal Carolina Chanticleers",
+    "EvanMiya Name": "Coastal Carolina",
+    "School": "Coastal Carolina"
+  },
+  {
+    "Rk": 275,
+    "Kenpom Name": "Robert Morris",
+    "CBBRef Name": "Robert Morris",
+    "Warren Name": "robert morris",
+    "ESPN Name": "Robert Morris Colonials",
+    "EvanMiya Name": "Robert Morris",
+    "School": "Robert Morris"
+  },
+  {
+    "Rk": 276,
+    "Kenpom Name": "Alabama A&M",
+    "CBBRef Name": "Alabama A&M",
+    "Warren Name": "alabama a&m",
+    "ESPN Name": "Alabama A&M Bulldogs",
+    "EvanMiya Name": "Alabama A&M",
+    "School": "Aamu"
+  },
+  {
+    "Rk": 277,
+    "Kenpom Name": "Idaho St.",
+    "CBBRef Name": "Idaho State",
+    "Warren Name": "idaho state",
+    "ESPN Name": "Idaho State Bengals",
+    "EvanMiya Name": "Idaho State",
+    "School": "Idaho State"
+  },
+  {
+    "Rk": 278,
+    "Kenpom Name": "Nicholls",
+    "CBBRef Name": "Nicholls State",
+    "Warren Name": "nicholls",
+    "ESPN Name": "Nicholls Colonels",
+    "EvanMiya Name": "Nicholls State",
+    "School": "Nicholls State"
+  },
+  {
+    "Rk": 279,
+    "Kenpom Name": "Louisiana Monroe",
+    "CBBRef Name": "Louisiana-Monroe",
+    "Warren Name": "ulm",
+    "ESPN Name": "UL Monroe Warhawks",
+    "EvanMiya Name": "Louisiana-Monroe",
+    "School": "Ul Monroe"
+  },
+  {
+    "Rk": 280,
+    "Kenpom Name": "Northern Kentucky",
+    "CBBRef Name": "Northern Kentucky",
+    "Warren Name": "northern kentucky",
+    "ESPN Name": "Northern Kentucky Norse",
+    "EvanMiya Name": "Northern Kentucky",
+    "School": "Northern Kentucky"
+  },
+  {
+    "Rk": 281,
+    "Kenpom Name": "Southeast Missouri",
+    "CBBRef Name": "Southeast Missouri State",
+    "Warren Name": "southeast missouri",
+    "ESPN Name": "Southeast Missouri State Redhawks",
+    "EvanMiya Name": "Southeast Missouri State",
+    "School": "Semo"
+  },
+  {
+    "Rk": 282,
+    "Kenpom Name": "Charleston Southern",
+    "CBBRef Name": "Charleston Southern",
+    "Warren Name": "charleston southern",
+    "ESPN Name": "Charleston Southern Buccaneers",
+    "EvanMiya Name": "Charleston Southern",
+    "School": "Charleston Southern"
+  },
+  {
+    "Rk": 283,
+    "Kenpom Name": "Long Beach St.",
+    "CBBRef Name": "Long Beach State",
+    "Warren Name": "long beach state",
+    "ESPN Name": "Long Island University Sharks",
+    "EvanMiya Name": "Long Beach State",
+    "School": "Long Beach State"
+  },
+  {
+    "Rk": 284,
+    "Kenpom Name": "The Citadel",
+    "CBBRef Name": "The Citadel",
+    "Warren Name": "the citadel",
+    "ESPN Name": "The Citadel Bulldogs",
+    "EvanMiya Name": "The Citadel",
+    "School": "The Citadel"
+  },
+  {
+    "Rk": 285,
+    "Kenpom Name": "East Carolina",
+    "CBBRef Name": "East Carolina",
+    "Warren Name": "east carolina",
+    "ESPN Name": "East Carolina Pirates",
+    "EvanMiya Name": "East Carolina",
+    "School": "East Carolina"
+  },
+  {
+    "Rk": 286,
+    "Kenpom Name": "East Texas A&M",
+    "CBBRef Name": "East Texas A&M",
+    "Warren Name": "east texas a&m",
+    "ESPN Name": "East Texas A&M Lions",
+    "EvanMiya Name": "East Texas A&M",
+    "School": "Etamu"
+  },
+  {
+    "Rk": 287,
+    "Kenpom Name": "UC Davis",
+    "CBBRef Name": "UC Davis",
+    "Warren Name": "uc davis",
+    "ESPN Name": "UC Davis Aggies",
+    "EvanMiya Name": "UC Davis",
+    "School": "Ucd"
+  },
+  {
+    "Rk": 288,
+    "Kenpom Name": "North Florida",
+    "CBBRef Name": "North Florida",
+    "Warren Name": "north florida",
+    "ESPN Name": "North Florida Ospreys",
+    "EvanMiya Name": "North Florida",
+    "School": "North Florida"
+  },
+  {
+    "Rk": 289,
+    "Kenpom Name": "Georgia Southern",
+    "CBBRef Name": "Georgia Southern",
+    "Warren Name": "georgia southern",
+    "ESPN Name": "Georgia Southern Eagles",
+    "EvanMiya Name": "Georgia Southern",
+    "School": "Georgia Southern"
+  },
+  {
+    "Rk": 290,
+    "Kenpom Name": "Northern Colorado",
+    "CBBRef Name": "Northern Colorado",
+    "Warren Name": "northern colorado",
+    "ESPN Name": "Northern Colorado Bears",
+    "EvanMiya Name": "Northern Colorado",
+    "School": "Northern Colorado"
+  },
+  {
+    "Rk": 291,
+    "Kenpom Name": "Fairleigh Dickinson",
+    "CBBRef Name": "FDU",
+    "Warren Name": "fairleigh dickinson",
+    "ESPN Name": "Fairleigh Dickinson Knights",
+    "EvanMiya Name": "Fairleigh Dickinson",
+    "School": "Fdu"
+  },
+  {
+    "Rk": 292,
+    "Kenpom Name": "IU Indy",
+    "CBBRef Name": "IU Indy",
+    "Warren Name": "iu indianapolis",
+    "ESPN Name": "IU Indianapolis Jaguars",
+    "EvanMiya Name": "IU Indy",
+    "School": "Iu Indy"
+  },
+  {
+    "Rk": 293,
+    "Kenpom Name": "Stetson",
+    "CBBRef Name": "Stetson",
+    "Warren Name": "stetson",
+    "ESPN Name": "Stetson Hatters",
+    "EvanMiya Name": "Stetson",
+    "School": "Stetson"
+  },
+  {
+    "Rk": 294,
+    "Kenpom Name": "Cleveland St.",
+    "CBBRef Name": "Cleveland State",
+    "Warren Name": "cleveland state",
+    "ESPN Name": "Cleveland State Vikings",
+    "EvanMiya Name": "Cleveland State",
+    "School": "Cleveland State"
+  },
+  {
+    "Rk": 295,
+    "Kenpom Name": "UNC Greensboro",
+    "CBBRef Name": "UNC Greensboro",
+    "Warren Name": "uncg",
+    "ESPN Name": "UNC Greensboro Spartans",
+    "EvanMiya Name": "UNC Greensboro",
+    "School": "Uncg"
+  },
+  {
+    "Rk": 296,
+    "Kenpom Name": "Northeastern",
+    "CBBRef Name": "Northeastern",
+    "Warren Name": "northeastern",
+    "ESPN Name": "Northeastern Huskies",
+    "EvanMiya Name": "Northeastern",
+    "School": "Northeastern"
+  },
+  {
+    "Rk": 297,
+    "Kenpom Name": "Kansas City",
+    "CBBRef Name": "Kansas City",
+    "Warren Name": "umkc",
+    "ESPN Name": "Kansas City Roos",
+    "EvanMiya Name": "Missouri-Kansas City",
+    "School": "kc"
+  },
+  {
+    "Rk": 298,
+    "Kenpom Name": "Air Force",
+    "CBBRef Name": "Air Force",
+    "Warren Name": "air force",
+    "ESPN Name": "Air Force Falcons",
+    "EvanMiya Name": "Air Force",
+    "School": "Air Force"
+  },
+  {
+    "Rk": 299,
+    "Kenpom Name": "Lindenwood",
+    "CBBRef Name": "Lindenwood",
+    "Warren Name": "lindenwood",
+    "ESPN Name": "Lindenwood Lions",
+    "EvanMiya Name": "Lindenwood",
+    "School": "Lindenwood"
+  },
+  {
+    "Rk": 300,
+    "Kenpom Name": "Little Rock",
+    "CBBRef Name": "Little Rock",
+    "Warren Name": "little rock",
+    "ESPN Name": "Little Rock Trojans",
+    "EvanMiya Name": "Arkansas-Little Rock",
+    "School": "Little Rock"
+  },
+  {
+    "Rk": 301,
+    "Kenpom Name": "North Carolina Central",
+    "CBBRef Name": "North Carolina Central",
+    "Warren Name": "north carolina central",
+    "ESPN Name": "North Carolina Central Eagles",
+    "EvanMiya Name": "North Carolina Central",
+    "School": "ncc"
+  },
+  {
+    "Rk": 302,
+    "Kenpom Name": "Morehead St.",
+    "CBBRef Name": "Morehead State",
+    "Warren Name": "morehead state",
+    "ESPN Name": "Morehead State Eagles",
+    "EvanMiya Name": "Morehead State",
+    "School": "Morehead State"
+  },
+  {
+    "Rk": 303,
+    "Kenpom Name": "VMI",
+    "CBBRef Name": "VMI",
+    "Warren Name": "vmi",
+    "ESPN Name": "VMI Keydets",
+    "EvanMiya Name": "VMI",
+    "School": "Vmi"
+  },
+  {
+    "Rk": 304,
+    "Kenpom Name": "Hampton",
+    "CBBRef Name": "Hampton",
+    "Warren Name": "hampton",
+    "ESPN Name": "Hampton Pirates",
+    "EvanMiya Name": "Hampton",
+    "School": "Hampton"
+  },
+  {
+    "Rk": 305,
+    "Kenpom Name": "Eastern Illinois",
+    "CBBRef Name": "Eastern Illinois",
+    "Warren Name": "eastern illinois",
+    "ESPN Name": "Eastern Illinois Panthers",
+    "EvanMiya Name": "Eastern Illinois",
+    "School": "Eastern Illinois"
+  },
+  {
+    "Rk": 306,
+    "Kenpom Name": "Iona",
+    "CBBRef Name": "Iona",
+    "Warren Name": "iona",
+    "ESPN Name": "Iona Gaels",
+    "EvanMiya Name": "Iona",
+    "School": "Iona"
+  },
+  {
+    "Rk": 307,
+    "Kenpom Name": "Quinnipiac",
+    "CBBRef Name": "Quinnipiac",
+    "Warren Name": "quinnipiac",
+    "ESPN Name": "Quinnipiac Bobcats",
+    "EvanMiya Name": "Quinnipiac",
+    "School": "Quinnipiac"
+  },
+  {
+    "Rk": 308,
+    "Kenpom Name": "Jackson St.",
+    "CBBRef Name": "Jackson State",
+    "Warren Name": "jackson state",
+    "ESPN Name": "Jackson State Tigers",
+    "EvanMiya Name": "Jackson State",
+    "School": "Jackson State"
+  },
+  {
+    "Rk": 309,
+    "Kenpom Name": "Bryant",
+    "CBBRef Name": "Bryant",
+    "Warren Name": "bryant",
+    "ESPN Name": "Bryant Bulldogs",
+    "EvanMiya Name": "Bryant",
+    "School": "Bryant"
+  },
+  {
+    "Rk": 310,
+    "Kenpom Name": "Nebraska Omaha",
+    "CBBRef Name": "Omaha",
+    "Warren Name": "omaha",
+    "ESPN Name": "Omaha Mavericks",
+    "EvanMiya Name": "Omaha",
+    "School": "Omaha"
+  },
+  {
+    "Rk": 311,
+    "Kenpom Name": "Southern Indiana",
+    "CBBRef Name": "Southern Indiana",
+    "Warren Name": "southern indiana",
+    "ESPN Name": "Southern Indiana Screaming Eagles",
+    "EvanMiya Name": "Southern Indiana",
+    "School": "Southern Indiana"
+  },
+  {
+    "Rk": 312,
+    "Kenpom Name": "Sacred Heart",
+    "CBBRef Name": "Sacred Heart",
+    "Warren Name": "sacred heart",
+    "ESPN Name": "Sacred Heart Pioneers",
+    "EvanMiya Name": "Sacred Heart",
+    "School": "Sacred Heart"
+  },
+  {
+    "Rk": 313,
+    "Kenpom Name": "Mercyhurst",
+    "CBBRef Name": "Mercyhurst",
+    "Warren Name": "mercyhurst",
+    "ESPN Name": "Mercyhurst Lakers",
+    "EvanMiya Name": "Mercyhurst",
+    "School": "Mercyhurst"
+  },
+  {
+    "Rk": 314,
+    "Kenpom Name": "North Carolina A&T",
+    "CBBRef Name": "North Carolina A&T",
+    "Warren Name": "north carolina a&t",
+    "ESPN Name": "North Carolina A&T Aggies",
+    "EvanMiya Name": "North Carolina A&T",
+    "School": "Ncat"
+  },
+  {
+    "Rk": 315,
+    "Kenpom Name": "Navy",
+    "CBBRef Name": "Navy",
+    "Warren Name": "navy",
+    "ESPN Name": "Navy Midshipmen",
+    "EvanMiya Name": "Navy",
+    "School": "Navy"
+  },
+  {
+    "Rk": 316,
+    "Kenpom Name": "West Florida",
+    "CBBRef Name": "West Florida",
+    "Warren Name": "West Florida",
+    "ESPN Name": "West Florida Argonauts",
+    "EvanMiya Name": "West Florida",
+    "School": "UWF"
+  },
+  {
+    "Rk": 317,
+    "Kenpom Name": "UMBC",
+    "CBBRef Name": "UMBC",
+    "Warren Name": "umbc",
+    "ESPN Name": "UMBC Retrievers",
+    "EvanMiya Name": "UMBC",
+    "School": "umbc"
+  },
+  {
+    "Rk": 318,
+    "Kenpom Name": "LIU",
+    "CBBRef Name": "Long Island University",
+    "Warren Name": "long island",
+    "ESPN Name": "Long Beach State Beach",
+    "EvanMiya Name": "Long Island",
+    "School": "Long Island"
+  },
+  {
+    "Rk": 319,
+    "Kenpom Name": "UNC Asheville",
+    "CBBRef Name": "UNC Asheville",
+    "Warren Name": "unc asheville",
+    "ESPN Name": "UNC Asheville Bulldogs",
+    "EvanMiya Name": "UNC Asheville",
+    "School": "Unca"
+  },
+  {
+    "Rk": 320,
+    "Kenpom Name": "New Haven",
+    "CBBRef Name": "New Haven",
+    "Warren Name": "new haven",
+    "ESPN Name": "New Haven Chargers",
+    "EvanMiya Name": "New Haven",
+    "School": "New Haven"
+  },
+  {
+    "Rk": 321,
+    "Kenpom Name": "Marist",
+    "CBBRef Name": "Marist",
+    "Warren Name": "marist",
+    "ESPN Name": "Marist Red Foxes",
+    "EvanMiya Name": "Marist",
+    "School": "Marist"
+  },
+  {
+    "Rk": 322,
+    "Kenpom Name": "Winthrop",
+    "CBBRef Name": "Winthrop",
+    "Warren Name": "winthrop",
+    "ESPN Name": "Winthrop Eagles",
+    "EvanMiya Name": "Winthrop",
+    "School": "Winthrop"
+  },
+  {
+    "Rk": 323,
+    "Kenpom Name": "Texas Southern",
+    "CBBRef Name": "Texas Southern",
+    "Warren Name": "texas southern",
+    "ESPN Name": "Texas Southern Tigers",
+    "EvanMiya Name": "Texas Southern",
+    "School": "Texas Southern"
+  },
+  {
+    "Rk": 324,
+    "Kenpom Name": "New Hampshire",
+    "CBBRef Name": "New Hampshire",
+    "Warren Name": "new hampshire",
+    "ESPN Name": "New Hampshire Wildcats",
+    "EvanMiya Name": "New Hampshire",
+    "School": "New Hampshire"
+  },
+  {
+    "Rk": 325,
+    "Kenpom Name": "Coppin St.",
+    "CBBRef Name": "Coppin State",
+    "Warren Name": "coppin state",
+    "ESPN Name": "Coppin State Eagles",
+    "EvanMiya Name": "Coppin State",
+    "School": "Coppin State"
+  },
+  {
+    "Rk": 326,
+    "Kenpom Name": "Fairfield",
+    "CBBRef Name": "Fairfield",
+    "Warren Name": "fairfield",
+    "ESPN Name": "Fairfield Stags",
+    "EvanMiya Name": "Fairfield",
+    "School": "Fairfield"
+  },
+  {
+    "Rk": 327,
+    "Kenpom Name": "Binghamton",
+    "CBBRef Name": "Binghamton",
+    "Warren Name": "binghamton",
+    "ESPN Name": "Binghamton Bearcats",
+    "EvanMiya Name": "Binghamton",
+    "School": "Binghamton"
+  },
+  {
+    "Rk": 328,
+    "Kenpom Name": "Brown",
+    "CBBRef Name": "Brown",
+    "Warren Name": "brown",
+    "ESPN Name": "Brown Bears",
+    "EvanMiya Name": "Brown",
+    "School": "Brown"
+  },
+  {
+    "Rk": 329,
+    "Kenpom Name": "Southeastern Louisiana",
+    "CBBRef Name": "Southeastern Louisiana",
+    "Warren Name": "southeastern louisiana",
+    "ESPN Name": "SE Louisiana Lions",
+    "EvanMiya Name": "Southeastern Louisiana",
+    "School": "Sela"
+  },
+  {
+    "Rk": 330,
+    "Kenpom Name": "Alabama St.",
+    "CBBRef Name": "Alabama State",
+    "Warren Name": "alabama state",
+    "ESPN Name": "Alabama State Hornets",
+    "EvanMiya Name": "Alabama State",
+    "School": "Alabama State"
+  },
+  {
+    "Rk": 331,
+    "Kenpom Name": "North Dakota",
+    "CBBRef Name": "North Dakota",
+    "Warren Name": "north dakota",
+    "ESPN Name": "North Dakota Fighting Hawks",
+    "EvanMiya Name": "North Dakota",
+    "School": "North Dakota"
+  },
+  {
+    "Rk": 332,
+    "Kenpom Name": "Dartmouth",
+    "CBBRef Name": "Dartmouth",
+    "Warren Name": "dartmouth",
+    "ESPN Name": "Dartmouth Big Green",
+    "EvanMiya Name": "Dartmouth",
+    "School": "Dartmouth"
+  },
+  {
+    "Rk": 333,
+    "Kenpom Name": "Weber St.",
+    "CBBRef Name": "Weber State",
+    "Warren Name": "weber state",
+    "ESPN Name": "Weber State Wildcats",
+    "EvanMiya Name": "Weber State",
+    "School": "Weber State"
+  },
+  {
+    "Rk": 334,
+    "Kenpom Name": "Army",
+    "CBBRef Name": "Army",
+    "Warren Name": "army",
+    "ESPN Name": "Army Black Knights",
+    "EvanMiya Name": "Army",
+    "School": "Army"
+  },
+  {
+    "Rk": 335,
+    "Kenpom Name": "Central Connecticut",
+    "CBBRef Name": "Central Connecticut State",
+    "Warren Name": "central connecticut",
+    "ESPN Name": "Central Connecticut Blue Devils",
+    "EvanMiya Name": "Central Connecticut",
+    "School": "Ccu"
+  },
+  {
+    "Rk": 336,
+    "Kenpom Name": "Bucknell",
+    "CBBRef Name": "Bucknell",
+    "Warren Name": "bucknell",
+    "ESPN Name": "Bucknell Bison",
+    "EvanMiya Name": "Bucknell",
+    "School": "Bucknell"
+  },
+  {
+    "Rk": 337,
+    "Kenpom Name": "Stonehill",
+    "CBBRef Name": "Stonehill",
+    "Warren Name": "stonehill",
+    "ESPN Name": "Stonehill Skyhawks",
+    "EvanMiya Name": "Stonehill",
+    "School": "Stonehill"
+  },
+  {
+    "Rk": 338,
+    "Kenpom Name": "Maine",
+    "CBBRef Name": "Maine",
+    "Warren Name": "maine",
+    "ESPN Name": "Maine Black Bears",
+    "EvanMiya Name": "Maine",
+    "School": "Maine"
+  },
+  {
+    "Rk": 339,
+    "Kenpom Name": "West Georgia",
+    "CBBRef Name": "West Georgia",
+    "Warren Name": "west georgia",
+    "ESPN Name": "West Georgia Wolves",
+    "EvanMiya Name": "West Georgia",
+    "School": "West Georgia"
+  },
+  {
+    "Rk": 340,
+    "Kenpom Name": "Incarnate Word",
+    "CBBRef Name": "Incarnate Word",
+    "Warren Name": "incarnate word",
+    "ESPN Name": "Incarnate Word Cardinals",
+    "EvanMiya Name": "Incarnate Word",
+    "School": "Incarnate Word"
+  },
+  {
+    "Rk": 341,
+    "Kenpom Name": "Norfolk St.",
+    "CBBRef Name": "Norfolk State",
+    "Warren Name": "norfolk state",
+    "ESPN Name": "Norfolk State Spartans",
+    "EvanMiya Name": "Norfolk State",
+    "School": "Norfolk State"
+  },
+  {
+    "Rk": 342,
+    "Kenpom Name": "Niagara",
+    "CBBRef Name": "Niagara",
+    "Warren Name": "niagara",
+    "ESPN Name": "Niagara Purple Eagles",
+    "EvanMiya Name": "Niagara",
+    "School": "Niagara"
+  },
+  {
+    "Rk": 343,
+    "Kenpom Name": "Mount St. Mary's",
+    "CBBRef Name": "Mount St. Mary's",
+    "Warren Name": "mount saint mary's",
+    "ESPN Name": "Mount St. Mary's Mountaineers",
+    "EvanMiya Name": "Mount St. Mary's",
+    "School": "Msm"
+  },
+  {
+    "Rk": 344,
+    "Kenpom Name": "Maryland Eastern Shore",
+    "CBBRef Name": "Maryland-Eastern Shore",
+    "Warren Name": "maryland eastern shore",
+    "ESPN Name": "Maryland Eastern Shore Hawks",
+    "EvanMiya Name": "Maryland-Eastern Shore",
+    "School": "Umes"
+  },
+  {
+    "Rk": 345,
+    "Kenpom Name": "Western Illinois",
+    "CBBRef Name": "Western Illinois",
+    "Warren Name": "western illinois",
+    "ESPN Name": "Western Illinois Leathernecks",
+    "EvanMiya Name": "Western Illinois",
+    "School": "Western Illinois"
+  },
+  {
+    "Rk": 346,
+    "Kenpom Name": "Loyola MD",
+    "CBBRef Name": "Loyola (MD)",
+    "Warren Name": "loyola-maryland",
+    "ESPN Name": "Loyola Marymount Lions",
+    "EvanMiya Name": "Loyola Maryland",
+    "School": "Loyola Maryland"
+  },
+  {
+    "Rk": 347,
+    "Kenpom Name": "Gardner Webb",
+    "CBBRef Name": "Gardner-Webb",
+    "Warren Name": "gardner-webb",
+    "ESPN Name": "Gardner-Webb Runnin' Bulldogs",
+    "EvanMiya Name": "Gardner-Webb",
+    "School": "Gardner-Webb"
+  },
+  {
+    "Rk": 348,
+    "Kenpom Name": "Cal Baptist",
+    "CBBRef Name": "California Baptist",
+    "Warren Name": "california baptist",
+    "ESPN Name": "California Baptist Lancers",
+    "EvanMiya Name": "California Baptist",
+    "School": "Cal Baptist"
+  },
+  {
+    "Rk": 349,
+    "Kenpom Name": "Delaware St.",
+    "CBBRef Name": "Delaware State",
+    "Warren Name": "delaware state",
+    "ESPN Name": "Delaware State Hornets",
+    "EvanMiya Name": "Delaware State",
+    "School": "Delaware State"
+  },
+  {
+    "Rk": 350,
+    "Kenpom Name": "Mississippi Valley St.",
+    "CBBRef Name": "Mississippi Valley State",
+    "Warren Name": "mississippi valley state",
+    "ESPN Name": "Mississippi Valley State Delta Devils",
+    "EvanMiya Name": "Mississippi Valley State",
+    "School": "Mvsu"
+  },
+  {
+    "Rk": 351,
+    "Kenpom Name": "Manhattan",
+    "CBBRef Name": "Manhattan",
+    "Warren Name": "manhattan",
+    "ESPN Name": "Manhattan Jaspers",
+    "EvanMiya Name": "Manhattan",
+    "School": "Manhattan"
+  },
+  {
+    "Rk": 352,
+    "Kenpom Name": "Chicago St.",
+    "CBBRef Name": "Chicago State",
+    "Warren Name": "chicago state",
+    "ESPN Name": "Chicago State Cougars",
+    "EvanMiya Name": "Chicago State",
+    "School": "Chicago State"
+  },
+  {
+    "Rk": 353,
+    "Kenpom Name": "Morgan St.",
+    "CBBRef Name": "Morgan State",
+    "Warren Name": "morgan state",
+    "ESPN Name": "Morgan State Bears",
+    "EvanMiya Name": "Morgan State",
+    "School": "Morgan State"
+  },
+  {
+    "Rk": 354,
+    "Kenpom Name": "Canisius",
+    "CBBRef Name": "Canisius",
+    "Warren Name": "canisius",
+    "ESPN Name": "Canisius Golden Griffins",
+    "EvanMiya Name": "Canisius",
+    "School": "Canisius"
+  },
+  {
+    "Rk": 355,
+    "Kenpom Name": "South Carolina St.",
+    "CBBRef Name": "South Carolina State",
+    "Warren Name": "south carolina state",
+    "ESPN Name": "South Carolina State Bulldogs",
+    "EvanMiya Name": "South Carolina State",
+    "School": "South Carolina State"
+  },
+  {
+    "Rk": 356,
+    "Kenpom Name": "Holy Cross",
+    "CBBRef Name": "Holy Cross",
+    "Warren Name": "holy cross",
+    "ESPN Name": "Holy Cross Crusaders",
+    "EvanMiya Name": "Holy Cross",
+    "School": "Holy Cross"
+  },
+  {
+    "Rk": 357,
+    "Kenpom Name": "Albany",
+    "CBBRef Name": "Albany (NY)",
+    "Warren Name": "albany",
+    "ESPN Name": "UAlbany Great Danes",
+    "EvanMiya Name": "Albany",
+    "School": "Albany"
+  },
+  {
+    "Rk": 358,
+    "Kenpom Name": "Saint Peter's",
+    "CBBRef Name": "Saint Peter's",
+    "Warren Name": "saint peter's",
+    "ESPN Name": "Saint Peter's Peacocks",
+    "EvanMiya Name": "Saint Peter's",
+    "School": "Saint Peters"
+  },
+  {
+    "Rk": 359,
+    "Kenpom Name": "Detroit Mercy",
+    "CBBRef Name": "Detroit Mercy",
+    "Warren Name": "detroit",
+    "ESPN Name": "Detroit Mercy Titans",
+    "EvanMiya Name": "Detroit",
+    "School": "Detroit Mercy"
+  },
+  {
+    "Rk": 360,
+    "Kenpom Name": "Rider",
+    "CBBRef Name": "Rider",
+    "Warren Name": "rider",
+    "ESPN Name": "Rider Broncs",
+    "EvanMiya Name": "Rider",
+    "School": "Rider"
+  },
+  {
+    "Rk": 361,
+    "Kenpom Name": "USC Upstate",
+    "CBBRef Name": "South Carolina Upstate",
+    "Warren Name": "south carolina upstate",
+    "ESPN Name": "South Carolina Upstate Spartans",
+    "EvanMiya Name": "South Carolina Upstate",
+    "School": "South Carolina Upstate"
+  },
+  {
+    "Rk": 362,
+    "Kenpom Name": "Florida A&M",
+    "CBBRef Name": "Florida A&M",
+    "Warren Name": "florida a&m",
+    "ESPN Name": "Florida A&M Rattlers",
+    "EvanMiya Name": "Florida A&M",
+    "School": "Famu"
+  },
+  {
+    "Rk": 363,
+    "Kenpom Name": "Alcorn St.",
+    "CBBRef Name": "Alcorn State",
+    "Warren Name": "alcorn state",
+    "ESPN Name": "Alcorn State Braves",
+    "EvanMiya Name": "Alcorn State",
+    "School": "Alcorn State"
+  },
+  {
+    "Rk": 364,
+    "Kenpom Name": "NJIT",
+    "CBBRef Name": "NJIT",
+    "Warren Name": "njit",
+    "ESPN Name": "NJIT Highlanders",
+    "EvanMiya Name": "NJIT",
+    "School": "Njit"
+  },
+  {
+    "Rk": 365,
+    "Kenpom Name": "Arkansas Pine Bluff",
+    "CBBRef Name": "Arkansas-Pine Bluff",
+    "Warren Name": "arkansas-pine bluff",
+    "ESPN Name": "Arkansas-Pine Bluff Golden Lions",
+    "EvanMiya Name": "Arkansas-Pine Bluff",
+    "School": "Uapb"
+  }
+]

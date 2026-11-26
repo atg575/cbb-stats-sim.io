@@ -4,7 +4,6 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 from io import StringIO
-from openpyxl import load_workbook
 
 # Create a session with enhanced headers
 session = requests.Session()
@@ -28,7 +27,7 @@ def clean_string_columns(df):
         )
     return df
 
-def scrape_and_save_to_excel(file_name="2026-27 Men's College Basketball Stats_code.xlsx"):
+def scrape_and_save_to_csv(out_school="data/raw/cbbref_school.csv", out_opp="data/raw/cbbref_opp.csv"):
     url_a = "https://www.sports-reference.com/cbb/seasons/men/2027-school-stats.html#basic_school_stats::1"
     url_b = "https://www.sports-reference.com/cbb/seasons/men/2027-opponent-stats.html#basic_opp_stats::1"
 
@@ -72,19 +71,10 @@ def scrape_and_save_to_excel(file_name="2026-27 Men's College Basketball Stats_c
     df_a = clean_string_columns(df_a)
     df_b = clean_string_columns(df_b)
 
-    sheet_name_a = "School Stats"
-    sheet_name_b = "Opponent Stats"
-
-    if os.path.exists(file_name):
-        with pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-            df_a.to_excel(writer, sheet_name=sheet_name_a, index=False)
-            df_b.to_excel(writer, sheet_name=sheet_name_b, index=False)
-            print(f"Data replaced in {file_name}")
-    else:
-        with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
-            df_a.to_excel(writer, sheet_name=sheet_name_a, index=False)
-            df_b.to_excel(writer, sheet_name=sheet_name_b, index=False)
-            print(f"Data saved to new file {file_name}")
+    os.makedirs(os.path.dirname(out_school), exist_ok=True)
+    df_a.to_csv(out_school, index=False)
+    df_b.to_csv(out_opp, index=False)
+    print(f"Saved {len(df_a)} school rows -> {out_school}, {len(df_b)} opp rows -> {out_opp}")
 
 if __name__ == "__main__":
-    scrape_and_save_to_excel()  # Optionally run once immediately
+    scrape_and_save_to_csv()

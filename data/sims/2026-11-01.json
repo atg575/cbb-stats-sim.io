@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-01",
+  "games": [
+    {
+      "t1": "notre dame",
+      "t2": "villanova",
+      "s1": 31,
+      "s2": 35,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.2892,
+          "wp2": 0.7106,
+          "ps1": 75,
+          "ps2": 83,
+          "acc": "TEAM AND DIFF",
+          "cert": "60%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.2771,
+          "wp2": 0.7227,
+          "ps1": 72,
+          "ps2": 80,
+          "acc": "TEAM AND DIFF",
+          "cert": "60%+"
+        },
+        "Live Log5": {
+          "wp1": 0.2682,
+          "wp2": 0.7316,
+          "ps1": 72,
+          "ps2": 81,
+          "acc": "TEAM AND DIFF",
+          "cert": "60%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.2734,
+          "wp2": 0.7265,
+          "ps1": 72,
+          "ps2": 81,
+          "acc": "TEAM AND DIFF",
+          "cert": "60%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.2987,
+          "wp2": 0.7011,
+          "ps1": 78,
+          "ps2": 85,
+          "acc": "TEAM AND DIFF",
+          "cert": "60%+"
+        },
+        "Base": {
+          "wp1": 0.3312,
+          "wp2": 0.6686,
+          "ps1": 74,
+          "ps2": 80,
+          "acc": "TEAM AND DIFF",
+          "cert": "60%+"
+        }
+      }
+    },
+    {
+      "t1": "liberty",
+      "t2": "high point",
+      "s1": 34,
+      "s2": 37,
+      "models": {
+        "Live Morey Z": {
+          "wp1": 0.4495,
+          "wp2": 0.5502,
+          "ps1": 87,
+          "ps2": 89,
+          "acc": "TEAM AND DIFF",
+          "cert": "50%+"
+        },
+        "Consensus Morey Z": {
+          "wp1": 0.4537,
+          "wp2": 0.5462,
+          "ps1": 86,
+          "ps2": 88,
+          "acc": "TEAM AND DIFF",
+          "cert": "50%+"
+        },
+        "Live Log5": {
+          "wp1": 0.4694,
+          "wp2": 0.5303,
+          "ps1": 86,
+          "ps2": 87,
+          "acc": "TEAM AND DIFF",
+          "cert": "50%+"
+        },
+        "Consensus Log5": {
+          "wp1": 0.4419,
+          "wp2": 0.5579,
+          "ps1": 86,
+          "ps2": 88,
+          "acc": "TEAM AND DIFF",
+          "cert": "50%+"
+        },
+        "Adj. Eff.": {
+          "wp1": 0.4044,
+          "wp2": 0.5954,
+          "ps1": 84,
+          "ps2": 87,
+          "acc": "TEAM AND DIFF",
+          "cert": "50%+"
+        },
+        "Base": {
+          "wp1": 0.5875,
+          "wp2": 0.4123,
+          "ps1": 92,
+          "ps2": 89,
+          "acc": "WRONG",
+          "cert": "50%+"
+        }
+      }
+    }
+  ]
+}

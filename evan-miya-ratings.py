@@ -118,25 +118,11 @@ def get_evanmiya_data_persistent():
 
 if __name__ == "__main__":
     reg_df, inj_df = get_evanmiya_data_persistent()
-    file_name = "2026-27 Men's College Basketball Stats_code.xlsx"
     if reg_df.empty:
         print("Failed to extract data.")
     else:
-        print(f"Saving data to {file_name}...")
-        reg_sheet_name = "EvanMiya Regular Ratings"
-        inj_sheet_name = "EvanMiya Injured Ratings"
-
-        if os.path.exists(file_name):
-            with pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-                reg_df.to_excel(writer, sheet_name=reg_sheet_name, index=False)
-                if not inj_df.empty:
-                    inj_df.to_excel(writer, sheet_name=inj_sheet_name, index=False)
-                print(f"Data replaced in {file_name}")
-        else:
-            with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
-                reg_df.to_excel(writer, sheet_name=reg_sheet_name, index=False)
-                if not inj_df.empty:
-                    inj_df.to_excel(writer, sheet_name=inj_sheet_name, index=False)
-                print(f"Data saved to new file {file_name}")
-      
-        print(f"Extraction complete! Pulled {len(reg_df)} regular rows and {len(inj_df)} injured rows.")
+        os.makedirs("data/raw", exist_ok=True)
+        reg_df.to_csv("data/raw/evanmiya_reg.csv", index=False)
+        if not inj_df.empty:
+            inj_df.to_csv("data/raw/evanmiya_inj.csv", index=False)
+        print(f"Extraction complete! Saved {len(reg_df)} regular rows and {len(inj_df)} injured rows to data/raw/.")

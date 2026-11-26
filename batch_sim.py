@@ -6,13 +6,14 @@ from cbb_sim_adj_eff import simulate_game_with_rebounds_and_adjustments as old_s
 from cbb_sim_functional import simulate_game_with_rebounds_and_adjustments as reg_sim, calculate_relative_strengths as reg_strengths
 from game_extractor import extract_games
 import csv
+import json
 import os
 import pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import sys
 
-file_path = "2026-27 Men's College Basketball Stats_code.xlsx"
+file_path = os.path.join("data", "stats_master.json")
 dataset, nat_avgs = load_dataset(file_path)
 league_averages = calculate_league_averages(dataset)
 game_num = 0
@@ -104,20 +105,20 @@ for game in schedule:
     adj_m_double_ot_games = 0    
 
     # Simulate 25000 adjusted model games
-    for _ in range(0,24999):
+    for _ in range(25000):
         
         game_result = adj_m_sim(
-        team1_data, team2_data, league_averages, adj_num_possessions, adj_team_strengths
+        team1_data, team2_data, league_averages, adj_m_num_possessions, adj_m_team_strengths
         )
 
         if game_result['Team 1']['Score'] == game_result['Team 2']['Score']:
             adj_m_ot_games += 1
             game_result = adj_m_sim(
-            team1_data, team2_data, league_averages, int(adj_num_possessions/8), adj_team_strengths)
+            team1_data, team2_data, league_averages, int(adj_m_num_possessions/8), adj_m_team_strengths)
             if game_result['Team 1']['Score'] == game_result['Team 2']['Score']:
                 adj_m_double_ot_games += 1
                 game_result = adj_m_sim(
-                team1_data, team2_data, league_averages, int(adj_num_possessions/8), adj_team_strengths
+                team1_data, team2_data, league_averages, int(adj_m_num_possessions/8), adj_m_team_strengths
                 )
 
         if game_result['Team 1']['Score'] > game_result['Team 2']['Score']:
@@ -146,20 +147,20 @@ for game in schedule:
     con_m_double_ot_games = 0   
 
     # Simulate 25000 consensus model games
-    for _ in range(0,24999):
+    for _ in range(25000):
         
         game_result = con_m_sim(
-        team1_data, team2_data, league_averages, con_num_possessions, con_team_strengths
+        team1_data, team2_data, league_averages, con_m_num_possessions, con_m_team_strengths
         )
 
         if game_result['Team 1']['Score'] == game_result['Team 2']['Score']:
             con_m_ot_games += 1
             game_result = con_m_sim(
-            team1_data, team2_data, league_averages, int(con_num_possessions/8), con_team_strengths)
+            team1_data, team2_data, league_averages, int(con_m_num_possessions/8), con_m_team_strengths)
             if game_result['Team 1']['Score'] == game_result['Team 2']['Score']:
                 con_m_double_ot_games += 1
                 game_result = con_m_sim(
-                team1_data, team2_data, league_averages, int(con_num_possessions/8), con_team_strengths
+                team1_data, team2_data, league_averages, int(con_m_num_possessions/8), con_m_team_strengths
                 )
 
         if game_result['Team 1']['Score'] > game_result['Team 2']['Score']:
@@ -188,7 +189,7 @@ for game in schedule:
     adj_double_ot_games = 0    
 
     # Simulate 25000 adjusted model games
-    for _ in range(0,24999):
+    for _ in range(25000):
         
         game_result = adj_sim(
         team1_data, team2_data, league_averages, adj_num_possessions, adj_team_strengths
@@ -229,7 +230,7 @@ for game in schedule:
     con_double_ot_games = 0   
 
     # Simulate 25000 consensus model games
-    for _ in range(0,24999):
+    for _ in range(25000):
         
         game_result = con_sim(
         team1_data, team2_data, league_averages, con_num_possessions, con_team_strengths
@@ -270,7 +271,7 @@ for game in schedule:
     old_double_ot_games = 0
 
     # Simulate 25000 adjusted efficiency (old) model games
-    for _ in range(0,24999):
+    for _ in range(25000):
  
         game_result = old_sim(
         team1_data, team2_data, league_averages, old_num_possessions, old_team_strengths
@@ -311,7 +312,7 @@ for game in schedule:
     double_ot_games = 0
 
 # Simulate 25000 regular model games
-    for _ in range(0,24999):
+    for _ in range(25000):
  
         game_result = reg_sim(
         team1_data, team2_data, league_averages, reg_num_possessions, reg_team_strengths
@@ -359,80 +360,42 @@ for game in schedule:
         {game_result['Team 2']['Name']} {adj_m_final_home_score}
         ------------------------------------------------------''')
     
-headers = [
-        'School', 
-        'Live Morey Win %', 'Live Morey Score', 
-        '', 
-        'Consensus Morey Win %', 'Consensus Morey Score', 
-        '', 
-        'Live Log5 Win %', 'Live Log5 Score', 
-        '', 
-        'Consensus Log5 Win %', 'Consensus Log5 Score', 
-        '', 
-        'Adj Eff Win %', 'Adj Eff Score',
-        '', 
-        'Regular Win %', 'Regular Score'
-    ]
+# Save daily predictions to data/sims/{url_date}.json
+os.makedirs(os.path.join("data", "sims"), exist_ok=True)
+sim_json_path = os.path.join("data", "sims", f"{url_date}.json")
 
-    # 1. Collect all rows into a list
-output_data = []
+# Preserve any already-graded actual scores if re-running same day
+existing_scores = {}
+if os.path.isfile(sim_json_path):
+    try:
+        with open(sim_json_path, "r", encoding="utf-8") as f:
+            for g in json.load(f).get("games", []):
+                if g.get("s1") is not None and g.get("s2") is not None:
+                    existing_scores[(g["t1"].lower(), g["t2"].lower())] = (g["s1"], g["s2"])
+    except Exception:
+        pass
 
-    # i is the index (0, 1, 2...), game_teams is the tuple ('uf', 'lsu')
+slate_games = []
 for i, game_teams in enumerate(schedule):
-        
-        # Loop through the two teams in the current game (index 0 and 1)
-    for team_idx in range(len(game_teams)):
-            
-            school_name = game_teams[team_idx]
-            
-            # Use 'i' to find the right game, 'team_idx' to find the right team stats
-            adj_m_win_pct = adj_m_win_pcts[i][team_idx]
-            adj_m_score = adj_m_avg_scores[i][team_idx]
-            con_m_win_pct = con_m_win_pcts[i][team_idx]
-            con_m_score = con_m_avg_scores[i][team_idx]
-            adj_win_pct = adj_win_pcts[i][team_idx]
-            adj_score = adj_avg_scores[i][team_idx]
-            con_win_pct = con_win_pcts[i][team_idx]
-            con_score = con_avg_scores[i][team_idx]
-            old_win_pct = old_win_pcts[i][team_idx]
-            old_score = old_avg_scores[i][team_idx]
-            reg_win_pct = reg_win_pcts[i][team_idx]
-            reg_score = reg_avg_scores[i][team_idx]
+    t1, t2 = game_teams[0], game_teams[1]
+    s1, s2 = existing_scores.get((t1.lower(), t2.lower()), (None, None))
+    slate_games.append({
+        "t1": t1,
+        "t2": t2,
+        "s1": s1,
+        "s2": s2,
+        "models": {
+            "Live Morey Z":      {"wp1": adj_m_win_pcts[i][0], "wp2": adj_m_win_pcts[i][1], "ps1": adj_m_avg_scores[i][0], "ps2": adj_m_avg_scores[i][1]},
+            "Consensus Morey Z": {"wp1": con_m_win_pcts[i][0], "wp2": con_m_win_pcts[i][1], "ps1": con_m_avg_scores[i][0], "ps2": con_m_avg_scores[i][1]},
+            "Live Log5":         {"wp1": adj_win_pcts[i][0],   "wp2": adj_win_pcts[i][1],   "ps1": adj_avg_scores[i][0],   "ps2": adj_avg_scores[i][1]},
+            "Consensus Log5":    {"wp1": con_win_pcts[i][0],   "wp2": con_win_pcts[i][1],   "ps1": con_avg_scores[i][0],   "ps2": con_avg_scores[i][1]},
+            "Adj. Eff.":         {"wp1": old_win_pcts[i][0],   "wp2": old_win_pcts[i][1],   "ps1": old_avg_scores[i][0],   "ps2": old_avg_scores[i][1]},
+            "Base":              {"wp1": reg_win_pcts[i][0],   "wp2": reg_win_pcts[i][1],   "ps1": reg_avg_scores[i][0],   "ps2": reg_avg_scores[i][1]},
+        },
+    })
 
-            # Empty strings ("") create the blank column cells separating the models
-            row = [
-                school_name, 
-                adj_m_win_pct, adj_m_score, 
-                "", 
-                con_m_win_pct, con_m_score, 
-                "", 
-                adj_win_pct, adj_score, 
-                "", 
-                con_win_pct, con_score, 
-                "", 
-                old_win_pct, old_score,
-                "", 
-                reg_win_pct, reg_score
-            ]
-            output_data.append(row)
-            
-        # Add an empty row between matchups for readability
-    empty_row = [""] * len(headers)
-    output_data.append(empty_row)
-
-# 2. Convert the collected data into a Pandas DataFrame
-results_df = pd.DataFrame(output_data, columns=headers)
-
-    # 3. Write to an existing Excel workbook using mode='a'
-    # You can change this to file_path if you want it in your master workbook
-results_file = "Batch_Simulation_Results.xlsx"
-sheet_name = url_date # Uses the date you typed in as the sheet name
-
-if os.path.exists(results_file):
-    with pd.ExcelWriter(results_file, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-            results_df.to_excel(writer, sheet_name=sheet_name, index=False)
-            print(f"\nData replaced/added in {results_file} on sheet '{sheet_name}'.")
-else:
-    with pd.ExcelWriter(results_file, engine='openpyxl') as writer:
-            results_df.to_excel(writer, sheet_name=sheet_name, index=False)
-            print(f"\nCreated new file {results_file} with sheet '{sheet_name}'.")
+tmp_path = sim_json_path + ".tmp"
+with open(tmp_path, "w", encoding="utf-8") as f:
+    json.dump({"date": url_date, "games": slate_games}, f, indent=2, ensure_ascii=False)
+os.replace(tmp_path, sim_json_path)
+print(f"\nSaved {len(slate_games)} simulated matchups to {sim_json_path}.")

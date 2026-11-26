@@ -27,7 +27,7 @@ def force_numeric_columns(df):
             df[col] = df[col].fillna(0)
     return df
 
-def scrape_warren_nolan_elo(file_name="2026-27 Men's College Basketball Stats_code.xlsx"):
+def scrape_warren_nolan_elo(out_path="data/raw/warren_elo.csv"):
     url = "https://www.warrennolan.com/basketball/2027/elo"
     
     headers = {
@@ -67,19 +67,9 @@ def scrape_warren_nolan_elo(file_name="2026-27 Men's College Basketball Stats_co
         # Add a date column for tracking when you pulled the data
         df['Date_Pulled'] = datetime.now().strftime('%Y-%m-%d')
         
-        sheet_name = "Warren ELO"
-        
-        # Save to Excel
-        if os.path.exists(file_name):
-            with pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-                df.to_excel(writer, sheet_name=sheet_name, index=False)
-                print(f"Data replaced in {file_name}")
-        else:
-            with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
-                df.to_excel(writer, sheet_name=sheet_name, index=False)
-                print(f"Data saved to new file {file_name}")
-            
-        print(f"Success! Extracted {len(df)} teams and saved to '{file_name}'.")
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        df.to_csv(out_path, index=False)
+        print(f"Success! Extracted {len(df)} teams and saved to '{out_path}'.")
 
     except ValueError:
         print("Error parsing the HTML table. The webpage format may have changed or the table is empty.")

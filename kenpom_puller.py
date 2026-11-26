@@ -13,7 +13,7 @@ session.headers.update({
 })
 
 # Your active KenPom login cookie is required to access the download link
-session.cookies.set("PHPSESSID", "ae7f710eff40f888146979b5b3c56989")
+session.cookies.set("PHPSESSID", os.environ.get("KENPOM_PHPSESSID", "ae7f710eff40f888146979b5b3c56989"))
 
 def clean_string_columns(df):
     """Standardizes string columns to prevent em/en-dashes from causing encoding issues."""
@@ -32,7 +32,7 @@ def force_numeric_columns(df):
             df[col] = pd.to_numeric(cleaned, errors='coerce').fillna(0)
     return df
 
-def scrape_and_save_to_excel(file_name="2026-27 Men's College Basketball Stats_code.xlsx"):
+def scrape_and_save_to_csv(out_path="data/raw/kenpom.csv"):
     # Target the direct CSV download link
     url = "https://kenpom.com/getdata.php?file=summary27"
 
@@ -59,17 +59,9 @@ def scrape_and_save_to_excel(file_name="2026-27 Men's College Basketball Stats_c
     df = clean_string_columns(df)
     df = force_numeric_columns(df)
 
-    # Save to Sheet4
-    sheet_name = "Kenpom Ratings"
-
-    if os.path.exists(file_name):
-        with pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
-            print(f"Data replaced in {file_name}")
-    else:
-        with pd.ExcelWriter(file_name, engine='openpyxl') as writer:
-            df.to_excel(writer, sheet_name=sheet_name, index=False)
-            print(f"Data saved to new file {file_name}")
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    df.to_csv(out_path, index=False)
+    print(f"Saved {len(df)} rows to {out_path}")
 
 if __name__ == "__main__":
-    scrape_and_save_to_excel()
+    scrape_and_save_to_csv()

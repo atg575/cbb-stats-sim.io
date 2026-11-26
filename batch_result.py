@@ -1,3 +1,4 @@
+import json
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -164,16 +165,17 @@ def scrape_completed_matchups(soup):
 
 
 def grade_games(url_date):
-    file_name = "Batch_Simulation_Results.xlsx"
-    
-    if not os.path.exists(file_name):
-        print(f"File '{file_name}' not found!")
+    sim_path = os.path.join("data", "sims", f"{url_date}.json")
+    if not os.path.isfile(sim_path):
+        print(f"Simulation file '{sim_path}' not found!")
         return
 
-    try:
-        df = pd.read_excel(file_name, sheet_name=url_date).fillna("")
-    except Exception as e:
-        print(f"Could not find sheet '{url_date}' in '{file_name}'.")
+    with open(sim_path, "r", encoding="utf-8") as f:
+        slate = json.load(f)
+
+    games = slate.get("games", [])
+    if not games:
+        print(f"No games found in {sim_path}.")
         return
 
     print(f"\nFetching actual scores from Warren Nolan for {url_date}...")
@@ -185,40 +187,17 @@ def grade_games(url_date):
     # Only scrape game boxes that are strictly FINAL
     completed_games = scrape_completed_matchups(soup)
 
-    if "Actual Score" not in df.columns:
-        df["Actual Score"] = ""
-    
-    models = [
-        ("Live Morey Win %", "Live Morey Score", "Live Morey"),
-        ("Consensus Morey Win %", "Consensus Morey Score", "Consensus Morey"),
-        ("Live Log5 Win %", "Live Log5 Score", "Live Log5"),
-        ("Consensus Log5 Win %", "Consensus Log5 Score", "Consensus Log5"),
-        ("Adj Eff Win %", "Adj Eff Score", "Adj Eff"),
-        ("Regular Win %", "Regular Score", "Regular")
-    ]
-    
-    for _, _, model_name in models:
-        if f"{model_name} Accuracy" not in df.columns:
-            df[f"{model_name} Accuracy"] = ""
-            df[f"{model_name} Certainty"] = ""
-        
-    # Iterate through the games (steps by 3 to account for Away, Home, and the Empty row)
-    for i in range(0, len(df), 3):
-        if i + 1 >= len(df):
-            break
-            
-        away_raw = str(df.at[i, "School"]).strip()
-        home_raw = str(df.at[i+1, "School"]).strip()
-        
-        if not away_raw or away_raw.lower() == 'nan':
+    graded_count = 0
+    for g in games:
+        away_raw = str(g.get("t1", "")).strip()
+        home_raw = str(g.get("t2", "")).strip()
+        if not away_raw or not home_raw:
             continue
 
         norm_away = normalize_name(away_raw)
         norm_home = normalize_name(home_raw)
 
-        # Look for a completed game box that contains BOTH teams from this matchup
-        act_away = None
-        act_home = None
+        act_away, act_home = None, None
         for game_box in completed_games:
             if norm_away in game_box and norm_home in game_box:
                 act_away = game_box[norm_away]
@@ -226,42 +205,40 @@ def grade_games(url_date):
                 break
 
         if act_away is None or act_home is None:
-            # Clear out any premature in-progress scores/grades if a previous run caught them
-            df.at[i, "Actual Score"] = ""
-            df.at[i+1, "Actual Score"] = ""
-            for _, _, model_name in models:
-                df.at[i, f"{model_name} Accuracy"] = ""
-                df.at[i, f"{model_name} Certainty"] = ""
+            g["s1"] = None
+            g["s2"] = None
+            for m_data in g.get("models", {}).values():
+                m_data.pop("acc", None)
+                m_data.pop("cert", None)
             print(f"Skipping {away_raw.title()} vs {home_raw.title()} - Game not Final yet.")
             continue
 
-        df.at[i, "Actual Score"] = act_away
-        df.at[i+1, "Actual Score"] = act_home
-        
-        # Calculate grades for every single model and append to the spreadsheet
-        for win_col, score_col, model_name in models:
+        g["s1"] = int(act_away)
+        g["s2"] = int(act_home)
+        graded_count += 1
+
+        for m_name, m_data in g.get("models", {}).items():
             try:
-                pred_away_score = float(df.at[i, score_col])
-                pred_home_score = float(df.at[i+1, score_col])
-                pred_away_win = float(df.at[i, win_col])
-                pred_home_win = float(df.at[i+1, win_col])
-                
-                accuracy = get_accuracy(pred_away_score, pred_home_score, act_away, act_home)
-                certainty = get_certainty(pred_away_win, pred_home_win)
-                
-                df.at[i, f"{model_name} Accuracy"] = accuracy
-                df.at[i, f"{model_name} Certainty"] = certainty
-            except (ValueError, TypeError):
-                continue 
+                pred_away_score = float(m_data["ps1"])
+                pred_home_score = float(m_data["ps2"])
+                pred_away_win = float(m_data["wp1"])
+                pred_home_win = float(m_data["wp2"])
+                if pred_away_win > 1.0:
+                    pred_away_win /= 100.0
+                if pred_home_win > 1.0:
+                    pred_home_win /= 100.0
 
-    # Clean up empty columns Pandas renamed to 'Unnamed: X' to preserve your visual spacing
-    df.columns = ["" if str(col).startswith("Unnamed:") else col for col in df.columns]
+                m_data["acc"] = get_accuracy(pred_away_score, pred_home_score, act_away, act_home)
+                m_data["cert"] = get_certainty(pred_away_win, pred_home_win)
+            except (KeyError, ValueError, TypeError):
+                continue
 
-    # Save the graded data back over the same daily sheet
-    with pd.ExcelWriter(file_name, mode='a', engine='openpyxl', if_sheet_exists='replace') as writer:
-        df.to_excel(writer, sheet_name=url_date, index=False)
-        
-    print(f"\nSuccessfully graded '{url_date}' and updated {file_name}!")
+    tmp_path = sim_path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump({"date": url_date, "games": games}, f, indent=2, ensure_ascii=False)
+    os.replace(tmp_path, sim_path)
+
+    print(f"\nSuccessfully graded {graded_count}/{len(games)} final games for '{url_date}' -> {sim_path}!")
 
 if __name__ == "__main__":
     grade_games(url_date)
