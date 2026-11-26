@@ -46,7 +46,7 @@ jobs:
       - name: 3. Run batch_sim.py for today's slate
         run: python3 batch_sim.py
 
-      - name: 4. Build docs/data.json (full sync: logos, polls, bracketology)
+      - name: 4. Build docs/data.json (full sync)
         run: python3 build_pages_site.py
 
       - name: 5. Commit & push updates to GitHub Pages
