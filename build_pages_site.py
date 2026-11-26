@@ -627,6 +627,7 @@ NON_TEAM_LABELS = {
     "midwest", "east", "south", "west", "first four", "opening round", "final four",
     "minneapolis", "fort worth", "indianapolis", "greenville", "tampa",
     "oklahoma city", "lexington", "birmingham", "raleigh",
+    "sec", "big ten", "big 12", "acc", "big east", "pac-12"
 }
 
 DIRECTIONAL_PREFIXES = [
