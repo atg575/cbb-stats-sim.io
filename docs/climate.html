@@ -135,6 +135,26 @@
     <!-- 4 Dynamic Climate Insight Cards -->
     <div id="climate-insights-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
+    <!-- TRENDING UP & TRENDING DOWN BY RATING SYSTEM -->
+    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Rank Momentum • Stock Watch</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">Teams Trending Up &amp; Trending Down</h3>
+          <p id="trend-window-desc" class="text-xs text-slate-400">
+            Biggest movers in AV Poll, Consensus Ratings, and Injury-Adjusted Live Ratings.
+          </p>
+        </div>
+        <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 gap-1 shrink-0">
+          <button id="trend-tab-av_poll" type="button" onclick="setTrendCategory('av_poll')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow">AV Poll</button>
+          <button id="trend-tab-consensus" type="button" onclick="setTrendCategory('consensus')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white">Consensus</button>
+          <button id="trend-tab-live" type="button" onclick="setTrendCategory('live')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white">Live</button>
+        </div>
+      </div>
+
+      <div id="trending-teams-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+    </section>
+
     <!-- Conference Power Chart & Injury Watchlist -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <div class="bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-800 shadow-lg flex flex-col justify-between">
@@ -298,7 +318,8 @@
 
     const STATE = {
       themeMode: localStorage.getItem('cbb_theme_mode') || 'auto',
-      userCoords: null
+      userCoords: null,
+      trendCategory: 'av_poll'
     };
 
     const MODEL_NAMES = ['Live Morey Z', 'Consensus Morey Z', 'Live Log5', 'Consensus Log5', 'Adj. Eff.', 'Base'];
@@ -875,6 +896,103 @@
       modal.classList.remove('flex');
     }
 
+    function ensureAVPollRanks() {
+      RAW_DATA.teams.forEach(t => {
+        if (typeof t.net_score !== 'number' || isNaN(t.net_score)) {
+          t.net_score = Number((((t.con_net || 0) + (t.live_net || 0)) / 2).toFixed(2));
+        }
+      });
+      [...RAW_DATA.teams].sort((a, b) => b.net_score - a.net_score).forEach((t, i) => { t.av_rk = i + 1; });
+    }
+
+    function setTrendCategory(cat) {
+      STATE.trendCategory = cat;
+      const styles = {
+        av_poll: 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-white shadow',
+        consensus: 'px-3 py-1.5 rounded-lg text-xs font-bold bg-orange-500 text-white shadow',
+        live: 'px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-500 text-white shadow'
+      };
+      const inactive = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-white';
+      ['av_poll', 'consensus', 'live'].forEach(k => {
+        const btn = document.getElementById('trend-tab-' + k);
+        if (btn) btn.className = k === cat ? styles[k] : inactive;
+      });
+      renderTrendingTeams();
+    }
+
+    function getTeamRankDelta(t, cat) {
+      // Positive delta = moved UP in rank (e.g., prev #25 -> now #18 = +7)
+      if (cat === 'av_poll') {
+        if (typeof t.av_rk_delta === 'number') return t.av_rk_delta;
+        if (typeof t.prev_av_rk === 'number') return t.prev_av_rk - t.av_rk;
+        return null;
+      }
+      if (cat === 'consensus') {
+        if (typeof t.con_rk_delta === 'number') return t.con_rk_delta;
+        if (typeof t.prev_con_rk === 'number') return t.prev_con_rk - t.con_rk;
+        return null;
+      }
+      if (typeof t.live_rk_delta === 'number') return t.live_rk_delta;
+      if (typeof t.prev_live_rk === 'number') return t.prev_live_rk - t.live_rk;
+      return null;
+    }
+
+    function renderTrendingTeams() {
+      const grid = document.getElementById('trending-teams-grid');
+      if (!grid || !RAW_DATA.teams.length) return;
+
+      const cat = STATE.trendCategory || 'av_poll';
+      const rkKey = cat === 'av_poll' ? 'av_rk' : (cat === 'consensus' ? 'con_rk' : 'live_rk');
+      const netKey = cat === 'av_poll' ? 'net_score' : (cat === 'consensus' ? 'con_net' : 'live_net');
+      const catLabel = cat === 'av_poll' ? 'AV Poll' : (cat === 'consensus' ? 'Consensus' : 'Live');
+
+      const withDelta = RAW_DATA.teams
+        .map(t => ({ t, delta: getTeamRankDelta(t, cat) }))
+        .filter(x => x.delta !== null && x.delta !== 0);
+
+      if (withDelta.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full rounded-xl bg-slate-950/70 border border-slate-800 p-4 text-xs text-slate-400 mono-num">
+            No rank-change history found in <code>data.json</code> for ${catLabel} yet. Add <code>av_rk_delta</code>, <code>con_rk_delta</code>, and <code>live_rk_delta</code> in <code>build_pages_site.py</code> to populate risers and fallers automatically.
+          </div>`;
+        return;
+      }
+
+      const risers = withDelta.filter(x => x.delta > 0).sort((a, b) => b.delta - a.delta || a.t[rkKey] - b.t[rkKey]).slice(0, 10);
+      const fallers = withDelta.filter(x => x.delta < 0).sort((a, b) => a.delta - b.delta || a.t[rkKey] - b.t[rkKey]).slice(0, 10);
+
+      const renderRow = ({ t, delta }, isUp) => `
+        <div onclick="openTeamModalByName('${escJs(t.team)}')" class="p-2.5 rounded-xl bg-slate-950/80 hover:bg-slate-800/70 border border-slate-800/80 cursor-pointer transition flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            ${t.logo ? `<span class="w-5 h-5 rounded bg-white/95 p-0.5 inline-flex items-center justify-center shrink-0"><img src="${esc(t.logo)}" alt="" class="w-full h-full object-contain" /></span>` : ''}
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-white truncate">${esc(t.team)} <span class="text-[11px] font-normal text-slate-400">(${esc(t.conf_short)})</span></div>
+              <div class="text-[11px] text-slate-400 mono-num">${catLabel} #${t[rkKey]} • Net ${t[netKey] >= 0 ? '+' : ''}${t[netKey].toFixed(2)}</div>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded font-mono font-bold text-xs shrink-0 ${isUp ? 'bg-emerald-500/15 text-emerald-400' : 'bg-rose-500/15 text-rose-400'}">
+            ${isUp ? '▲ +' + delta : '▼ ' + delta}
+          </span>
+        </div>`;
+
+      grid.innerHTML = `
+        <div class="bg-slate-950/50 rounded-xl p-4 border border-emerald-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">📈 Trending Up (${catLabel})</span>
+            <span class="text-[10px] font-mono text-slate-400">Top ${risers.length} Risers</span>
+          </div>
+          <div class="space-y-1.5 max-h-80 overflow-y-auto pr-1">${risers.map(x => renderRow(x, true)).join('')}</div>
+        </div>
+        <div class="bg-slate-950/50 rounded-xl p-4 border border-rose-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-rose-400">📉 Trending Down (${catLabel})</span>
+            <span class="text-[10px] font-mono text-slate-400">Top ${fallers.length} Fallers</span>
+          </div>
+          <div class="space-y-1.5 max-h-80 overflow-y-auto pr-1">${fallers.map(x => renderRow(x, false)).join('')}</div>
+        </div>
+      `;
+    }
+
     // -----------------------------------------------------------------------
     // BOOTSTRAP
     // -----------------------------------------------------------------------
@@ -883,7 +1001,9 @@
       fetchLastMainCommitDate();
       const ok = await loadDashboardData();
       if (!ok) return;
-
+      
+      ensureAVPollRanks();
+      renderTrendingTeams();
       renderClimateInsights();
       renderConferencePowerChart();
       renderInjuryWatchlist();

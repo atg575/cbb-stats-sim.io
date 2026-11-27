@@ -1551,6 +1551,45 @@ def extract_simulations_from_json_dir(sims_dir, match_team=None):
 
     return games, upcoming_games, {}, date_sheets
 
+def attach_rank_trends(teams, history_path="docs/rank_history.json", lookback_days=7):
+    from datetime import date
+    import json, os
+
+    today_str = get_cbb_slate_date().isoformat()
+    # Ensure AV Poll rank is computed identically to the frontend
+    sorted_av = sorted(teams, key=lambda t: t.get("net_score", (t.get("con_net", 0) + t.get("live_net", 0)) / 2), reverse=True)
+    for idx, t in enumerate(sorted_av, start=1):
+        t["av_rk"] = idx
+
+    history = {}
+    if os.path.exists(history_path):
+        with open(history_path, "r") as f:
+            history = json.load(f)
+
+    # Pick snapshot closest to `lookback_days` ago (or earliest prior date)
+    prior_dates = sorted(d for d in history.keys() if d < today_str)
+    ref_snap = {}
+    if prior_dates:
+        ref_date = prior_dates[-min(len(prior_dates), lookback_days)]
+        ref_snap = history[ref_date]
+
+    today_snap = {}
+    for t in teams:
+        name = t["team"]
+        today_snap[name] = {"av": t["av_rk"], "con": t["con_rk"], "live": t["live_rk"]}
+        prev = ref_snap.get(name)
+        if prev:
+            t["av_rk_delta"] = prev["av"] - t["av_rk"]
+            t["con_rk_delta"] = prev["con"] - t["con_rk"]
+            t["live_rk_delta"] = prev["live"] - t["live_rk"]
+
+    history[today_str] = today_snap
+    # Keep last 30 days so the file stays tiny
+    for old_d in sorted(history.keys())[:-30]:
+        del history[old_d]
+    with open(history_path, "w") as f:
+        json.dump(history, f)
+
 
 def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1597,6 +1636,7 @@ def main():
         print(f"[Build] Reading stats: {os.path.basename(stats_path)}")
         teams = extract_teams(stats_path)
     attach_team_logos(teams, prev_json.get("teams"))
+    attach_rank_trends(teams, history_path=os.path.join(base_dir, "docs", "rank_history.json"))
 
     games, upcoming_games, sheet_model_daily, date_sheets = [], [], {}, []
     if not args.sims and os.path.isdir(sims_json_dir) and any(f.endswith(".json") for f in os.listdir(sims_json_dir)):

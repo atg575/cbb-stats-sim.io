@@ -688,7 +688,8 @@
       if (STATE.rankingMode === 'av_poll') {
         return {
           rk: t.av_rk, alt_rk: t.con_rk, net: t.net_score, alt_net: t.con_net,
-          ortg: t.av_ortg, ortg_rk: t.av_ortg_rk, drtg: t.av_drtg, drtg_rk: t.av_drtg_rk, tempo: t.av_tempo
+          ortg: t.av_ortg, ortg_rk: t.av_ortg_rk, drtg: t.av_drtg, drtg_rk: t.av_drtg_rk,
+          tempo: Number(t.av_tempo) || 0
         };
       }
       const isCon = STATE.rankingMode === 'consensus';
@@ -701,7 +702,7 @@
         ortg_rk: isCon ? t.con_ortg_rk : t.live_ortg_rk,
         drtg: isCon ? t.con_drtg : t.live_drtg,
         drtg_rk: isCon ? t.con_drtg_rk : t.live_drtg_rk,
-        tempo: isCon ? t.con_tempo : t.live_tempo
+        tempo: Number(isCon ? t.con_tempo : t.live_tempo) || 0
       };
     }
 
@@ -990,6 +991,7 @@
       const oLbl = isAv ? 'AV ORtg' : (isCon ? 'Con ORtg' : 'Live ORtg');
       const dLbl = isAv ? 'AV DRtg' : (isCon ? 'Con DRtg' : 'Live DRtg');
       const altLbl = isCon ? 'Live Rk (Net)' : 'Con Rk (Net)';
+      const tempoLbl = isAv ? 'AV Tempo' : (isCon ? 'Con Tempo' : 'Live Tempo');
       const list = getFilteredSortedTeams();
       const sIcon = (c) => STATE.rkSortCol === c ? (STATE.rkSortAsc ? ' ▲' : ' ▼') : '';
 
@@ -1012,8 +1014,9 @@
           <th onclick="sortRankingsBy('em_rk')" class="py-3 px-2.5 cursor-pointer hover:text-white">${isCon ? 'EM Rk' : 'EM Inj Rk'}${sIcon('em_rk')}</th>
           <th onclick="sortRankingsBy('bpi_rk')" class="py-3 px-2.5 cursor-pointer hover:text-white">BPI Rk${sIcon('bpi_rk')}</th>
           <th onclick="sortRankingsBy('elo_rk')" class="py-3 px-2.5 cursor-pointer hover:text-white">ELO (Rk)${sIcon('elo_rk')}</th>
-          <th onclick="sortRankingsBy('inj_delta_pct')" class="py-3 px-2.5 cursor-pointer hover:text-white">Inj Δ%${sIcon('inj_delta_pct')}</th>
-        </tr>`;
+          <th onclick="sortRankingsBy('inj_delta_pct')" class="py-3 px-2.5 cursor-pointer hover:text-white">Inj Δ%${sIcon('inj_delta_pct')}</th>          
+          <th onclick="sortRankingsBy('mode_tempo')" class="py-3 px-2.5 cursor-pointer hover:text-white">${tempoLbl}${sIcon('mode_tempo')}</th>
+          </tr>`;
         body.innerHTML = list.map(t => {
           const netCls = t.mode_net >= 25 ? 'text-emerald-400 font-bold' : (t.mode_net >= 10 ? 'text-sky-300 font-semibold' : (t.mode_net < 0 ? 'text-rose-400' : 'text-slate-200'));
           const diff = isAv ? (t.con_rk - t.av_rk) : (isCon ? (t.con_rk - t.live_rk) : (t.live_rk - t.con_rk));
@@ -1033,6 +1036,7 @@
             <td class="py-2.5 px-2.5 mono-num text-slate-300">#${t.bpi_rk || '-'}</td>
             <td class="py-2.5 px-2.5 mono-num text-slate-300">${t.elo.toFixed(0)} <span class="text-[11px] text-slate-500">#${t.elo_rk || '-'}</span></td>
             <td class="py-2.5 px-2.5 mono-num ${t.inj_delta_pct < 0 ? 'text-rose-400 font-semibold' : 'text-slate-500'}">${t.inj_delta_pct.toFixed(2)}%</td>
+            <td class="py-2.5 px-2.5 mono-num text-slate-200">${t.mode_tempo.toFixed(1)}</td>
             </tr>`;
         }).join('');
       } else if (STATE.rkColPreset === 'fourfactors') {
@@ -1040,7 +1044,7 @@
           <th onclick="sortRankingsBy('mode_rk')" class="py-3 px-3 cursor-pointer hover:text-white">${rkLbl}${sIcon('mode_rk')}</th>
           <th onclick="sortRankingsBy('team')" class="py-3 px-3 cursor-pointer hover:text-white">Team${sIcon('team')}</th>
           <th onclick="sortRankingsBy('conf_short')" class="py-3 px-2.5 cursor-pointer hover:text-white">Conf${sIcon('conf_short')}</th>
-          <th onclick="sortRankingsBy('mode_tempo')" class="py-3 px-2.5 cursor-pointer hover:text-white">Tempo${sIcon('mode_tempo')}</th>
+          <th onclick="sortRankingsBy('mode_tempo')" class="py-3 px-2.5 cursor-pointer hover:text-white">${tempoLbl}${sIcon('mode_tempo')}</th>
           <th onclick="sortRankingsBy('efg_pct')" class="py-3 px-2.5 cursor-pointer hover:text-white">eFG%${sIcon('efg_pct')}</th>
           <th onclick="sortRankingsBy('tov_pct')" class="py-3 px-2.5 cursor-pointer hover:text-white">TOV%${sIcon('tov_pct')}</th>
           <th onclick="sortRankingsBy('orb_pct')" class="py-3 px-2.5 cursor-pointer hover:text-white">ORB%${sIcon('orb_pct')}</th>
@@ -1374,7 +1378,7 @@
         ${apRk ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-amber-300 border border-slate-700 mono-num">${apRk <= 25 ? 'AP #' + apRk : 'AP RV (#' + apRk + ')'}</span>` : ''}
         ${coachRk ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-purple-300 border border-slate-700 mono-num">${coachRk <= 25 ? 'Coaches #' + coachRk : 'Coaches RV (#' + coachRk + ')'}</span>` : ''}
         ${t.inj_delta_pct < 0 ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30 mono-num">Injury Δ ${t.inj_delta_pct.toFixed(2)}%</span>` : ''}
-      `;
+        `;
 
       const teamGames = RAW_DATA.games.filter(g => g.t1.toLowerCase() === t.team.toLowerCase() || g.t2.toLowerCase() === t.team.toLowerCase());
 

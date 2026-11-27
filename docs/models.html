@@ -295,6 +295,32 @@
       </div>
     </div>
 
+    <!-- TODAY'S COMPLETED GAMES (ALL 6 MODELS) -->
+    <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-orange-400">Daily Slate Results • All 6 Models</span>
+          <h3 class="text-base sm:text-lg font-extrabold text-white">Today's Completed Games</h3>
+          <p class="text-xs text-slate-400">
+            Final scores alongside every model's predicted score, win probability, confidence tier, and outcome grade.
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="today-completed-date-select" onchange="renderTodayCompletedGames()" class="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 text-xs text-white font-mono focus:outline-none focus:border-orange-500"></select>
+          <span id="today-completed-badge" class="text-xs font-mono px-2.5 py-1 rounded bg-slate-950 text-orange-300 border border-slate-800">
+            Loading...
+          </span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto max-h-[520px] rounded-xl border border-slate-800">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead id="today-completed-thead" class="bg-slate-950 sticky top-0 z-10 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800"></thead>
+          <tbody id="today-completed-tbody" class="divide-y divide-slate-800/60"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- TODAY'S UNFINISHED GAME PREDICTIONS -->
     <section class="bg-slate-900 rounded-2xl p-5 border border-slate-800 shadow-xl space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
@@ -732,6 +758,7 @@
       renderModelDailyTrendChart(cat);
       renderPerformanceMatrix(perf);
       renderGameLogTable();
+      renderTodayCompletedGames();
       renderTodayPredictions();
     }
 
@@ -935,6 +962,120 @@
           }
         }
       });
+    }
+
+    function renderTodayCompletedGames() {
+      const thead = document.getElementById('today-completed-thead');
+      const tbody = document.getElementById('today-completed-tbody');
+      const badge = document.getElementById('today-completed-badge');
+      const dateSel = document.getElementById('today-completed-date-select');
+      if (!thead || !tbody || !badge || !dateSel) return;
+
+      const todayKey = RAW_DATA.build_date || new Date().toLocaleDateString('en-CA');
+
+      // Populate date selector once (defaults to todayKey if graded games exist, else most recent graded date)
+      if (!dateSel.dataset.initialized) {
+        const datesDesc = [...SORTED_DATES].reverse();
+        const hasToday = datesDesc.some(d => d.startsWith(todayKey));
+        let opts = hasToday ? '' : `<option value="${esc(todayKey)}">${esc(todayKey)} (Today • 0 Graded)</option>`;
+        opts += datesDesc.map(d => `<option value="${esc(d)}">${esc(d)}${d.startsWith(todayKey) ? ' (Today)' : ''}</option>`).join('');
+        dateSel.innerHTML = opts;
+        dateSel.value = hasToday ? datesDesc.find(d => d.startsWith(todayKey)) : (datesDesc[0] || todayKey);
+        dateSel.dataset.initialized = '1';
+      }
+
+      const activeDate = dateSel.value || todayKey;
+      const dayGames = RAW_DATA.games.filter(g => String(g.d || '').startsWith(activeDate));
+      const teamMap = new Map((RAW_DATA.teams || []).map(t => [t.team.toLowerCase(), t]));
+
+      badge.textContent = `${dayGames.length} Completed Game${dayGames.length === 1 ? '' : 's'} • ${activeDate}`;
+
+      thead.innerHTML = `
+        <tr>
+          <th class="py-2.5 px-3 min-w-[210px]">Game &amp; Final Score</th>
+          ${MODEL_NAMES.map(mName => `
+            <th class="py-2.5 px-2.5 min-w-[145px]">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${MODEL_COLORS[mName]}"></span>
+                <span class="text-slate-200">${esc(mName)}</span>
+              </div>
+              <div class="text-[9px] font-normal text-slate-500 mt-0.5">Pick • Conf % • Grade</div>
+            </th>
+          `).join('')}
+        </tr>
+      `;
+
+      if (dayGames.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="${MODEL_NAMES.length + 1}" class="p-5 text-center text-xs text-slate-400 mono-num">
+              No completed games have been graded yet for ${esc(activeDate)}. Use the date dropdown above to inspect the most recent graded slate.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      const logoTag = (name) => {
+        const tm = teamMap.get(String(name || '').toLowerCase());
+        if (!tm || !tm.logo) return '';
+        return `<img src="${esc(tm.logo)}" alt="" class="w-4 h-4 rounded bg-white/95 p-0.5 object-contain shrink-0" />`;
+      };
+
+      const gradeCls = (acc) => {
+        if (acc === 'SUPER ALL') return 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+        if (acc === 'ALL') return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+        if (acc === 'TEAM AND DIFF') return 'bg-sky-500/20 text-sky-300 border-sky-500/40';
+        if (acc === 'TEAM') return 'bg-teal-500/20 text-teal-300 border-teal-500/40';
+        if (acc === 'TOTAL') return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+        return 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+      };
+
+      tbody.innerHTML = dayGames.map(g => {
+        const t1Won = g.s1 > g.s2;
+        const cells = MODEL_NAMES.map(mName => {
+          const m = g.m && g.m[mName];
+          if (!m) return `<td class="py-2.5 px-2.5 text-slate-500 mono-num">—</td>`;
+          const [wp1, wp2, ps1, ps2, acc, cert] = m;
+          const pickTeam = wp1 >= wp2 ? g.t1 : g.t2;
+          const pickWp = Math.max(wp1, wp2);
+          return `
+            <td class="py-2.5 px-2.5 align-top mono-num">
+              <div class="font-bold text-white truncate max-w-[140px]" title="${esc(pickTeam)} (${ps1}-${ps2})">${esc(pickTeam)}</div>
+              <div class="text-[11px] text-slate-400">${ps1}-${ps2} • <span class="text-orange-300 font-semibold">${pickWp.toFixed(1)}%</span> <span class="text-slate-500">(${esc(cert)})</span></div>
+              <div class="mt-1">
+                <span class="inline-block px-1.5 py-0.5 rounded border text-[10px] font-bold ${gradeCls(acc)}">${esc(acc)}</span>
+              </div>
+            </td>
+          `;
+        }).join('');
+
+        return `
+          <tr class="hover:bg-slate-800/60 transition">
+            <td class="py-2.5 px-3 align-top">
+              <div class="space-y-1">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    ${logoTag(g.t1)}
+                    <span class="${t1Won ? 'font-extrabold text-white' : 'text-slate-300'} truncate">${esc(g.t1)}</span>
+                  </div>
+                  <span class="mono-num ${t1Won ? 'font-extrabold text-emerald-400' : 'text-slate-400'}">${g.s1}</span>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 min-w-0">
+                    ${logoTag(g.t2)}
+                    <span class="${!t1Won ? 'font-extrabold text-white' : 'text-slate-300'} truncate">${esc(g.t2)}</span>
+                  </div>
+                  <span class="mono-num ${!t1Won ? 'font-extrabold text-emerald-400' : 'text-slate-400'}">${g.s2}</span>
+                </div>
+                <div class="text-[10px] text-slate-500 mono-num pt-0.5">
+                  Margin: ${Math.abs(g.s1 - g.s2)} • Tot: ${g.s1 + g.s2}
+                </div>
+              </div>
+            </td>
+            ${cells}
+          </tr>
+        `;
+      }).join('');
     }
 
     function renderTodayPredictions() {
