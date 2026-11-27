@@ -1689,7 +1689,7 @@ def main():
     )
 
     # Quick check that all 4 site pages exist in docs/
-    expected_pages = ["index.html", "models.html", "climate.html", "bracket.html"]
+    expected_pages = ["index.html", "ratings.html", "models.html", "climate.html", "bracket.html"]
     missing = [p for p in expected_pages if not os.path.isfile(os.path.join(out_dir, p))]
     if missing:
         print(f"[Build] Note: Missing HTML pages in {out_dir}: {', '.join(missing)}")

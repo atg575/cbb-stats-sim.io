@@ -4,6 +4,7 @@ on:
   schedule:
     # Every hour from 12:00 PM EST (17:00 UTC) through 2:00 AM EST (07:00 UTC)
     - cron: '0 17-23,0-7 * * *'
+      timezone: 'America/New_York'
   workflow_dispatch:
 
 permissions:

@@ -89,16 +89,19 @@
 
       <nav class="flex flex-wrap items-center bg-slate-800/90 p-1 rounded-xl border border-slate-700/80 gap-1" aria-label="Main Navigation">
         <a href="index.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
-          1. Power Rankings
+          Home
+        </a>
+        <a href="ratings.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          Power Ratings and Rankings
         </a>
         <a href="models.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
-          2. Model Performance
+          Model Performance
         </a>
-        <a href="climate.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-orange-500 text-white shadow">
-          3. Climate &amp; Matchup Lab
+        <a href="climate.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
+          Climate &amp; Matchup Lab
         </a>
-        <a href="bracket.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-300 hover:text-white">
-          4. 2027 Bracketology
+        <a href="bracket.html" class="px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-orange-500 text-white shadow">
+          2027 Bracketology
         </a>
       </nav>
 
@@ -515,9 +518,9 @@
             The <strong>${esc(c1.conf)}</strong> leads all leagues in average Consensus Net Rating (<span class="mono-num text-emerald-400">${c1.avgCon >= 0 ? '+' : ''}${c1.avgCon.toFixed(2)}</span> across ${c1.count} teams, ${c1.top25} in Top 25), followed by the <strong>${esc(c2.conf)}</strong> (<span class="mono-num">${c2.avgCon >= 0 ? '+' : ''}${c2.avgCon.toFixed(2)}</span>) and <strong>${esc(c3.conf)}</strong> (<span class="mono-num">${c3.avgCon >= 0 ? '+' : ''}${c3.avgCon.toFixed(2)}</span>).
           </p>
           <div class="pt-2 flex flex-wrap gap-2">
-            <a href="index.html?conf=${encodeURIComponent(c1.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c1.conf)} →</a>
-            <a href="index.html?conf=${encodeURIComponent(c2.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c2.conf)} →</a>
-            <a href="index.html?conf=${encodeURIComponent(c3.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c3.conf)} →</a>
+            <a href="ratings.html?conf=${encodeURIComponent(c1.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c1.conf)} →</a>
+            <a href="ratings.html?conf=${encodeURIComponent(c2.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c2.conf)} →</a>
+            <a href="ratings.html?conf=${encodeURIComponent(c3.conf)}" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-300">View ${esc(c3.conf)} →</a>
           </div>
         </div>
 
@@ -1001,7 +1004,7 @@
       fetchLastMainCommitDate();
       const ok = await loadDashboardData();
       if (!ok) return;
-      
+
       ensureAVPollRanks();
       renderTrendingTeams();
       renderClimateInsights();
